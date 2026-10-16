@@ -11,5 +11,11 @@
   "mem0": {
     "userId": "lbruton",
     "project": "whoseonfirst"
+  },
+  "infisical": {
+    "host": "https://infisical.lbruton.cc",
+    "projectId": "a63ee7c9-adfb-48e8-8541-6a50cbc76d89",
+    "defaultEnv": "dev",
+    "secretPath": "/"
   }
 }
