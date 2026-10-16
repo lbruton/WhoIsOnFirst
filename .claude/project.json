@@ -3,6 +3,9 @@
   "tag": "whoseonfirst",
   "issuePrefix": "WOF",
   "issueTag": "whoseonfirst",
+  "kind": "code",
+  "harnesses": { "claude": true, "codex": true },
+  "skills": { "profiles": ["code-core"], "extra": [], "exclude": [] },
   "cachePrefix": "whoseonfirst",
   "plane": {
     "workspace": "lbruton",
