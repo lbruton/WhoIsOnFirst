@@ -1,4 +1,4 @@
-# System Architecture - WhoseOnFirst
+# System Architecture - WhoIsOnFirst
 
 **Version:** 1.0  
 **Last Updated:** November 4, 2025  
@@ -8,7 +8,7 @@
 
 ## Architecture Overview
 
-WhoseOnFirst is designed as a monolithic application with a clear separation of concerns, allowing for future microservices decomposition if needed. The system follows a layered architecture pattern with dependency injection for testability and maintainability.
+WhoIsOnFirst is designed as a monolithic application with a clear separation of concerns, allowing for future microservices decomposition if needed. The system follows a layered architecture pattern with dependency injection for testability and maintainability.
 
 ### High-Level Architecture
 
@@ -741,7 +741,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app with lifespan
 app = FastAPI(
-    title="WhoseOnFirst",
+    title="WhoIsOnFirst",
     description="On-Call Team SMS Notifier",
     version="1.0.0",
     lifespan=lifespan
@@ -778,7 +778,7 @@ app.include_router(notifications_router)
 │              ▼                      │
 │  ┌───────────────────────────────┐ │
 │  │   SQLite Database Files       │ │
-│  │   - whoseonfirst.db           │ │
+│  │   - whoisonfirst.db           │ │
 │  │   - jobs.db (scheduler)       │ │
 │  └───────────────────────────────┘ │
 │              │                      │
@@ -788,9 +788,9 @@ app.include_router(notifications_router)
               ▼
    ┌─────────────────────┐
    │  Host Filesystem    │
-   │  /opt/whoseonfirst/ │
+   │  /opt/whoisonfirst/ │
    │  └── data/          │
-   │      ├── whoseonfirst.db
+   │      ├── whoisonfirst.db
    │      ├── jobs.db     │
    │      └── backups/    │
    └─────────────────────┘
@@ -828,7 +828,7 @@ app.include_router(notifications_router)
 │  │              │                          │            │
 │  │              ▼                          │            │
 │  │  ┌─────────────────────────────────┐   │            │
-│  │  │  WhoseOnFirst Container         │   │            │
+│  │  │  WhoIsOnFirst Container         │   │            │
 │  │  │  (Port 8000)                    │   │            │
 │  │  └─────────────────────────────────┘   │            │
 │  │                                         │            │
@@ -906,7 +906,7 @@ User                    FastAPI              Database
 
 ```python
 # .env file (never committed)
-DATABASE_URL=sqlite:///./whoseonfirst.db
+DATABASE_URL=sqlite:///./whoisonfirst.db
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_PHONE_NUMBER=+15551234567
@@ -994,7 +994,7 @@ Application
 ┌────────────────┐
 │  Log Files     │
 │  /var/log/     │
-│  whoseonfirst/ │
+│  whoisonfirst/ │
 └────────────────┘
     │
     │ (Optional: Phase 2+)
@@ -1013,18 +1013,18 @@ from prometheus_client import Counter, Histogram, Gauge
 
 # Define metrics
 sms_sent_total = Counter(
-    'whoseonfirst_sms_sent_total',
+    'whoisonfirst_sms_sent_total',
     'Total SMS messages sent',
     ['status']
 )
 
 notification_duration = Histogram(
-    'whoseonfirst_notification_duration_seconds',
+    'whoisonfirst_notification_duration_seconds',
     'Time to send notification'
 )
 
 active_team_members = Gauge(
-    'whoseonfirst_active_team_members',
+    'whoisonfirst_active_team_members',
     'Number of active team members'
 )
 
@@ -1044,23 +1044,23 @@ with notification_duration.time():
 
 ```bash
 #!/bin/bash
-# /opt/whoseonfirst/backup.sh
+# /opt/whoisonfirst/backup.sh
 
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/whoseonfirst/backups"
-DB_FILE="/opt/whoseonfirst/data/whoseonfirst.db"
+BACKUP_DIR="/opt/whoisonfirst/backups"
+DB_FILE="/opt/whoisonfirst/data/whoisonfirst.db"
 
 # Create backup
-sqlite3 $DB_FILE ".backup '$BACKUP_DIR/whoseonfirst_$DATE.db'"
+sqlite3 $DB_FILE ".backup '$BACKUP_DIR/whoisonfirst_$DATE.db'"
 
 # Compress
-gzip "$BACKUP_DIR/whoseonfirst_$DATE.db"
+gzip "$BACKUP_DIR/whoisonfirst_$DATE.db"
 
 # Delete backups older than 30 days
 find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
 
 # Copy to remote storage (optional)
-# rsync -avz $BACKUP_DIR remote-server:/backups/whoseonfirst/
+# rsync -avz $BACKUP_DIR remote-server:/backups/whoisonfirst/
 ```
 
 #### Recovery Procedures
@@ -1069,15 +1069,15 @@ find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
 
 ```bash
 # Stop application
-podman stop whoseonfirst
+podman stop whoisonfirst
 
 # Restore from latest backup
-cp /opt/whoseonfirst/backups/whoseonfirst_latest.db.gz /tmp/
-gunzip /tmp/whoseonfirst_latest.db.gz
-mv /tmp/whoseonfirst_latest.db /opt/whoseonfirst/data/whoseonfirst.db
+cp /opt/whoisonfirst/backups/whoisonfirst_latest.db.gz /tmp/
+gunzip /tmp/whoisonfirst_latest.db.gz
+mv /tmp/whoisonfirst_latest.db /opt/whoisonfirst/data/whoisonfirst.db
 
 # Restart application
-podman start whoseonfirst
+podman start whoisonfirst
 
 # Verify schedule integrity
 curl http://localhost:8000/health

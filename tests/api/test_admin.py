@@ -49,3 +49,31 @@ class TestExportImportRoundTrip:
 
         assert response.status_code == 400
         assert "invalid json" in response.json()["detail"].lower()
+
+
+class TestBackupFilenames:
+    """WOF-37: exports use the new slug; backups named under the old slug still restore."""
+
+    def test_export_filename_uses_new_slug(self, client: TestClient):
+        response = client.get("/api/v1/admin/export")
+
+        assert response.status_code == 200
+        disposition = response.headers["content-disposition"]
+        assert 'filename="whoisonfirst-' in disposition
+        assert disposition.endswith('.stvault"')
+
+    def test_import_accepts_legacy_whoseonfirst_filename(
+        self, client: TestClient, db_session: Session
+    ):
+        """Backups taken before the rename (whoseonfirst-*.stvault) must still import."""
+        db_session.add(TeamMember(name="Legacy Lou", phone="+15557770002", is_active=True))
+        db_session.commit()
+        backup_bytes = client.get("/api/v1/admin/export").content
+
+        response = client.post(
+            "/api/v1/admin/import",
+            files={"file": ("whoseonfirst-2026-10-18.stvault", backup_bytes, "application/json")},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["imported"]["team_members"] >= 1

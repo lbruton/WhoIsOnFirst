@@ -1,9 +1,9 @@
 ---
 tags:
   - runbook
-  - whoseonfirst
+  - whoisonfirst
 doc_type: runbook
-project: whoseonfirst
+project: whoisonfirst
 created: "2026-04-22"
 updated: "2026-04-22"
 ---
@@ -14,9 +14,9 @@ updated: "2026-04-22"
 
 ## Prerequisites
 
-- Dev container running — verify with `docker ps --filter name=whoseonfirst-dev`
+- Dev container running — verify with `docker ps --filter name=whoisonfirst-dev`
 - Production container still running on Portainer (this test does not affect it)
-- Access to [[Infisical]] WhoseOnFirst/prod secrets (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`)
+- Access to [[Infisical]] WhoIsOnFirst/prod secrets (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`)
 - Your personal phone number ready in E.164 format (`+1XXXXXXXXXX`)
 
 ## Pre-Test Safety Checklist

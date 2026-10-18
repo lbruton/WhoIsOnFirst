@@ -1,6 +1,6 @@
 # Code Patterns Reference
 
-This document contains detailed code examples and implementation patterns for WhoseOnFirst. Reference this when implementing features, but keep CLAUDE.md lean.
+This document contains detailed code examples and implementation patterns for WhoIsOnFirst. Reference this when implementing features, but keep CLAUDE.md lean.
 
 ## Table of Contents
 
@@ -370,7 +370,7 @@ async def lifespan(app: FastAPI):
     global scheduler
     
     # Startup
-    database_url = os.getenv('DATABASE_URL', 'sqlite:///./data/whoseonfirst.db')
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///./data/whoisonfirst.db')
     scheduler = init_scheduler(database_url)
     start_scheduler(scheduler)
     
@@ -498,7 +498,7 @@ class SMSService:
         
         # Keep under 160 characters for single SMS
         message = (
-            f"WhoseOnFirst: Your {duration}h on-call shift has started.\n"
+            f"WhoIsOnFirst: Your {duration}h on-call shift has started.\n"
             f"Until {end_time}. Questions? Contact admin."
         )
         
@@ -567,7 +567,7 @@ from contextlib import contextmanager
 import os
 
 # Database URL from environment
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./data/whoseonfirst.db')
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./data/whoisonfirst.db')
 
 # Create engine
 engine = create_engine(

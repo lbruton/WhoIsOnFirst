@@ -1,5 +1,5 @@
 # ============================================
-# WhoseOnFirst - Mac Local Development Configuration
+# WhoIsOnFirst - Mac Local Development Configuration
 # ============================================
 # This is the LOCAL DEV container for build-and-test work on your Mac.
 # It is NOT the production deployment — production runs on Portainer
@@ -14,7 +14,7 @@
 #   2. NO `env_file: .env` — the shared `.env` file holds LIVE production
 #      Twilio credentials and must never be read by this container.
 #      All env vars are set explicitly below.
-#   3. Bind-mounted `~/whoseonfirst-dev-data/` directory (absolute path
+#   3. Bind-mounted `~/whoisonfirst-dev-data/` directory (absolute path
 #      under $HOME, NOT relative to this compose file) — survives Docker
 #      Desktop prune AND survives `git worktree remove` while the
 #      container is alive (the old `./data/dev` form did not).
@@ -32,24 +32,24 @@
 # ============================================
 
 services:
-  whoseonfirst:
+  whoisonfirst:
     build:
       context: .
       dockerfile: Dockerfile
-    image: whoseonfirst:dev
-    container_name: whoseonfirst-dev
+    image: whoisonfirst:dev
+    container_name: whoisonfirst-dev
     restart: unless-stopped
 
     # External port 8900 — matches production port for URL consistency.
     # Production runs on a different host (192.168.1.81), so there's no
-    # actual conflict. NPM reverse proxy points whoseonfirstdev.lbruton.cc
-    # at 192.168.1.99:8900 (this Mac) for HTTPS browser testing.
+    # actual conflict. Browse http://localhost:8900. The hosted dev stack
+    # (WOF-42) runs docker-compose.yml on the Portainer VM instead.
     ports:
       - "8900:8000"
 
     # Bind-mounted dev database directory at an ABSOLUTE host path
-    # (`${HOME}/whoseonfirst-dev-data/`). Wipe anytime with
-    # `rm -rf ~/whoseonfirst-dev-data/` without losing anything
+    # (`${HOME}/whoisonfirst-dev-data/`). Wipe anytime with
+    # `rm -rf ~/whoisonfirst-dev-data/` without losing anything
     # important. First boot auto-seeds the admin user
     # (`admin` / `Admin123!`) via src/main.py — no production data
     # import required to test auth.
@@ -74,17 +74,17 @@ services:
     #     Docker Desktop prune or restart silently wiped it, requiring
     #     a 15-step manual recovery runbook (see MEMORY.md).
     #   - Bind mount enables direct
-    #     `sqlite3 ~/whoseonfirst-dev-data/whoseonfirst.db` inspection
+    #     `sqlite3 ~/whoisonfirst-dev-data/whoisonfirst.db` inspection
     #     from the host for WHO-45 screenshot data setup.
-    #   - Recovery from corruption: `rm -rf ~/whoseonfirst-dev-data &&
+    #   - Recovery from corruption: `rm -rf ~/whoisonfirst-dev-data &&
     #     docker-compose -f docker-compose.dev.yml restart`.
     # Revisit if corruption starts happening in practice.
     #
-    # First-time setup: `mkdir -p ~/whoseonfirst-dev-data` before the
+    # First-time setup: `mkdir -p ~/whoisonfirst-dev-data` before the
     # first `docker-compose up` (Docker will create it otherwise but
     # with root ownership on some setups).
     volumes:
-      - "${HOME:?HOME must be set for the dev bind mount}/whoseonfirst-dev-data:/app/data"
+      - "${HOME:?HOME must be set for the dev bind mount}/whoisonfirst-dev-data:/app/data"
 
     # Environment — all values set explicitly, NOTHING loaded from the
     # production `.env` file. The `env_file: - .env` directive has been
@@ -100,7 +100,7 @@ services:
     #   - .env.dev
     environment:
       # Database
-      - DATABASE_URL=sqlite:///./data/whoseonfirst.db
+      - DATABASE_URL=sqlite:///./data/whoisonfirst.db
 
       # Web server
       - HOST=0.0.0.0
@@ -113,6 +113,10 @@ services:
       # notification paths will log `[MOCK] Sending SMS...` instead of
       # calling Twilio. Do NOT remove this line without a spec.
       - SMS_MOCK_MODE=true
+
+      # Second rail (WOF-42): DEV badge in the UI, and if SMS_MOCK_MODE is
+      # ever flipped off, sends are blocked unless SMS_ALLOWED_NUMBERS is set.
+      - APP_ENV=dev
 
       # Twilio placeholders — intentionally fake. Defense in depth:
       # SMS_MOCK_MODE=true above short-circuits Twilio client init entirely,
@@ -153,10 +157,10 @@ services:
 
     # Isolated network
     networks:
-      - whoseonfirst-dev-network
+      - whoisonfirst-dev-network
 
     stop_grace_period: 30s
 
 networks:
-  whoseonfirst-dev-network:
+  whoisonfirst-dev-network:
     driver: bridge

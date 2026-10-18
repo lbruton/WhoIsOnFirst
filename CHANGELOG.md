@@ -1,9 +1,32 @@
 # Changelog
 
-All notable changes to the WhoseOnFirst project will be documented in this file.
+All notable changes to the WhoIsOnFirst project (formerly WhoseOnFirst) will be documented in this file.
+Entries before the rename keep the old name as written.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [Unreleased]
+
+### Changed
+
+- **Renamed WhoseOnFirst → WhoIsOnFirst** (WOF-37, epic WOF-36) — UI, page titles, PWA manifest, logo text, SMS defaults, the shift-start fallback and the Monday weekly-schedule header all read "WhoIsOnFirst". Slug `whoisonfirst` for the Docker container name and user, DB file (`whoisonfirst.db`), export filenames and the `/health` service name. The saved SMS template in an existing database is not changed; edit it on the Notifications page.
+- **DB file renamed in place on boot** — `scripts/migrate-db-filename.sh` (run by the entrypoint before migrations) moves `whoseonfirst.db` and its `-wal`/`-shm` files to `whoisonfirst.db`; if both exist it leaves both and warns. Container UID/GID pinned to 997/998 so existing volume files keep their owner.
+- **`docker-compose.yml` runs twice on one host** — `CONTAINER_NAME` and `HOST_PORT` are stack-overridable (defaults `whoisonfirst` / `8900`) for the hosted dev stack (WOF-42).
+
+### Added
+
+- **SMS recipient allowlist** (WOF-42) — `SMS_ALLOWED_NUMBERS` limits every send (scheduled, manual, weekly) to listed numbers. With `APP_ENV=dev` and live Twilio, an empty allowlist blocks all sends. Blocked sends never call Twilio, log a masked number and record one failed row without retries.
+- **DEV badge** — `GET /api/v1/version` now returns `environment`; the sidebar shows a DEV badge and prefixes the tab title when it is `dev`.
+
+### Unchanged on purpose
+
+- The PBKDF2 salt bytes (`_LEGACY_SALT`, still `whoseonfirst-…-v1`) so stored Twilio credentials keep decrypting; legacy `whoseonfirst-*.stvault` backups still import; `wof` localStorage keys keep user preferences.
+- The compose data-volume key stays `whoseonfirst-data`. The real volume is `<stack>_<key>`, so renaming the key would make a redeploy of the existing prod stack mount a new empty volume and auto-seed. The compose service key stays `whoseonfirst` too: renaming it would orphan the running container, which keeps port 8900. Both guarded by `tests/test_compose_config.py`.
+- The DB-file rename is skipped when `DATABASE_URL` points anywhere other than `whoisonfirst.db` (for example a deployment that pins the legacy path), so such a deployment keeps using its file.
+- Logs show only the last 4 digits of phone numbers on every send path.
 
 ---
 

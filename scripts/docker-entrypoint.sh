@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-# WhoseOnFirst - Docker Entrypoint Script
+# WhoIsOnFirst - Docker Entrypoint Script
 # ============================================
 # Simple entrypoint that checks write access
 # and provides helpful error messages
@@ -9,9 +9,9 @@
 set -e
 
 DATA_DIR="/app/data"
-DB_FILE="$DATA_DIR/whoseonfirst.db"
+DB_FILE="$DATA_DIR/whoisonfirst.db"
 
-echo "WhoseOnFirst starting..."
+echo "WhoIsOnFirst starting..."
 echo "Running as UID: $(id -u), GID: $(id -g)"
 
 # Check if data directory is writable
@@ -21,7 +21,7 @@ if [ ! -w "$DATA_DIR" ]; then
     echo ""
     echo "Fix options:"
     echo "  Docker/Podman:"
-    echo "    docker exec -u 0 <container> chown -R whoseonfirst:root /app/data"
+    echo "    docker exec -u 0 <container> chown -R whoisonfirst:root /app/data"
     echo "    docker exec -u 0 <container> chmod -R g+rwX /app/data"
     echo ""
     echo "  OpenShift (run as init container):"
@@ -29,6 +29,10 @@ if [ ! -w "$DATA_DIR" ]; then
     echo ""
     exit 1
 fi
+
+# One-time rename of a pre-WOF-37 database (whoseonfirst.db -> whoisonfirst.db).
+# Must run before migrations and the app's first-boot auto-seed.
+/app/migrate-db-filename.sh "$DATA_DIR"
 
 # Check if database file is writable (if it exists)
 if [ -f "$DB_FILE" ] && [ ! -w "$DB_FILE" ]; then
@@ -47,5 +51,5 @@ echo "Running database migrations..."
 python -m alembic upgrade head
 
 # Start the application
-echo "Starting WhoseOnFirst application..."
+echo "Starting WhoIsOnFirst application..."
 exec python -m uvicorn src.main:app --host 0.0.0.0 --port 8000

@@ -1,5 +1,5 @@
 """
-SQLAlchemy models for WhoseOnFirst.
+SQLAlchemy models for WhoIsOnFirst.
 
 This module exports all database models and configuration.
 """

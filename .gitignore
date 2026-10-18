@@ -184,7 +184,7 @@ yarn-error.log
 # Deployment packages (contains secrets and database)
 deployment-packages/
 offline-installer/
-whoseonfirst-*.tar.gz
+whoisonfirst-*.tar.gz
 
 # Coverage reports
 .coverage

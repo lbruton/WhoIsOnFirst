@@ -1,4 +1,4 @@
-# Contributing to WhoseOnFirst
+# Contributing to WhoIsOnFirst
 
 Thanks for your interest in contributing!
 
@@ -15,7 +15,7 @@ Thanks for your interest in contributing!
 ```bash
 # Clone and set up
 git clone <your-fork-url>
-cd WhoseOnFirst
+cd WhoIsOnFirst
 
 # Docker dev environment (recommended)
 docker-compose -f docker-compose.dev.yml up -d

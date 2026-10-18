@@ -1,5 +1,5 @@
 """
-Shift model for WhoseOnFirst.
+Shift model for WhoIsOnFirst.
 
 Represents a shift configuration (e.g., Monday 24h, Tuesday-Wednesday 48h).
 """

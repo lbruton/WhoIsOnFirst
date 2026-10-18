@@ -37,7 +37,7 @@ def export_backup(
     data = service.export_all()
     payload = json.dumps(data, indent=2, ensure_ascii=False)
 
-    filename = f"whoseonfirst-{datetime.now().strftime('%Y-%m-%d')}.stvault"
+    filename = f"whoisonfirst-{datetime.now().strftime('%Y-%m-%d')}.stvault"
 
     return StreamingResponse(
         iter([payload]),

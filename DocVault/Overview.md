@@ -1,16 +1,16 @@
 ---
 tags: []
 doc_type: overview
-project: whoseonfirst
+project: whoisonfirst
 source: manual
-aliases: ["WhoseOnFirst Overview", "WhoseOnFirst"]
+aliases: ["WhoIsOnFirst Overview", "WhoIsOnFirst"]
 created: "2026-03-11"
 updated: "2026-06-09"
 ---
 
-# WhoseOnFirst
+# WhoIsOnFirst
 
-> **Public copy.** Deployment and infra details (hosts, IPs, ports) are in the private companion: `Devops/DocVault/Projects/WhoseOnFirst/Overview.md` (`vault-path private`).
+> **Public copy.** Deployment and infra details (hosts, IPs, ports) are in the private companion: `Devops/DocVault/Projects/WhoIsOnFirst/Overview.md` (`vault-path private`).
 
 Automated on-call rotation and SMS notification system. Manages team schedules, shift assignments, and real-time notifications via Twilio for coordinating who is on-call at any given time.
 
@@ -18,12 +18,12 @@ Automated on-call rotation and SMS notification system. Manages team schedules, 
 
 | Field | Value |
 |-------|-------|
-| Repo | [lbruton/WhoseOnFirst](https://github.com/lbruton/WhoseOnFirst) |
+| Repo | [lbruton/WhoIsOnFirst](https://github.com/lbruton/WhoIsOnFirst) |
 | Language | Python 3.12 (FastAPI backend), vanilla JavaScript frontend (Tabler.io) |
 | Branch | `dev` (default + PR target). `main` is production — auto-deploys via Portainer GitOps; both branches require PRs (direct push blocked) |
 | Version Lock | None (planned — WOF-5) |
 | Issues | [Plane](https://plane.lbruton.cc/lbruton/), prefix `WOF` |
-| Path | `/Volumes/DATA/GitHub/WhoseOnFirst/` |
+| Path | `/Volumes/DATA/GitHub/WhoIsOnFirst/` |
 
 ## Status
 
@@ -45,7 +45,7 @@ Runs as a Docker container on the [Portainer](/Volumes/DATA/GitHub/Devops/DocVau
 |-----------|--------|
 | Stack | [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md) ID 12, repo-based from `main` branch |
 | Port | 8900 (host) -> 8000 (container) |
-| Database | SQLite on [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoseonfirst_whoseonfirst-data` (228K) |
+| Database | SQLite on [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoseonfirst_whoseonfirst-data` (stack 12; `whoisonfirst_whoseonfirst-data` after the WOF-39 cutover — the volume key is pinned) (228K) |
 | Health check | `GET /health` (30s interval) |
 | Backups | [Backups](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md) stack pulls SQLite via `sqlite3 .backup` |
 
@@ -67,7 +67,7 @@ Runs as a Docker container on the [Portainer](/Volumes/DATA/GitHub/Devops/DocVau
 
 ### Corporate Deployment (Planned)
 
-In addition to the home Portainer deployment, WhoseOnFirst will be deployed at the corporate office:
+In addition to the home Portainer deployment, WhoIsOnFirst will be deployed at the corporate office:
 
 | Component | Detail |
 |-----------|--------|

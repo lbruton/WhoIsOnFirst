@@ -275,7 +275,7 @@ class TestSMSTemplateEndpoints:
 
     def test_template_with_multiline(self, client: TestClient):
         """Test template with line breaks."""
-        template = """WhoseOnFirst Alert
+        template = """WhoIsOnFirst Alert
 
 Hi {name}, you are on-call from {start_time} to {end_time}.
 

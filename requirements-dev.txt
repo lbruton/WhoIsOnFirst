@@ -1,4 +1,4 @@
-# WhoseOnFirst - Development Dependencies
+# WhoIsOnFirst - Development Dependencies
 # Install with: pip install -r requirements-dev.txt
 
 # Include production requirements
