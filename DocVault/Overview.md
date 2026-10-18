@@ -45,7 +45,7 @@ Runs as a Docker container on the [Portainer](/Volumes/DATA/GitHub/Devops/DocVau
 |-----------|--------|
 | Stack | [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md) ID 12, repo-based from `main` branch |
 | Port | 8900 (host) -> 8000 (container) |
-| Database | SQLite on [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoisonfirst_whoisonfirst-data` (228K) |
+| Database | SQLite on [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoseonfirst_whoseonfirst-data` (stack 12; `whoisonfirst_whoseonfirst-data` after the WOF-39 cutover — the volume key is pinned) (228K) |
 | Health check | `GET /health` (30s interval) |
 | Backups | [Backups](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md) stack pulls SQLite via `sqlite3 .backup` |
 

@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Renamed WhoseOnFirst → WhoIsOnFirst** (WOF-37, epic WOF-36) — UI, page titles, PWA manifest, logo text, SMS defaults, the shift-start fallback and the Monday weekly-schedule header all read "WhoIsOnFirst". Slug `whoisonfirst` for the Docker service/container/user, compose volume key, DB file (`whoisonfirst.db`), export filenames and the `/health` service name. The saved SMS template in an existing database is not changed; edit it on the Notifications page.
+- **Renamed WhoseOnFirst → WhoIsOnFirst** (WOF-37, epic WOF-36) — UI, page titles, PWA manifest, logo text, SMS defaults, the shift-start fallback and the Monday weekly-schedule header all read "WhoIsOnFirst". Slug `whoisonfirst` for the Docker service/container/user, DB file (`whoisonfirst.db`), export filenames and the `/health` service name. The saved SMS template in an existing database is not changed; edit it on the Notifications page.
 - **DB file renamed in place on boot** — `scripts/migrate-db-filename.sh` (run by the entrypoint before migrations) moves `whoseonfirst.db` and its `-wal`/`-shm` files to `whoisonfirst.db`; if both exist it leaves both and warns. Container UID/GID pinned to 997/998 so existing volume files keep their owner.
 - **`docker-compose.yml` runs twice on one host** — `CONTAINER_NAME` and `HOST_PORT` are stack-overridable (defaults `whoisonfirst` / `8900`) for the hosted dev stack (WOF-42).
 
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Unchanged on purpose
 
 - The PBKDF2 salt bytes (`_LEGACY_SALT`, still `whoseonfirst-…-v1`) so stored Twilio credentials keep decrypting; legacy `whoseonfirst-*.stvault` backups still import; `wof` localStorage keys keep user preferences.
+- The compose data-volume key stays `whoseonfirst-data`. The real volume is `<stack>_<key>`, so renaming the key would make a redeploy of the existing prod stack mount a new empty volume and auto-seed. Guarded by `tests/test_compose_config.py`.
 
 ---
 

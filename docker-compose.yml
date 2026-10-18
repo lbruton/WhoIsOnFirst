@@ -11,7 +11,7 @@
 #     CONTAINER_NAME=whoisonfirst-dev, HOST_PORT=8901,
 #     APP_ENV=dev, SMS_ALLOWED_NUMBERS=<owner's cell>
 # Volumes are prefixed by the stack name, so each stack
-# gets its own database.
+# gets its own database (e.g. whoisonfirst-dev_whoseonfirst-data).
 # ============================================
 
 services:
@@ -26,9 +26,10 @@ services:
     ports:
       - "${HOST_PORT:-8900}:8000"
 
-    # Named volume — persists across GitOps redeploys
+    # Named volume — persists across GitOps redeploys.
+    # LOCKED legacy key: keep the old slug here (see bottom).
     volumes:
-      - whoisonfirst-data:/app/data
+      - whoseonfirst-data:/app/data
 
     # Environment variables injected via Portainer stack config
     environment:
@@ -64,7 +65,13 @@ services:
         max-size: "10m"
         max-file: "3"
 
-# Named volume — survives container rebuilds and GitOps redeploys
+# Named volume — survives container rebuilds and GitOps redeploys.
+# The key keeps its pre-rename name ON PURPOSE (WOF-37), like _LEGACY_SALT.
+# The real volume is <stack>_<key>; prod's data lives in
+# whoseonfirst_whoseonfirst-data. Renaming the key would make any redeploy
+# of the existing stack mount a NEW empty volume and auto-seed. With the key
+# pinned, an existing stack keeps its data and the entrypoint renames the DB
+# file inside it. Guarded by tests/test_compose_config.py.
 volumes:
-  whoisonfirst-data:
+  whoseonfirst-data:
     driver: local
