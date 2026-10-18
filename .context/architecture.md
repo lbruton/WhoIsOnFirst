@@ -796,6 +796,26 @@ app.include_router(notifications_router)
    └─────────────────────┘
 ```
 
+#### Legacy identifiers pinned on purpose (WOF-37)
+
+The app was renamed WhoseOnFirst → WhoIsOnFirst, but these keep the old slug
+because they name existing data. Tests guard each one; never "clean them up".
+
+- `_LEGACY_SALT = b"whoseonfirst-fernet-pbkdf2-salt-v1"` in
+  `src/services/secrets_service.py`: stored encrypted settings were derived
+  with it.
+- Compose service key `whoseonfirst` in `docker-compose.yml`: renaming it
+  orphans the running container, which keeps the host port.
+- Compose volume key `whoseonfirst-data`: the real volume is
+  `<stack>_<key>`, so a rename mounts an empty volume and auto-seeds.
+
+`container_name` (`${CONTAINER_NAME:-whoisonfirst}`) and the host port
+(`${HOST_PORT:-8900}`) are stack-overridable, so one compose file runs prod
+and the hosted dev stack side by side. On boot,
+`scripts/migrate-db-filename.sh` renames a legacy `whoseonfirst.db` (plus
+`-wal`/`-shm`) to `whoisonfirst.db`, but only when `DATABASE_URL` targets the
+new file. The container user is pinned to UID 997 / GID 998.
+
 ### Network Architecture
 
 ```
@@ -910,10 +930,29 @@ DATABASE_URL=sqlite:///./whoisonfirst.db
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_PHONE_NUMBER=+15551234567
-SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # JWT signing
+SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # Fernet key (see below), not JWT
 
 # File permissions: 600 (owner read/write only)
 ```
+
+`SECRET_KEY` is the master secret for `SecretsService`
+(`src/services/secrets_service.py`). PBKDF2 with the fixed `_LEGACY_SALT`
+turns it into a Fernet key that encrypts settings stored with
+`value_type="encrypted"` (the Twilio auth token saved from the Admin page).
+Each environment has its own value; changing it makes those stored values
+undecryptable, so they must be re-entered.
+
+#### Hosted dev SMS rail (WOF-42)
+
+- `APP_ENV` (`prod` default, `dev` on the hosted dev stack) drives the DEV
+  badge (`GET /api/v1/version` returns `environment`) and the allowlist.
+- `SMS_ALLOWED_NUMBERS` (comma-separated E.164, exact string match) is
+  enforced in `SMSService._send_sms`, the single path for scheduled, manual
+  and weekly sends. A non-listed recipient raises `SMSRecipientBlockedError`
+  (a permanent `SMSDeliveryError`): no retry, no Twilio call, one failed
+  `notification_log` row, number masked to the last 4 digits.
+- With `APP_ENV=dev`, live Twilio and an empty allowlist, every send is
+  blocked (fail closed).
 
 #### 3. Transport Security
 
