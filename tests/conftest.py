@@ -1,5 +1,5 @@
 """
-Pytest configuration and shared fixtures for WhoseOnFirst tests.
+Pytest configuration and shared fixtures for WhoIsOnFirst tests.
 
 This module provides reusable fixtures for database setup, test data,
 and repository instances.

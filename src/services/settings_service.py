@@ -33,7 +33,7 @@ ESCALATION_PRIMARY_WEEKLY_DIGEST = "escalation_primary_weekly_digest"
 ESCALATION_SECONDARY_WEEKLY_DIGEST = "escalation_secondary_weekly_digest"
 
 # Default SMS template
-DEFAULT_SMS_TEMPLATE = """WhoseOnFirst Alert
+DEFAULT_SMS_TEMPLATE = """WhoIsOnFirst Alert
 
 Hi {name}, you are now on-call starting at {start_time} CST until {end_time} CST.
 

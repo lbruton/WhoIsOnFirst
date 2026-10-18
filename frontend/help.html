@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help - WhoseOnFirst</title>
+    <title>Help - WhoIsOnFirst</title>
 
     <!-- Tabler CSS -->
     <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
@@ -140,7 +140,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="text-muted">
-                                        Welcome to WhoseOnFirst! Follow these steps to get your on-call rotation system up and running.
+                                        Welcome to WhoIsOnFirst! Follow these steps to get your on-call rotation system up and running.
                                     </p>
 
                                     <div class="row">
@@ -202,7 +202,7 @@
                                             <i class="ti ti-info-circle me-2 mt-1" style="font-size: 1.25rem;"></i>
                                             <div>
                                                 <strong>What is Twilio?</strong>
-                                                <p class="mb-0">Twilio is a cloud communications platform that enables WhoseOnFirst to send SMS notifications to your team members when their on-call shifts start.</p>
+                                                <p class="mb-0">Twilio is a cloud communications platform that enables WhoIsOnFirst to send SMS notifications to your team members when their on-call shifts start.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -282,15 +282,15 @@
                                         is preferable to manual UI entry. If both env vars and DB settings are present,
                                         the database settings take precedence.
                                     </p>
-                                    <p>Create or edit the <code>.env</code> file in your WhoseOnFirst installation directory with the following configuration:</p>
+                                    <p>Create or edit the <code>.env</code> file in your WhoIsOnFirst installation directory with the following configuration:</p>
 
                                     <div class="code-block">
 <code><span class="code-comment"># ============================================
-# WhoseOnFirst Configuration
+# WhoIsOnFirst Configuration
 # ============================================
 
 # Database Configuration</span>
-DATABASE_URL=sqlite:///./data/whoseonfirst.db
+DATABASE_URL=sqlite:///./data/whoisonfirst.db
 
 <span class="code-comment"># Twilio SMS Configuration
 # Get these from https://console.twilio.com</span>
@@ -327,7 +327,7 @@ SECRET_KEY=change-this-to-a-random-secret-key-in-production</code>
                                     <h5 class="mt-4 mb-3">Verify configuration (env-var path)</h5>
                                     <ol>
                                         <li>Save the <code>.env</code> file</li>
-                                        <li>Restart the WhoseOnFirst server:
+                                        <li>Restart the WhoIsOnFirst server:
                                             <div class="code-block mt-2">
                                                 <code>pkill -f uvicorn
 source venv/bin/activate
@@ -460,8 +460,8 @@ NOTIFICATION_TIMEZONE=America/Chicago</code>
                                                 <div>
                                                     <strong>GitHub Repository</strong>
                                                     <p class="text-muted mb-1">Source code, issues, and documentation</p>
-                                                    <a href="https://github.com/lbruton/WhoseOnFirst" target="_blank">
-                                                        github.com/lbruton/WhoseOnFirst
+                                                    <a href="https://github.com/lbruton/WhoIsOnFirst" target="_blank">
+                                                        github.com/lbruton/WhoIsOnFirst
                                                     </a>
                                                 </div>
                                             </div>

@@ -23,7 +23,7 @@ load_dotenv()
 config = context.config
 
 # Set database URL from environment variable
-database_url = os.getenv("DATABASE_URL", "sqlite:///./data/whoseonfirst.db")
+database_url = os.getenv("DATABASE_URL", "sqlite:///./data/whoisonfirst.db")
 config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.

@@ -1,7 +1,7 @@
 """
-WhoseOnFirst API - Main FastAPI Application
+WhoIsOnFirst API - Main FastAPI Application
 
-This module defines the main FastAPI application for the WhoseOnFirst
+This module defines the main FastAPI application for the WhoIsOnFirst
 on-call rotation and SMS notification system.
 """
 
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     - Shutdown: Stop the scheduler gracefully
     """
     # Startup
-    logger.info("Starting WhoseOnFirst API...")
+    logger.info("Starting WhoIsOnFirst API...")
 
     # Seed default admin user on first boot (empty DB)
     try:
@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    logger.info("Shutting down WhoseOnFirst API...")
+    logger.info("Shutting down WhoIsOnFirst API...")
 
     # Stop the scheduler
     try:
@@ -90,7 +90,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="WhoseOnFirst API",
+    title="WhoIsOnFirst API",
     description="Automated on-call rotation and SMS notification system for technical teams",
     version=get_app_version(),
     docs_url="/docs",
@@ -125,7 +125,7 @@ async def api_info():
         dict: API name and version
     """
     return {
-        "name": "WhoseOnFirst API",
+        "name": "WhoIsOnFirst API",
         "version": get_app_version(),
         "description": "On-call rotation and SMS notification system",
         "docs": "/docs",
@@ -144,7 +144,7 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "service": "whoseonfirst-api",
+        "service": "whoisonfirst-api",
         "version": get_app_version()
     }
 

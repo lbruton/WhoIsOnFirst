@@ -202,7 +202,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 ```
 ┌─────────────────────────────┐
-│ WhoseOnFirst                │ ← Brand/Logo
+│ WhoIsOnFirst                │ ← Brand/Logo
 ├─────────────────────────────┤
 │ Dashboard                   │
 │ Team Members                │
@@ -250,7 +250,7 @@ VIEWER ROLE:
 ┌────────────────────────────────────────────────────────┐
 │                                                        │
 │                                                        │
-│                  WhoseOnFirst                          │ ← Clean, professional
+│                  WhoIsOnFirst                          │ ← Clean, professional
 │          On-Call Rotation Management                  │
 │                                                        │
 │  ┌──────────────────────────────────────────────┐    │

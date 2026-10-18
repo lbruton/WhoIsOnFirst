@@ -1,5 +1,5 @@
 """
-Repository layer for WhoseOnFirst.
+Repository layer for WhoIsOnFirst.
 
 This module exports all repository classes for data access operations.
 Repositories implement the Repository Pattern to abstract database operations.

@@ -355,7 +355,7 @@ def send_manual_notification(
         POST /api/v1/notifications/send-manual
         {
             "team_member_id": 1,
-            "message": "WhoseOnFirst Alert\\n\\nHi {name}, this is a test notification."
+            "message": "WhoIsOnFirst Alert\\n\\nHi {name}, this is a test notification."
         }
     """
     # Get team member

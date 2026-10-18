@@ -1,10 +1,10 @@
-# RPI Process Guide for WhoseOnFirst
+# RPI Process Guide for WhoIsOnFirst
 
 > Research → Plan → Implement
 
 ## Overview
 
-The RPI (Research-Plan-Implement) process is a lightweight 3-phase workflow designed for WhoseOnFirst development. This is adapted from HexTrackr's proven SRPI/RPI methodology but simplified for our smaller codebase and Docker-first environment.
+The RPI (Research-Plan-Implement) process is a lightweight 3-phase workflow designed for WhoIsOnFirst development. This is adapted from HexTrackr's proven SRPI/RPI methodology but simplified for our smaller codebase and Docker-first environment.
 
 ### When to Use RPI
 
@@ -33,7 +33,7 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
 
    ```javascript
    mcp__claude-context__search_code({
-     path: "/Volumes/DATA/GitHub/WhoseOnFirst",
+     path: "/Volumes/DATA/GitHub/WhoIsOnFirst",
      query: "schedule generation rotation algorithm",
      limit: 10
    })
@@ -47,7 +47,7 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
    ```javascript
    mcp__memento__semantic_search({
      query: "schedule auto-renewal pattern",
-     entity_types: ["WHOSEONFIRST:DEVELOPMENT:PATTERN"],
+     entity_types: ["WHOISONFIRST:DEVELOPMENT:PATTERN"],
      min_similarity: 0.6
    })
    ```
@@ -162,7 +162,7 @@ def check_auto_renewal() -> None:
 
 ### Docker-First Implementation Pattern
 
-**Critical**: WhoseOnFirst uses Docker for development. Code changes require container rebuild.
+**Critical**: WhoIsOnFirst uses Docker for development. Code changes require container rebuild.
 
 ```bash
 # Before starting implementation
@@ -271,13 +271,13 @@ docker-compose -f docker-compose.dev.yml up -d
 docker-compose -f docker-compose.dev.yml logs -f
 
 # Access database
-docker exec -it whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db
+docker exec -it whoisonfirst-dev sqlite3 /app/data/whoisonfirst.db
 
 # Verify scheduler jobs
 # Look for log lines: "Scheduled job: Auto-Renewal Schedule Check (next run: ...)"
 
 # Check container health
-docker ps | grep whoseonfirst-dev
+docker ps | grep whoisonfirst-dev
 ```
 
 ---
@@ -401,7 +401,7 @@ docker-compose -f docker-compose.dev.yml down && docker-compose -f docker-compos
 
 # Task 1.7: Migration
 alembic revision --autogenerate -m "Add settings table for auto-renewal"
-docker exec whoseonfirst-dev alembic upgrade head
+docker exec whoisonfirst-dev alembic upgrade head
 git commit -m "feat(db): Add settings table migration (WHO-2 Task 1.7)"
 ```
 
@@ -411,7 +411,7 @@ git commit -m "feat(db): Add settings table migration (WHO-2 Task 1.7)"
 
 ## Summary
 
-| Aspect | WhoseOnFirst RPI | HexTrackr SRPI |
+| Aspect | WhoIsOnFirst RPI | HexTrackr SRPI |
 |--------|------------------|----------------|
 | **Phases** | 3 (Research, Plan, Implement) | 4 (+ Specification) |
 | **Linear Issues** | 1-3 issues (can combine for small features) | 4 parent-child issues |
@@ -424,5 +424,5 @@ git commit -m "feat(db): Add settings table migration (WHO-2 Task 1.7)"
 
 **Version**: 1.0.0
 **Last Updated**: 2025-11-09
-**Authority**: This document defines the official RPI process for WhoseOnFirst development
+**Authority**: This document defines the official RPI process for WhoIsOnFirst development
 **Adapted From**: HexTrackr SRPI_PROCESS.md

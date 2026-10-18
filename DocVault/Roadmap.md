@@ -1,19 +1,19 @@
 ---
 tags: []
 doc_type: roadmap
-project: whoseonfirst
+project: whoisonfirst
 source: migrated
 aliases:
-  - WhoseOnFirst Roadmap
+  - WhoIsOnFirst Roadmap
 created: '2026-04-07'
 updated: '2026-06-09'
 migrated_from: 'repo:ROADMAP.md'
 ---
-# WhoseOnFirst Roadmap
+# WhoIsOnFirst Roadmap
 
 _Last updated: 2026-04-07_
 
-> Auto-generated from DocVault issues. Source of truth: `DocVault/Projects/WhoseOnFirst/Issues/`.
+> Auto-generated from DocVault issues. Source of truth: `DocVault/Projects/WhoIsOnFirst/Issues/`.
 
 ## Active (2)
 

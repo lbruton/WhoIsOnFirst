@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-edit lint hook for WhoseOnFirst (DEVS-90) — Python and JSON checks.
+"""Post-edit lint hook for WhoIsOnFirst (DEVS-90) — Python and JSON checks.
 
 - .py: syntax check (in-process compile, no __pycache__), then flake8 from
   the repo venv

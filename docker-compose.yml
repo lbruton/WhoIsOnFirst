@@ -1,30 +1,38 @@
 # ============================================
-# WhoseOnFirst - Production (Portainer GitOps)
+# WhoIsOnFirst - Production (Portainer GitOps)
 # ============================================
 # Deployed via Portainer stack from GitHub repo.
 # GitOps redeploy rebuilds the image but preserves
 # the named volume — your database survives redeploys.
+#
+# The same file runs two stacks on one host (WOF-42):
+#   whoisonfirst      (refs/heads/main) — defaults below
+#   whoisonfirst-dev  (refs/heads/dev)  — stack env sets
+#     CONTAINER_NAME=whoisonfirst-dev, HOST_PORT=8901,
+#     APP_ENV=dev, SMS_ALLOWED_NUMBERS=<owner's cell>
+# Volumes are prefixed by the stack name, so each stack
+# gets its own database.
 # ============================================
 
 services:
-  whoseonfirst:
+  whoisonfirst:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: whoseonfirst
+    container_name: ${CONTAINER_NAME:-whoisonfirst}
     restart: unless-stopped
 
-    # Port mapping — Cloudflare tunnel expects 8900
+    # Host port — NPM proxies the LAN hostname to this port
     ports:
-      - "8900:8000"
+      - "${HOST_PORT:-8900}:8000"
 
     # Named volume — persists across GitOps redeploys
     volumes:
-      - whoseonfirst-data:/app/data
+      - whoisonfirst-data:/app/data
 
     # Environment variables injected via Portainer stack config
     environment:
-      - DATABASE_URL=sqlite:///./data/whoseonfirst.db
+      - DATABASE_URL=sqlite:///./data/whoisonfirst.db
       - HOST=0.0.0.0
       - PORT=8000
       - LOG_LEVEL=INFO
@@ -36,6 +44,10 @@ services:
       - NOTIFICATION_MINUTE=${NOTIFICATION_MINUTE:-0}
       - SECRET_KEY=${SECRET_KEY}
       - SECURE_COOKIES=true
+      # Unset in prod. The dev stack sets both; with APP_ENV=dev and live
+      # Twilio, an empty allowlist blocks every send (fail closed).
+      - APP_ENV=${APP_ENV:-prod}
+      - SMS_ALLOWED_NUMBERS=${SMS_ALLOWED_NUMBERS:-}
 
     # Health check
     healthcheck:
@@ -54,5 +66,5 @@ services:
 
 # Named volume — survives container rebuilds and GitOps redeploys
 volumes:
-  whoseonfirst-data:
+  whoisonfirst-data:
     driver: local

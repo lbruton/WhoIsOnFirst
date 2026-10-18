@@ -1,4 +1,4 @@
-# Technical Stack - WhoseOnFirst
+# Technical Stack - WhoIsOnFirst
 
 **Version:** 1.0  
 **Last Updated:** November 4, 2025  
@@ -53,7 +53,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from typing import List
 
 app = FastAPI(
-    title="WhoseOnFirst API",
+    title="WhoIsOnFirst API",
     description="On-Call Rotation and SMS Notification System",
     version="1.0.0"
 )
@@ -153,7 +153,7 @@ scheduler.add_job(
 
 ```python
 # Database URL
-SQLALCHEMY_DATABASE_URL = "sqlite:///./whoseonfirst.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./whoisonfirst.db"
 
 # Engine configuration
 engine = create_engine(
@@ -191,7 +191,7 @@ Thanks to SQLAlchemy abstraction, migration requires minimal code changes:
 
 ```python
 # Change database URL
-SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/whoseonfirst"
+SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/whoisonfirst"
 
 # All SQLAlchemy models work unchanged
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -310,7 +310,7 @@ def format_shift_notification(member_name: str, duration_hours: int) -> str:
     end_time = datetime.now(chicago_tz) + timedelta(hours=duration_hours)
     
     return (
-        f"WhoseOnFirst: Your on-call shift has started.\n"
+        f"WhoIsOnFirst: Your on-call shift has started.\n"
         f"Duration: {duration_hours} hours (until {end_time.strftime('%I:%M %p %m/%d')})\n"
         f"Questions? Contact admin."
     )
@@ -481,7 +481,7 @@ services:
       - .:/app
       - ./data:/app/data  # Persist SQLite database
     environment:
-      - DATABASE_URL=sqlite:///./data/whoseonfirst.db
+      - DATABASE_URL=sqlite:///./data/whoisonfirst.db
       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
@@ -509,19 +509,19 @@ sudo dnf install python3.11 python3.11-pip
 sudo dnf install podman podman-compose
 
 # Clone repository
-git clone https://github.com/[org]/WhoseOnFirst.git
-cd WhoseOnFirst
+git clone https://github.com/[org]/WhoIsOnFirst.git
+cd WhoIsOnFirst
 
 # Build container
-podman build -t whoseonfirst:latest .
+podman build -t whoisonfirst:latest .
 
 # Run container
 podman run -d \
-  --name whoseonfirst \
+  --name whoisonfirst \
   -p 8000:8000 \
   -v ./data:/app/data \
   --env-file .env \
-  whoseonfirst:latest
+  whoisonfirst:latest
 ```
 
 ---
@@ -576,7 +576,7 @@ class JSONFormatter(logging.Formatter):
 logging.basicConfig(
     level=logging.INFO,
     handlers=[
-        logging.FileHandler('/var/log/whoseonfirst/app.log'),
+        logging.FileHandler('/var/log/whoisonfirst/app.log'),
         logging.StreamHandler()
     ]
 )
@@ -777,7 +777,7 @@ All SQLAlchemy code is already database-agnostic
 
 ```bash
 # Export SQLite to SQL dump
-sqlite3 whoseonfirst.db .dump > backup.sql
+sqlite3 whoisonfirst.db .dump > backup.sql
 ```
 
 #### Step 3: Convert and Import
@@ -787,14 +787,14 @@ sqlite3 whoseonfirst.db .dump > backup.sql
 pip install sqlite3-to-postgres
 
 # Convert SQLite DB to PostgreSQL
-sqlite3-to-postgres -f whoseonfirst.db -d whoseonfirst -u postgres
+sqlite3-to-postgres -f whoisonfirst.db -d whoisonfirst -u postgres
 ```
 
 #### Step 4: Update Configuration
 
 ```python
 # Change in .env file
-DATABASE_URL=postgresql://user:pass@localhost/whoseonfirst
+DATABASE_URL=postgresql://user:pass@localhost/whoisonfirst
 ```
 
 #### Step 5: Test Thoroughly
@@ -852,19 +852,19 @@ alembic upgrade head
 
 ```bash
 # Build image
-docker build -t whoseonfirst:latest .
+docker build -t whoisonfirst:latest .
 
 # Run container
-docker run -d -p 8000:8000 --name whoseonfirst whoseonfirst:latest
+docker run -d -p 8000:8000 --name whoisonfirst whoisonfirst:latest
 
 # View logs
-docker logs -f whoseonfirst
+docker logs -f whoisonfirst
 
 # Stop container
-docker stop whoseonfirst
+docker stop whoisonfirst
 
 # Remove container
-docker rm whoseonfirst
+docker rm whoisonfirst
 ```
 
 ### Production Deployment (RHEL 10)
@@ -874,22 +874,22 @@ docker rm whoseonfirst
 git pull origin main
 
 # Rebuild container
-podman build -t whoseonfirst:latest .
+podman build -t whoisonfirst:latest .
 
 # Stop old container
-podman stop whoseonfirst
+podman stop whoisonfirst
 
 # Remove old container
-podman rm whoseonfirst
+podman rm whoisonfirst
 
 # Start new container
 podman run -d \
-  --name whoseonfirst \
+  --name whoisonfirst \
   -p 8000:8000 \
   -v ./data:/app/data \
   --env-file .env \
   --restart=always \
-  whoseonfirst:latest
+  whoisonfirst:latest
 ```
 
 ---

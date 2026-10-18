@@ -1,5 +1,5 @@
 """
-NotificationLog model for WhoseOnFirst.
+NotificationLog model for WhoIsOnFirst.
 
 Tracks all SMS notification attempts for audit trail and troubleshooting.
 """

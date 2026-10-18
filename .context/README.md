@@ -1,4 +1,4 @@
-# `.context/` — WhoseOnFirst Foundation Docs
+# `.context/` — WhoIsOnFirst Foundation Docs
 
 In-repo, version-controlled foundation documentation. This is the **source of truth**
 for project architecture, standards, and workflow — it travels with the code (and to any
@@ -6,7 +6,7 @@ downstream GitLab mirror), unlike the previously gitignored `docs/` folder it re
 
 Foundation docs live here (agent-facing, tracked). Human/product-facing material and
 long-term research live in the in-repo `DocVault/` (DEVS-78); security reviews and infra detail in the
-private companion `Devops/DocVault/Projects/WhoseOnFirst/`.
+private companion `Devops/DocVault/Projects/WhoIsOnFirst/`.
 
 ## Documents
 

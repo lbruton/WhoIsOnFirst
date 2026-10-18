@@ -18,7 +18,7 @@ class ManualNotificationRequest(BaseModel):
         description="SMS message text",
         min_length=1,
         max_length=1600,
-        examples=["WhoseOnFirst Alert\n\nHi {name}, manual test notification."]
+        examples=["WhoIsOnFirst Alert\n\nHi {name}, manual test notification."]
     )
 
     @field_validator('message')

@@ -1,16 +1,16 @@
 ---
 tags: []
 doc_type: prd
-project: whoseonfirst
+project: whoisonfirst
 source: migrated
-aliases: ["WhoseOnFirst PRD"]
+aliases: ["WhoIsOnFirst PRD"]
 created: "2025-11-21"
 updated: "2026-06-09"
 migrated_from: "repo:docs/planning/PRD.md"
 ---
 
 # Product Requirements Document (PRD)
-## WhoseOnFirst - On-Call Team SMS Notifier
+## WhoIsOnFirst - On-Call Team SMS Notifier
 
 **Version:** 2.0 (Living Document)  
 **Last Updated:** November 10, 2025  
@@ -47,7 +47,7 @@ New requirements (REQ-026+) are tracked in Linear with cross-references:
 
 ## Executive Summary
 
-WhoseOnFirst is an automated on-call rotation and SMS notification system designed to manage fair scheduling for technical teams. The system ensures equitable shift distribution using a simple circular rotation algorithm, schedules the double-shift during the workweek (Tue-Wed) to minimize weekend impact, and automatically notifies on-call personnel at shift start times.
+WhoIsOnFirst is an automated on-call rotation and SMS notification system designed to manage fair scheduling for technical teams. The system ensures equitable shift distribution using a simple circular rotation algorithm, schedules the double-shift during the workweek (Tue-Wed) to minimize weekend impact, and automatically notifies on-call personnel at shift start times.
 
 **Current Status:** Phase 1 MVP complete (v1.0.0) - Backend, frontend, testing, and Docker deployment all operational. Awaiting Twilio 10DLC approval (~1 week). Phase 2 (offline installer + authentication) in planning.
 
@@ -488,7 +488,7 @@ System shall send automated weekly SMS summary to escalation contacts every Mond
 
 **SMS Format Example:**
 ```
-WhoseOnFirst Weekly Schedule (Nov 18-24)
+WhoIsOnFirst Weekly Schedule (Nov 18-24)
 
 Mon 11/18: Lance B +19187019714
 Tue 11/19: Gary K +19187019714 (48h)
@@ -825,14 +825,14 @@ System shall provide advanced analytics with fairness metrics, historical trends
 
 ### Standard Shift Start Notification (Editable Template)
 ```
-WhoseOnFirst: Your on-call shift has started.
+WhoIsOnFirst: Your on-call shift has started.
 Duration: 24 hours (until 8:00 AM CST tomorrow)
 Questions? Contact admin.
 ```
 
 ### Multi-Day Shift Notification (Editable Template)
 ```
-WhoseOnFirst: Your 48h shift has started.
+WhoIsOnFirst: Your 48h shift has started.
 Until 8:00 AM CST Thursday. Questions? Contact admin.
 ```
 
@@ -1004,8 +1004,8 @@ Use this template when adding new requirements:
 - [Twilio SMS API Documentation](https://www.twilio.com/docs/sms)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [APScheduler Documentation](https://apscheduler.readthedocs.io/)
-- [WhoseOnFirst GitHub Repository](https://github.com/Lonnie-Bruton/WhoseOnFirst)
-- [WhoseOnFirst Linear Board](https://linear.app/hextrackr/team/WhoseOnFirst)
+- [WhoIsOnFirst GitHub Repository](https://github.com/Lonnie-Bruton/WhoIsOnFirst)
+- [WhoIsOnFirst Linear Board](https://linear.app/hextrackr/team/WhoIsOnFirst)
 - [CLAUDE.md](/CLAUDE.md) - AI Context File
 - [Documentation Guide](/docs/DOCUMENTATION_GUIDE.md) - Documentation System
 

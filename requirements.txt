@@ -1,4 +1,4 @@
-# WhoseOnFirst - Python Dependencies
+# WhoIsOnFirst - Python Dependencies
 # Production requirements
 
 # Web Framework

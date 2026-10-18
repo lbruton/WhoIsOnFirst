@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-# WhoseOnFirst - Database Backup & Restore
+# WhoIsOnFirst - Database Backup & Restore
 # ============================================
 # Simple script for backing up and restoring
 # the SQLite database for deployment transfers
@@ -16,8 +16,8 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Configuration
-CONTAINER_NAME="${CONTAINER_NAME:-whoseonfirst-dev}"
-CONTAINER_DB_PATH="/app/data/whoseonfirst.db"
+CONTAINER_NAME="${CONTAINER_NAME:-whoisonfirst-dev}"
+CONTAINER_DB_PATH="/app/data/whoisonfirst.db"
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
@@ -56,7 +56,7 @@ backup_database() {
     # Create backup directory
     mkdir -p "$BACKUP_DIR"
 
-    BACKUP_FILE="$BACKUP_DIR/whoseonfirst-$TIMESTAMP.db"
+    BACKUP_FILE="$BACKUP_DIR/whoisonfirst-$TIMESTAMP.db"
 
     # Check if container is running
     if $RUNTIME ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
@@ -76,9 +76,9 @@ backup_database() {
     else
         # Try from named volume (for dev setup)
         print_info "Trying to backup from named volume..."
-        VOLUME_PATH=$($RUNTIME volume inspect whoseonfirst-dev-db --format '{{.Mountpoint}}' 2>/dev/null || echo "")
-        if [[ -n "$VOLUME_PATH" && -f "$VOLUME_PATH/whoseonfirst.db" ]]; then
-            cp "$VOLUME_PATH/whoseonfirst.db" "$BACKUP_FILE"
+        VOLUME_PATH=$($RUNTIME volume inspect whoisonfirst-dev-db --format '{{.Mountpoint}}' 2>/dev/null || echo "")
+        if [[ -n "$VOLUME_PATH" && -f "$VOLUME_PATH/whoisonfirst.db" ]]; then
+            cp "$VOLUME_PATH/whoisonfirst.db" "$BACKUP_FILE"
             print_success "Database backed up from volume to: $BACKUP_FILE"
         else
             print_error "Could not locate database file"
@@ -150,20 +150,20 @@ restore_database() {
         fix_container_permissions "$RUNTIME"
     else
         # Try named volume
-        VOLUME_PATH=$($RUNTIME volume inspect whoseonfirst-dev-db --format '{{.Mountpoint}}' 2>/dev/null || echo "")
+        VOLUME_PATH=$($RUNTIME volume inspect whoisonfirst-dev-db --format '{{.Mountpoint}}' 2>/dev/null || echo "")
         if [[ -n "$VOLUME_PATH" ]]; then
-            cp "$BACKUP_FILE" "$VOLUME_PATH/whoseonfirst.db"
+            cp "$BACKUP_FILE" "$VOLUME_PATH/whoisonfirst.db"
             # Fix permissions on volume - make world-writable for OpenShift compatibility
-            chmod 666 "$VOLUME_PATH/whoseonfirst.db" 2>/dev/null || true
+            chmod 666 "$VOLUME_PATH/whoisonfirst.db" 2>/dev/null || true
             print_success "Database restored to volume"
         else
             # Create data directory and copy
             mkdir -p "./data"
-            cp "$BACKUP_FILE" "./data/whoseonfirst.db"
+            cp "$BACKUP_FILE" "./data/whoisonfirst.db"
             # Make world-writable for OpenShift arbitrary UID compatibility
-            chmod 666 "./data/whoseonfirst.db"
+            chmod 666 "./data/whoisonfirst.db"
             chmod 777 "./data"
-            print_success "Database restored to ./data/whoseonfirst.db"
+            print_success "Database restored to ./data/whoisonfirst.db"
             print_info "Make sure your docker-compose.yml mounts ./data:/app/data"
         fi
     fi
@@ -185,16 +185,16 @@ fix_container_permissions() {
     local RUNTIME="$1"
     print_info "Fixing database permissions..."
 
-    # Try to fix ownership to whoseonfirst user (Docker Compose scenario)
-    if $RUNTIME exec -u 0 "$CONTAINER_NAME" chown whoseonfirst:whoseonfirst /app/data /app/data/whoseonfirst.db 2>/dev/null; then
-        print_success "Permissions fixed (whoseonfirst user)"
+    # Try to fix ownership to whoisonfirst user (Docker Compose scenario)
+    if $RUNTIME exec -u 0 "$CONTAINER_NAME" chown whoisonfirst:whoisonfirst /app/data /app/data/whoisonfirst.db 2>/dev/null; then
+        print_success "Permissions fixed (whoisonfirst user)"
     # Fallback: make world-writable (OpenShift arbitrary UID scenario)
     elif $RUNTIME exec -u 0 "$CONTAINER_NAME" chmod -R 777 /app/data 2>/dev/null; then
         print_success "Permissions fixed (world-writable for OpenShift)"
     else
         print_warning "Could not fix permissions automatically"
         print_info "If you see 'readonly database' errors, run:"
-        echo "  $RUNTIME exec -u 0 $CONTAINER_NAME chown -R whoseonfirst:whoseonfirst /app/data"
+        echo "  $RUNTIME exec -u 0 $CONTAINER_NAME chown -R whoisonfirst:whoisonfirst /app/data"
     fi
 }
 
@@ -225,7 +225,7 @@ create_deployment_package() {
     LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/*.db 2>/dev/null | head -1)
     if [[ -n "$LATEST_BACKUP" ]]; then
         mkdir -p "$PACKAGE_DIR/data"
-        cp "$LATEST_BACKUP" "$PACKAGE_DIR/data/whoseonfirst.db"
+        cp "$LATEST_BACKUP" "$PACKAGE_DIR/data/whoisonfirst.db"
         print_success "Database included in package"
     fi
 
@@ -245,7 +245,7 @@ create_deployment_package() {
 
     # Create simple README
     cat > "$PACKAGE_DIR/DEPLOY.md" << 'DEPLOY_EOF'
-# WhoseOnFirst Deployment
+# WhoIsOnFirst Deployment
 
 ## Quick Start
 
@@ -283,7 +283,7 @@ create_deployment_package() {
 
 ## Database
 
-The `data/whoseonfirst.db` file contains the pre-configured:
+The `data/whoisonfirst.db` file contains the pre-configured:
 - Team members and rotation order
 - Shift schedule templates
 - Existing schedule assignments
@@ -309,7 +309,7 @@ DEPLOY_EOF
     print_success "Deployment README created"
 
     # Create archive
-    ARCHIVE_NAME="whoseonfirst-deployment-$TIMESTAMP.tar.gz"
+    ARCHIVE_NAME="whoisonfirst-deployment-$TIMESTAMP.tar.gz"
     tar -czf "$ARCHIVE_NAME" "$PACKAGE_DIR"
     rm -rf "$PACKAGE_DIR"
 
@@ -333,7 +333,7 @@ case "${1:-}" in
         create_deployment_package
         ;;
     *)
-        echo "WhoseOnFirst Database Backup & Restore"
+        echo "WhoIsOnFirst Database Backup & Restore"
         echo ""
         echo "Usage: $0 <command>"
         echo ""
@@ -344,11 +344,11 @@ case "${1:-}" in
         echo ""
         echo "Examples:"
         echo "  $0 backup"
-        echo "  $0 restore ./backups/whoseonfirst-20260204-150000.db"
+        echo "  $0 restore ./backups/whoisonfirst-20260204-150000.db"
         echo "  $0 package"
         echo ""
         echo "Environment variables:"
-        echo "  CONTAINER_NAME  - Container name (default: whoseonfirst-dev)"
+        echo "  CONTAINER_NAME  - Container name (default: whoisonfirst-dev)"
         echo "  BACKUP_DIR      - Backup directory (default: ./backups)"
         ;;
 esac

@@ -124,7 +124,7 @@ class SMSTemplateRequest(BaseModel):
         description="SMS template with variables: {name}, {start_time}, {end_time}, {duration}",
         min_length=1,
         max_length=320,
-        examples=["WhoseOnFirst Alert\n\nHi {name}, you are on-call from {start_time} to {end_time}."]
+        examples=["WhoIsOnFirst Alert\n\nHi {name}, you are on-call from {start_time} to {end_time}."]
     )
 
 

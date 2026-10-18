@@ -1,5 +1,5 @@
 """
-Schedule Override model for WhoseOnFirst.
+Schedule Override model for WhoIsOnFirst.
 
 Represents manual overrides to scheduled shifts for vacation, sick days, swaps.
 Overrides layer on top of generated schedules without modifying rotation algorithm.
@@ -84,7 +84,7 @@ class ScheduleOverride(Base):
         comment="active, cancelled, completed"
     )
 
-    # Audit Fields (standard WhoseOnFirst pattern)
+    # Audit Fields (standard WhoIsOnFirst pattern)
     created_by = Column(
         String(100),
         nullable=False,

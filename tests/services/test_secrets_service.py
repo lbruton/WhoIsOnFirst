@@ -37,6 +37,36 @@ from cryptography.fernet import InvalidToken
 # Task 2 creates the module. That's the red-phase signal.
 
 
+class TestLegacySaltPinned:
+    """WOF-37: the PBKDF2 salt keeps its pre-rename bytes forever.
+
+    Every Twilio auth token stored in prod was encrypted under this salt.
+    Renaming it along with the app would make them undecryptable and stop
+    all SMS. The golden token below was produced by the pre-rename code.
+    """
+
+    GOLDEN_SECRET_KEY = "wof37-golden-test-key-not-a-real-secret"  # gitleaks:allow (test-only fake key)
+    GOLDEN_PLAINTEXT = "golden-twilio-token-AC0000"
+    GOLDEN_TOKEN = (
+        "gAAAAABq1SiA8k1hLuftAAbc40alJrOvu3R1DmJ_36qXzzrkYPPUa62PE703CcYF-"
+        "NQySxYRO8f8mhomOedi_bPCT5aqJ-6qGC16CI4NLE-z_H8E_Yphm8o="
+    )
+
+    def test_salt_bytes_unchanged(self):
+        from src.services import secrets_service
+
+        assert secrets_service._LEGACY_SALT == b"whoseonfirst-fernet-pbkdf2-salt-v1"
+
+    def test_decrypts_token_encrypted_before_rename(self, monkeypatch):
+        from src.services import secrets_service
+
+        monkeypatch.setenv("SECRET_KEY", self.GOLDEN_SECRET_KEY)
+        monkeypatch.setattr(secrets_service, "_fernet_singleton", None)
+
+        decrypted = secrets_service.SecretsService().decrypt(self.GOLDEN_TOKEN)
+        assert decrypted == self.GOLDEN_PLAINTEXT
+
+
 class TestEncryptDecrypt:
     """Round-trip and ciphertext-property tests for encrypt/decrypt."""
 

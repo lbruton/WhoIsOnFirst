@@ -1,15 +1,17 @@
-# WhoseOnFirst
+# WhoIsOnFirst
+
+Renamed from WhoseOnFirst (WOF-36 epic). Old slug `whoseonfirst` survives on purpose in a few places: the `_LEGACY_SALT` bytes (never change), legacy `.stvault` imports, and prod infra until the WOF-39 cutover.
 
 Automated on-call rotation + SMS notification system for a 7-person technical team. FastAPI + APScheduler + Twilio + SQLite. 8-page frontend (Tabler.io / Bootstrap 5). Docker-containerized; Portainer GitOps on prod.
 
 ## Docs
 
 - **In-repo (`.context/`):** `architecture.md`, `technical-stack.md`, `code-patterns.md`, `authentication.md`, `rpi-process.md`. Foundation source of truth — tracked, travels with the code. Start at `.context/README.md`.
-- **DocVault (in-repo, `DocVault/`):** `Overview.md`, PRD, Roadmap, research notes, sprint archives, runbooks. Human/product-facing + long-term research; edits ride the feature PR (DEVS-78). Security reviews and deploy/infra detail live in the **private companion** `Devops/DocVault/Projects/WhoseOnFirst/` (`vault-path private`) — this repo is public and mirrored. Run `/vault-update` after behavior-affecting changes.
+- **DocVault (in-repo, `DocVault/`):** `Overview.md`, PRD, Roadmap, research notes, sprint archives, runbooks. Human/product-facing + long-term research; edits ride the feature PR (DEVS-78). Security reviews and deploy/infra detail live in the **private companion** `Devops/DocVault/Projects/WhoIsOnFirst/` (`vault-path private`) — this repo is public and mirrored. Run `/vault-update` after behavior-affecting changes.
 
 ## Branch & Push Policy (overrides global)
 
-**Default branch is `dev`** — both locally and as PR target. `main` is production. The Portainer GitOps stack auto-deploys from `main`, so any push to `main` fires real SMS at real coworkers on the next scheduler tick (WHO-49).
+**Default branch is `dev`** — both locally and as PR target. `main` is production. The Portainer GitOps stack auto-deploys from `main`, so any push to `main` fires real SMS at real coworkers on the next scheduler tick (WHO-49). A second stack, `whoisonfirst-dev`, GitOps-tracks `dev` with live Twilio limited to `SMS_ALLOWED_NUMBERS` (WOF-42), so merges to `dev` are live within ~5 min too.
 
 - All work on `dev` or worktrees off `dev`.
 - Both `main` AND `dev` require PRs — direct push blocked by GitHub rules. Always worktree + PR targeting `dev`.
@@ -28,9 +30,10 @@ Automated on-call rotation + SMS notification system for a 7-person technical te
 
 Dev uses **sanitized data only**. Production DBs contain real names and phone numbers.
 
-- **NEVER** copy from `~/Nextcloud/Backups/whoseonfirst/` or any production `.stvault` into dev.
-- **Correct restore:** `~/whoseonfirst-dev-data/backups/dev-seed-sanitized.stvault`, or let first-boot auto-seed handle it.
+- **NEVER** copy from `~/Nextcloud/Backups/whoseonfirst/`, `~/Nextcloud/Backups/whoisonfirst/`, the VM backup dirs, or any production `.stvault` into dev (local or the hosted dev stack).
+- **Correct restore:** `~/whoisonfirst-dev-data/backups/dev-seed-sanitized.stvault`, or let first-boot auto-seed handle it.
 - `docker-compose.dev.yml` enforces rails: `SMS_MOCK_MODE=true`, no shared `.env` with prod.
+- Hosted dev stack sends real SMS, so its rail is in code: with `APP_ENV=dev` and live Twilio, `SMSService` sends only to `SMS_ALLOWED_NUMBERS` and blocks everything when that is empty. Never unset it there.
 - **Why this exists:** an AI agent once restored prod DB over dev, exposing real PII to a local container with mock security. Must not recur.
 
 ## Development
@@ -45,23 +48,23 @@ docker-compose -f docker-compose.dev.yml down && \
   docker-compose -f docker-compose.dev.yml up -d
 ```
 
-Dev DB seed (at start of session if `~/whoseonfirst-dev-data/whoseonfirst.db` missing/empty):
+Dev DB seed (at start of session if `~/whoisonfirst-dev-data/whoisonfirst.db` missing/empty):
 ```bash
-cp ~/whoseonfirst-dev-data/backups/dev-seed-sanitized.stvault \
-   ~/whoseonfirst-dev-data/whoseonfirst.db
-docker restart whoseonfirst-dev
+cp ~/whoisonfirst-dev-data/backups/dev-seed-sanitized.stvault \
+   ~/whoisonfirst-dev-data/whoisonfirst.db
+docker restart whoisonfirst-dev
 ```
 
 Tests (local): `source venv/bin/activate && pytest --cov=src --cov-report=html`. Baseline 467+ tests. Target 80%+ coverage. Rotation algorithm + critical paths at 100%.
 
 ## Production Debugging
 
-Prod runs on Portainer VM `192.168.1.81` stack #12 behind Cloudflare Zero Trust Access. Use `docker --context portainer <cmd>` for remote ops — no SSH needed.
+Prod runs on Portainer VM `192.168.1.81`, LAN-only behind NPM (the Cloudflare tunnel is being retired, WOF-39). The container is `whoseonfirst` (stack #12) until the WOF-39 cutover, then `whoisonfirst` — substitute below. Use `docker --context portainer <cmd>` for remote ops — no SSH needed. Claude never creates, stops, starts or redeploys stacks or containers (Devops `Portainer.md` HARD BLOCK); read-only only.
 
 - **Healthcheck noise** (~99% of output): `docker --context portainer logs whoseonfirst --since 24h 2>&1 | grep -v "GET /health"`.
-- **"Can't log in" + container healthy + zero POSTs in filtered logs** = Cloudflare Zero Trust session expired. Requests never reach FastAPI. Fix is user-side CF re-auth, NOT a code change.
+- **Requests missing from filtered logs** (e.g. a save fails with "NetworkError") = the request never reached FastAPI. Over the old Cloudflare tunnel this is an edge problem, not a code change (WOF-43); use the LAN hostname.
 - **Production admin password is undocumented anywhere.** Dev container credentials live in auto-memory (`MEMORY.md`) — local dev only, never against production.
-- **Backups:** `db-backup` container on the VM snapshots prod every 6h to `/home/infrastructure/backups/whoseonfirst/` (7-day retention, on-VM only). The stvault export (`GET /api/v1/admin/export`) is NOT a backup — omits `users` + `notification_log` by design. Full backup: sqlite3 `.backup` API + `docker cp` off-host.
+- **Backups:** `db-backup` container on the VM snapshots prod every 6h to `/home/infrastructure/backups/whoseonfirst/` (→ `whoisonfirst/` after the cutover edits `backup.sh`; 7-day retention, on-VM only, plus Proxmox nightly VM backups). The stvault export (`GET /api/v1/admin/export`) is NOT a backup — omits `users` + `notification_log` by design. Full backup: sqlite3 `.backup` API + `docker cp` off-host.
 
 ## Important Constraints
 

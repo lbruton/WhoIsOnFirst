@@ -1,5 +1,5 @@
 """
-Service layer for WhoseOnFirst.
+Service layer for WhoIsOnFirst.
 
 This module exports all service classes for business logic operations.
 Services implement the Service Layer Pattern to encapsulate business logic
