@@ -7,6 +7,7 @@ app's first-boot auto-seed, so an existing database is renamed in place and
 never seeded over.
 """
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -15,10 +16,13 @@ import pytest
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "migrate-db-filename.sh"
 
 
-def run(data_dir: Path) -> subprocess.CompletedProcess:
+def run(data_dir: Path, database_url=None) -> subprocess.CompletedProcess:
+    env = {"PATH": os.environ["PATH"]}
+    if database_url is not None:
+        env["DATABASE_URL"] = database_url
     return subprocess.run(
         ["bash", str(SCRIPT), str(data_dir)],
-        capture_output=True, text=True, check=False,
+        capture_output=True, text=True, check=False, env=env,
     )
 
 
@@ -71,6 +75,38 @@ def test_neither_present_creates_nothing(data_dir):
 
     assert result.returncode == 0, result.stderr
     assert list(data_dir.iterdir()) == []
+
+
+def test_explicit_legacy_database_url_skips_rename(data_dir):
+    """A deployment that pins DATABASE_URL to the old file keeps using it."""
+    (data_dir / "whoseonfirst.db").write_bytes(b"main")
+
+    result = run(data_dir, database_url="sqlite:///./data/whoseonfirst.db")
+
+    assert result.returncode == 0, result.stderr
+    assert (data_dir / "whoseonfirst.db").read_bytes() == b"main"
+    assert not (data_dir / "whoisonfirst.db").exists()
+    assert "DATABASE_URL" in result.stdout
+
+
+def test_non_default_database_url_skips_rename(data_dir):
+    """Any other explicit DB (custom path, Postgres) is not ours to move."""
+    (data_dir / "whoseonfirst.db").write_bytes(b"main")
+
+    result = run(data_dir, database_url="postgresql://u:p@db:5432/whoisonfirst")
+
+    assert result.returncode == 0, result.stderr
+    assert (data_dir / "whoseonfirst.db").exists()
+    assert not (data_dir / "whoisonfirst.db").exists()
+
+
+def test_new_default_database_url_still_renames(data_dir):
+    (data_dir / "whoseonfirst.db").write_bytes(b"main")
+
+    result = run(data_dir, database_url="sqlite:///./data/whoisonfirst.db")
+
+    assert result.returncode == 0, result.stderr
+    assert (data_dir / "whoisonfirst.db").read_bytes() == b"main"
 
 
 def test_empty_old_db_is_still_moved(data_dir):

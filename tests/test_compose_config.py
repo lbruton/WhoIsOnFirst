@@ -26,6 +26,13 @@ def test_no_renamed_data_volume_key():
     assert "whoisonfirst-data" not in COMPOSE
 
 
+def test_service_key_is_pinned_to_legacy_name():
+    """Renaming the service key orphans the old container on stack 12; it keeps
+    host port 8900 and the new service can't start unless Portainer prunes."""
+    assert re.search(r"^services:\s*\n\s+whoseonfirst:\s*$", COMPOSE, re.M)
+    assert not re.search(r"^\s{2}whoisonfirst:\s*$", COMPOSE, re.M)
+
+
 def test_container_name_and_port_are_overridable_with_prod_defaults():
     assert "container_name: ${CONTAINER_NAME:-whoisonfirst}" in COMPOSE
     assert '"${HOST_PORT:-8900}:8000"' in COMPOSE

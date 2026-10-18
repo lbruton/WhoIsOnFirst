@@ -14,8 +14,12 @@
 # gets its own database (e.g. whoisonfirst-dev_whoseonfirst-data).
 # ============================================
 
+# LOCKED legacy service key (WOF-37), like the volume key below. Renaming
+# it would orphan stack 12's running container, which keeps host port 8900,
+# so the renamed service could not start unless Portainer prunes. Only
+# container_name carries the new name.
 services:
-  whoisonfirst:
+  whoseonfirst:
     build:
       context: .
       dockerfile: Dockerfile

@@ -437,7 +437,7 @@ class SMSService:
                 )
 
                 logger.info(
-                    f"SMS sent successfully to {phone_type} phone {self._sanitize_phone(phone)} "
+                    f"SMS sent successfully to {phone_type} phone {_mask_phone(phone)} "
                     f"for schedule {schedule.id} (SID: {result['sid']})"
                 )
 
@@ -956,7 +956,7 @@ class SMSService:
             True
         """
         logger.info(
-            f"Sending manual notification to {self._sanitize_phone(team_member.phone)} "
+            f"Sending manual notification to {_mask_phone(team_member.phone)} "
             f"({team_member.name})"
         )
 
@@ -975,7 +975,7 @@ class SMSService:
             )
 
             logger.info(
-                f"Manual SMS sent successfully to {self._sanitize_phone(team_member.phone)} "
+                f"Manual SMS sent successfully to {_mask_phone(team_member.phone)} "
                 f"({team_member.name}, SID: {twilio_result['sid']})"
             )
 
@@ -1145,7 +1145,7 @@ class SMSService:
 
             try:
                 logger.info(
-                    f"Sending weekly summary to {self._sanitize_phone(contact_phone)} "
+                    f"Sending weekly summary to {_mask_phone(contact_phone)} "
                     f"({contact_name} - {contact_label})"
                 )
 
@@ -1173,7 +1173,7 @@ class SMSService:
                 })
 
                 logger.info(
-                    f"Weekly summary sent successfully to {self._sanitize_phone(contact_phone)} "
+                    f"Weekly summary sent successfully to {_mask_phone(contact_phone)} "
                     f"(SID: {twilio_result['sid']})"
                 )
 

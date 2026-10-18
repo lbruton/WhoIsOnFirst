@@ -173,3 +173,52 @@ class TestBlockedSendsThroughCallers:
         client.messages.create.assert_not_called()
         failed_rows = service.notification_repo.get_retry_count_for_schedule(schedule.id)
         assert failed_rows == 1
+
+
+class TestLogsShowOnlyLastFourDigits:
+    """CLAUDE.md rule: logs mask phone numbers to the last 4 digits only."""
+
+    @staticmethod
+    def _logged_text(caplog):
+        return "\n".join(r.getMessage() for r in caplog.records)
+
+    def test_blocked_manual_send_logs_never_show_number_prefix(
+        self, live_service, test_db_session, caplog
+    ):
+        member = TeamMember(name="Not Allowed", phone=OTHER, is_active=True)
+        test_db_session.add(member)
+        test_db_session.commit()
+        service, _ = live_service({"SMS_ALLOWED_NUMBERS": ALLOWED})
+
+        with caplog.at_level("DEBUG", logger="src.services.sms_service"):
+            service.send_manual_notification(team_member=member, message="hi")
+
+        logged = self._logged_text(caplog)
+        assert OTHER[:-4] not in logged
+        assert OTHER[-4:] in logged
+
+    def test_successful_manual_send_logs_never_show_number_prefix(
+        self, live_service, test_db_session, caplog
+    ):
+        member = TeamMember(name="Allowed", phone=ALLOWED, is_active=True)
+        test_db_session.add(member)
+        test_db_session.commit()
+        service, _ = live_service({"SMS_ALLOWED_NUMBERS": ALLOWED})
+
+        with caplog.at_level("DEBUG", logger="src.services.sms_service"):
+            service.send_manual_notification(team_member=member, message="hi")
+
+        assert ALLOWED[:-4] not in self._logged_text(caplog)
+
+    def test_scheduled_send_logs_never_show_number_prefix(
+        self, live_service, populated_schedules, caplog
+    ):
+        service, _ = live_service({"SMS_ALLOWED_NUMBERS": ALLOWED})
+
+        with caplog.at_level("DEBUG", logger="src.services.sms_service"):
+            service._send_to_single_phone(
+                phone=ALLOWED, message_body="test", schedule=populated_schedules[0],
+                phone_type="primary", recipient_name="Test User",
+            )
+
+        assert ALLOWED[:-4] not in self._logged_text(caplog)
