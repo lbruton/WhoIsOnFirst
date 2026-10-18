@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wof-shell-v5-wof37';
+const CACHE_NAME = 'wof-shell-v6-wof44';
 const SHELL_URLS = [
   '/',
   '/index.html',
