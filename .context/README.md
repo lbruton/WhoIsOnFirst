@@ -1,6 +1,6 @@
 # `.context/` — WhoIsOnFirst Foundation Docs
 
-In-repo, version-controlled foundation documentation. This is the **source of truth**
+In-repo, version-controlled foundation documentation. This is the source of truth
 for project architecture, standards, and workflow — it travels with the code (and to any
 downstream GitLab mirror), unlike the previously gitignored `docs/` folder it replaces.
 
@@ -20,7 +20,7 @@ private companion `Devops/DocVault/Projects/WhoIsOnFirst/`.
 
 ## Conventions
 
-- These docs describe **intended** design. Freshness against live code is audited
+- These docs describe intended design. Freshness against live code is audited
   separately (devops context-drift skill) — treat a claim as authoritative only after
   cross-checking the named source when it matters.
 - Update the relevant doc in the same PR as a behavior-affecting change to the area it

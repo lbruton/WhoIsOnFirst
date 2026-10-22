@@ -20,57 +20,23 @@ class UserRepository(BaseRepository[User]):
     """
 
     def __init__(self, db: Session):
-        """
-        Initialize UserRepository.
-
-        Args:
-            db: Database session
-        """
+        """Initialize UserRepository."""
         super().__init__(db, User)
 
     def get_by_username(self, username: str) -> Optional[User]:
-        """
-        Get user by username.
-
-        Args:
-            username: Username to search for
-
-        Returns:
-            User if found, None otherwise
-        """
+        """Get user by username."""
         return self.db.query(User).filter(User.username == username).first()
 
     def get_active_users(self) -> list[User]:
-        """
-        Get all active users.
-
-        Returns:
-            List of active users
-        """
+        """Get all active users."""
         return self.db.query(User).filter(User.is_active.is_(True)).all()
 
     def get_by_role(self, role: UserRole) -> list[User]:
-        """
-        Get all users with a specific role.
-
-        Args:
-            role: User role to filter by
-
-        Returns:
-            List of users with the specified role
-        """
+        """Get all users with a specific role."""
         return self.db.query(User).filter(User.role == role).all()
 
     def activate(self, user_id: int) -> Optional[User]:
-        """
-        Activate a user account.
-
-        Args:
-            user_id: ID of user to activate
-
-        Returns:
-            Updated user if found, None otherwise
-        """
+        """Activate a user account."""
         user = self.get_by_id(user_id)
         if user:
             user.is_active = True
@@ -79,15 +45,7 @@ class UserRepository(BaseRepository[User]):
         return user
 
     def deactivate(self, user_id: int) -> Optional[User]:
-        """
-        Deactivate a user account.
-
-        Args:
-            user_id: ID of user to deactivate
-
-        Returns:
-            Updated user if found, None otherwise
-        """
+        """Deactivate a user account."""
         user = self.get_by_id(user_id)
         if user:
             user.is_active = False
@@ -96,16 +54,7 @@ class UserRepository(BaseRepository[User]):
         return user
 
     def update_password(self, user_id: int, password_hash: str) -> Optional[User]:
-        """
-        Update user password hash.
-
-        Args:
-            user_id: ID of user to update
-            password_hash: New bcrypt password hash
-
-        Returns:
-            Updated user if found, None otherwise
-        """
+        """Update user password hash."""
         user = self.get_by_id(user_id)
         if user:
             user.password_hash = password_hash

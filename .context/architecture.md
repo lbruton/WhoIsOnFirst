@@ -1,8 +1,8 @@
 # System Architecture - WhoIsOnFirst
 
-**Version:** 1.0  
-**Last Updated:** November 4, 2025  
-**Status:** Active — Phase 1 in production
+Version: 1.0  
+Last Updated: November 4, 2025  
+Status: Active — Phase 1 in production
 
 ---
 
@@ -1009,15 +1009,15 @@ Current architecture supports vertical scaling:
 
 #### Scheduler in Multi-Instance Setup
 
-**Problem:** APScheduler runs in each instance → duplicate jobs
+Problem: APScheduler runs in each instance → duplicate jobs
 
-**Solution Options:**
+Solution Options:
 
-1. **Leader Election:** Only one instance runs scheduler
-2. **Separate Scheduler Service:** Dedicated container for scheduling
-3. **Distributed Scheduler:** Use APScheduler's distributed mode
+1. Leader Election: Only one instance runs scheduler
+2. Separate Scheduler Service: Dedicated container for scheduling
+3. Distributed Scheduler: Use APScheduler's distributed mode
 
-**Recommended:** Separate scheduler service (simple, reliable)
+Recommended: Separate scheduler service (simple, reliable)
 
 ---
 
@@ -1131,8 +1131,8 @@ curl http://localhost:8000/health
 5. Configure environment variables
 6. Start container
 
-**RTO (Recovery Time Objective):** 30 minutes  
-**RPO (Recovery Point Objective):** 24 hours (daily backups)
+RTO (Recovery Time Objective): 30 minutes  
+RPO (Recovery Point Objective): 24 hours (daily backups)
 
 ---
 
@@ -1140,16 +1140,16 @@ curl http://localhost:8000/health
 
 ### ADR-001: Use FastAPI over Flask
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need to choose web framework for REST API and web interface.
 
-**Decision:**  
+Decision:  
 Use FastAPI instead of Flask.
 
-**Rationale:**
+Rationale:
 
 - Native async/await support for Twilio API calls
 - Automatic OpenAPI documentation (Swagger UI)
@@ -1157,7 +1157,7 @@ Use FastAPI instead of Flask.
 - Better performance (ASGI vs WSGI)
 - Modern Python practices (3.7+)
 
-**Consequences:**
+Consequences:
 
 - Team must learn FastAPI (minimal learning curve)
 - Better documentation for future integrations
@@ -1167,23 +1167,23 @@ Use FastAPI instead of Flask.
 
 ### ADR-002: Start with SQLite, Plan PostgreSQL Migration
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need database for storing team members, schedule, notification logs.
 
-**Decision:**  
+Decision:  
 Use SQLite for Phase 1, with clear migration path to PostgreSQL.
 
-**Rationale:**
+Rationale:
 
 - SQLite perfect for 5-10 users, low concurrency
 - Zero configuration overhead
 - Easy backups (single file)
 - SQLAlchemy makes migration trivial
 
-**Consequences:**
+Consequences:
 
 - Must monitor for write contention issues
 - Plan migration when reaching ~10 team members
@@ -1193,23 +1193,23 @@ Use SQLite for Phase 1, with clear migration path to PostgreSQL.
 
 ### ADR-003: APScheduler for Job Scheduling
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need to send daily SMS notifications at 8:00 AM CST.
 
-**Decision:**  
+Decision:  
 Use APScheduler embedded in FastAPI application.
 
-**Rationale:**
+Rationale:
 
 - Cross-platform (works on macOS, Proxmox, RHEL)
 - Timezone support (critical for CST)
 - Persistent job store (survives restarts)
 - Easier testing than system cron
 
-**Consequences:**
+Consequences:
 
 - Scheduler runs in application process
 - Need separate strategy for multi-instance deployment (Phase 2+)

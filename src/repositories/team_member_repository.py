@@ -28,24 +28,11 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
     """
 
     def __init__(self, db: Session):
-        """
-        Initialize TeamMemberRepository.
-
-        Args:
-            db: SQLAlchemy database session
-        """
+        """Initialize TeamMemberRepository."""
         super().__init__(db, TeamMember)
 
     def get_active(self) -> List[TeamMember]:
-        """
-        Get all active team members.
-
-        Returns:
-            List of active TeamMember instances, ordered by name
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all active team members."""
         try:
             return (
                 self.db.query(self.model)
@@ -58,16 +45,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error getting active team members: {str(e)}")
 
     def get_digest_recipients(self) -> List[TeamMember]:
-        """
-        Get active team members opted into the Monday weekly digest (WOF-10).
-
-        Returns:
-            List of active TeamMember instances with weekly_digest_optin set,
-            ordered by name
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get active team members opted into the Monday weekly digest."""
         try:
             return (
                 self.db.query(self.model)
@@ -83,15 +61,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error getting digest recipients: {str(e)}")
 
     def get_inactive(self) -> List[TeamMember]:
-        """
-        Get all inactive team members.
-
-        Returns:
-            List of inactive TeamMember instances, ordered by name
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all inactive team members."""
         try:
             return (
                 self.db.query(self.model)
@@ -104,18 +74,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error getting inactive team members: {str(e)}")
 
     def get_by_phone(self, phone: str) -> Optional[TeamMember]:
-        """
-        Get team member by phone number.
-
-        Args:
-            phone: Phone number in E.164 format (+1XXXXXXXXXX)
-
-        Returns:
-            TeamMember instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get team member by phone number."""
         try:
             return (
                 self.db.query(self.model)
@@ -127,21 +86,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error getting team member by phone: {str(e)}")
 
     def phone_exists(self, phone: str, exclude_id: Optional[int] = None) -> bool:
-        """
-        Check if phone number already exists in database.
-
-        Useful for validation before creating/updating team members.
-
-        Args:
-            phone: Phone number to check
-            exclude_id: Optional ID to exclude from check (for updates)
-
-        Returns:
-            True if phone exists (and isn't the excluded ID), False otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Check if phone number already exists in database."""
         try:
             query = self.db.query(self.model).filter(self.model.phone == phone)
 
@@ -154,21 +99,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error checking phone existence: {str(e)}")
 
     def deactivate(self, member_id: int) -> Optional[TeamMember]:
-        """
-        Deactivate a team member (soft delete).
-
-        Sets is_active to False instead of deleting the record.
-        Preserves historical schedule data.
-
-        Args:
-            member_id: Team member ID to deactivate
-
-        Returns:
-            Updated TeamMember instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Soft-delete a team member (is_active False) so schedule history keeps the row."""
         try:
             member = self.get_by_id(member_id)
             if member:
@@ -181,20 +112,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error deactivating team member: {str(e)}")
 
     def activate(self, member_id: int) -> Optional[TeamMember]:
-        """
-        Activate a team member.
-
-        Sets is_active to True to add them back to rotation.
-
-        Args:
-            member_id: Team member ID to activate
-
-        Returns:
-            Updated TeamMember instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Activate a team member, which returns them to the rotation."""
         try:
             member = self.get_by_id(member_id)
             if member:
@@ -207,17 +125,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error activating team member: {str(e)}")
 
     def get_count_active(self) -> int:
-        """
-        Get count of active team members.
-
-        Useful for rotation algorithm and validation.
-
-        Returns:
-            Number of active team members
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get count of active team members."""
         try:
             return (
                 self.db.query(self.model)
@@ -229,18 +137,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error counting active team members: {str(e)}")
 
     def search_by_name(self, name_query: str) -> List[TeamMember]:
-        """
-        Search team members by name (case-insensitive partial match).
-
-        Args:
-            name_query: Name or partial name to search for
-
-        Returns:
-            List of matching TeamMember instances
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Search team members by name (case-insensitive partial match)."""
         try:
             search_term = f"%{name_query}%"
             return (
@@ -254,17 +151,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error searching team members by name: {str(e)}")
 
     def get_max_rotation_order(self) -> int:
-        """
-        Get the maximum rotation_order value.
-
-        Useful for assigning new members to the end of the rotation.
-
-        Returns:
-            Maximum rotation_order value, or 0 if no members exist
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get the maximum rotation_order value."""
         try:
             max_order = (
                 self.db.query(self.model.rotation_order)
@@ -278,19 +165,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error getting max rotation order: {str(e)}")
 
     def update_rotation_orders(self, order_mapping: dict) -> List[TeamMember]:
-        """
-        Update rotation_order for multiple team members.
-
-        Args:
-            order_mapping: Dictionary mapping team member ID to new rotation_order value
-                          Example: {1: 0, 2: 1, 3: 2}
-
-        Returns:
-            List of updated TeamMember instances
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Update rotation_order for multiple team members."""
         try:
             updated_members = []
             for member_id, new_order in order_mapping.items():
@@ -311,21 +186,7 @@ class TeamMemberRepository(BaseRepository[TeamMember]):
             raise Exception(f"Database error updating rotation orders: {str(e)}")
 
     def get_ordered_for_rotation(self, active_only: bool = True) -> List[TeamMember]:
-        """
-        Get team members ordered for rotation.
-
-        Orders by rotation_order first (if set), then by ID as fallback.
-        This ensures consistent rotation even if rotation_order is not set for all members.
-
-        Args:
-            active_only: If True, only return active members
-
-        Returns:
-            List of TeamMember instances sorted by rotation_order, then ID
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get members by rotation_order (nulls last), then ID, so the order is stable when some are unset."""
         try:
             query = self.db.query(self.model)
 

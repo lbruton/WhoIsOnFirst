@@ -23,27 +23,11 @@ class SettingsRepository(BaseRepository[Settings]):
     """
 
     def __init__(self, db: Session):
-        """
-        Initialize SettingsRepository.
-
-        Args:
-            db: SQLAlchemy database session
-        """
+        """Initialize SettingsRepository."""
         super().__init__(db, Settings)
 
     def get_by_key(self, key: str) -> Optional[Settings]:
-        """
-        Get a setting by its key.
-
-        Args:
-            key: Setting key to retrieve
-
-        Returns:
-            Settings instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get a setting by its key."""
         try:
             return self.db.query(self.model).filter(self.model.key == key).first()
         except SQLAlchemyError as e:
@@ -51,21 +35,7 @@ class SettingsRepository(BaseRepository[Settings]):
             raise Exception(f"Database error getting setting by key: {str(e)}")
 
     def set_value(self, key: str, value: str, value_type: str = "str", description: str = None) -> Settings:
-        """
-        Set a setting value (create or update).
-
-        Args:
-            key: Setting key
-            value: Setting value (as string)
-            value_type: Type of value (bool, int, str, float)
-            description: Human-readable description
-
-        Returns:
-            Settings instance
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Set a setting value (create or update)."""
         try:
             setting = self.get_by_key(key)
 
@@ -94,19 +64,7 @@ class SettingsRepository(BaseRepository[Settings]):
             raise Exception(f"Database error setting value: {str(e)}")
 
     def get_value(self, key: str, default: any = None) -> any:
-        """
-        Get a typed setting value with optional default.
-
-        Args:
-            key: Setting key
-            default: Default value if setting doesn't exist
-
-        Returns:
-            Typed value or default
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get a typed setting value with optional default."""
         try:
             setting = self.get_by_key(key)
             if setting:
@@ -118,18 +76,7 @@ class SettingsRepository(BaseRepository[Settings]):
             raise Exception(f"Database error getting value: {str(e)}")
 
     def delete_by_key(self, key: str) -> bool:
-        """
-        Delete a setting by key.
-
-        Args:
-            key: Setting key to delete
-
-        Returns:
-            True if deleted, False if not found
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Delete a setting by key."""
         try:
             setting = self.get_by_key(key)
             if setting:

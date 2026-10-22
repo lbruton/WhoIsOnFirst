@@ -1,8 +1,8 @@
 # Technical Stack - WhoIsOnFirst
 
-**Version:** 1.0  
-**Last Updated:** November 4, 2025  
-**Status:** Approved
+Version: 1.0  
+Last Updated: November 4, 2025  
+Status: Approved
 
 ---
 
@@ -12,15 +12,15 @@
 
 | Layer | Technology | Version | Purpose |
 |-------|------------|---------|---------|
-| **Backend Framework** | FastAPI | 0.115.0+ | REST API and web application framework |
-| **ASGI Server** | Uvicorn | 0.30.1+ | High-performance async server |
-| **Task Scheduler** | APScheduler | 3.10.4+ | Cron-based job scheduling |
-| **Database (Phase 1)** | SQLite | 3.x | Embedded relational database |
-| **Database (Phase 2+)** | PostgreSQL | 15+ | Enterprise-grade RDBMS |
-| **ORM** | SQLAlchemy | 2.0.31+ | Database abstraction layer |
-| **SMS Gateway** | Twilio Python SDK | 9.2.3+ | SMS delivery service |
-| **Validation** | Pydantic | 2.8.2+ | Data validation and serialization |
-| **Config Management** | python-dotenv | 1.0.1+ | Environment variable management |
+| Backend Framework | FastAPI | 0.115.0+ | REST API and web application framework |
+| ASGI Server | Uvicorn | 0.30.1+ | High-performance async server |
+| Task Scheduler | APScheduler | 3.10.4+ | Cron-based job scheduling |
+| Database (Phase 1) | SQLite | 3.x | Embedded relational database |
+| Database (Phase 2+) | PostgreSQL | 15+ | Enterprise-grade RDBMS |
+| ORM | SQLAlchemy | 2.0.31+ | Database abstraction layer |
+| SMS Gateway | Twilio Python SDK | 9.2.3+ | SMS delivery service |
+| Validation | Pydantic | 2.8.2+ | Data validation and serialization |
+| Config Management | python-dotenv | 1.0.1+ | Environment variable management |
 
 ---
 
@@ -30,21 +30,21 @@
 
 #### Why FastAPI?
 
-- **Modern Python:** Built for Python 3.7+ with native async/await support
-- **Type Safety:** Leverages Python type hints for automatic validation
-- **Auto Documentation:** Generates OpenAPI (Swagger) and ReDoc automatically
-- **Performance:** ASGI-based, significantly faster than traditional WSGI frameworks
-- **Developer Experience:** Excellent IDE support, auto-completion, fewer bugs
-- **Future-Proof:** Growing ecosystem, designed for modern microservices
+- Modern Python: Built for Python 3.7+ with native async/await support
+- Type Safety: Leverages Python type hints for automatic validation
+- Auto Documentation: Generates OpenAPI (Swagger) and ReDoc automatically
+- Performance: ASGI-based, significantly faster than traditional WSGI frameworks
+- Developer Experience: Excellent IDE support, auto-completion, fewer bugs
+- Future-Proof: Growing ecosystem, designed for modern microservices
 
 #### Key Features We'll Use
 
-- **Automatic API Documentation:** Critical for Phase 3 integrations (Teams, Slack)
-- **Dependency Injection:** Clean architecture for database sessions, authentication
-- **Background Tasks:** For non-blocking SMS sends
-- **Request Validation:** Automatic validation using Pydantic models
-- **Exception Handlers:** Centralized error handling
-- **Middleware:** Logging, CORS, security headers
+- Automatic API Documentation: Critical for Phase 3 integrations (Teams, Slack)
+- Dependency Injection: Clean architecture for database sessions, authentication
+- Background Tasks: For non-blocking SMS sends
+- Request Validation: Automatic validation using Pydantic models
+- Exception Handlers: Centralized error handling
+- Middleware: Logging, CORS, security headers
 
 #### Example Structure
 
@@ -86,10 +86,10 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
 
 #### Settings for Production
 
-- **Workers:** 2 (RHEL 10 VM, limited resources)
-- **Timeout:** 60 seconds
-- **Keep-alive:** 5 seconds
-- **Access Log:** Enabled for audit trail
+- Workers: 2 (RHEL 10 VM, limited resources)
+- Timeout: 60 seconds
+- Keep-alive: 5 seconds
+- Access Log: Enabled for audit trail
 
 ---
 
@@ -124,16 +124,16 @@ scheduler.add_job(
 
 #### Why APScheduler?
 
-- **In-Process:** No external service required (unlike Celery)
-- **Persistent Jobs:** Survives application restarts via SQLite job store
-- **Timezone Support:** Native CST support, handles DST automatically
-- **Job Monitoring:** Event listeners for tracking execution
-- **Flexible Triggers:** Cron, interval, and one-time date triggers
+- In-Process: No external service required (unlike Celery)
+- Persistent Jobs: Survives application restarts via SQLite job store
+- Timezone Support: Native CST support, handles DST automatically
+- Job Monitoring: Event listeners for tracking execution
+- Flexible Triggers: Cron, interval, and one-time date triggers
 
 #### Job Store Strategy
 
-- **Development:** In-memory job store for testing
-- **Production:** SQLite job store for persistence
+- Development: In-memory job store for testing
+- Production: SQLite job store for persistence
 
 ---
 
@@ -143,11 +143,11 @@ scheduler.add_job(
 
 #### Why Start with SQLite?
 
-- **Zero Configuration:** No separate database server to manage
-- **Embedded:** Runs in-process with Python application
-- **File-Based:** Single `.db` file, easy backups
-- **Sufficient for Phase 1:** Handles 5-10 users, low-concurrency workload
-- **ACID Compliant:** Full transaction support despite simplicity
+- Zero Configuration: No separate database server to manage
+- Embedded: Runs in-process with Python application
+- File-Based: Single `.db` file, easy backups
+- Sufficient for Phase 1: Handles 5-10 users, low-concurrency workload
+- ACID Compliant: Full transaction support despite simplicity
 
 #### SQLite Configuration
 
@@ -166,10 +166,10 @@ engine = create_engine(
 
 #### SQLite Limitations to Monitor
 
-- **Write Concurrency:** Locks entire database during writes
-- **Max Connections:** ~100 concurrent connections (not an issue for us)
-- **File Locking:** Could be problematic on network file systems
-- **No User Management:** Security relies on file system permissions
+- Write Concurrency: Locks entire database during writes
+- Max Connections: ~100 concurrent connections (not an issue for us)
+- File Locking: Could be problematic on network file systems
+- No User Management: Security relies on file system permissions
 
 #### When to Migrate to PostgreSQL
 
@@ -199,11 +199,11 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 #### PostgreSQL Advantages
 
-- **Concurrency:** MVCC allows multiple simultaneous writers
-- **Advanced Features:** JSON columns, full-text search, window functions
-- **Security:** Built-in authentication, row-level security (RLS)
-- **Scalability:** Horizontal scaling via replication, sharding
-- **Extensions:** PostGIS (if location features needed), pg_cron
+- Concurrency: MVCC allows multiple simultaneous writers
+- Advanced Features: JSON columns, full-text search, window functions
+- Security: Built-in authentication, row-level security (RLS)
+- Scalability: Horizontal scaling via replication, sharding
+- Extensions: PostGIS (if location features needed), pg_cron
 
 ---
 
@@ -211,10 +211,10 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 #### Why SQLAlchemy?
 
-- **Database Agnostic:** Switch from SQLite to PostgreSQL with one line change
-- **Async Support:** Compatible with FastAPI's async architecture
-- **Migration Tools:** Alembic for database schema migrations
-- **Type Safety:** Integrates with Pydantic for end-to-end type checking
+- Database Agnostic: Switch from SQLite to PostgreSQL with one line change
+- Async Support: Compatible with FastAPI's async architecture
+- Migration Tools: Alembic for database schema migrations
+- Type Safety: Integrates with Pydantic for end-to-end type checking
 
 #### Model Example
 
@@ -286,7 +286,7 @@ def send_sms(to_number: str, message_body: str) -> dict:
 
 #### Retry Logic with Exponential Backoff
 
-> Note: illustrative only — `tenacity` is **not** a project dependency. The live
+> Note: illustrative only — `tenacity` is not a project dependency. The live
 > `SMSService` uses a manual `for attempt in range(max_retries)` backoff loop.
 
 ```python
@@ -324,23 +324,23 @@ def format_shift_notification(member_name: str, duration_hours: int) -> str:
 
 #### Technologies
 
-- **HTML5:** Semantic markup
-- **CSS3:** Modern styling (CSS Grid, Flexbox)
-- **Vanilla JavaScript:** No framework overhead
-- **Fetch API:** For AJAX requests to FastAPI backend
+- HTML5: Semantic markup
+- CSS3: Modern styling (CSS Grid, Flexbox)
+- Vanilla JavaScript: No framework overhead
+- Fetch API: For AJAX requests to FastAPI backend
 
 #### Why Vanilla JS?
 
-- **Simplicity:** No build process, no npm dependencies
-- **Performance:** No framework overhead
-- **Maintainability:** Straightforward code, easy for anyone to modify
-- **Future Migration:** Can easily migrate to React/Vue if needed
+- Simplicity: No build process, no npm dependencies
+- Performance: No framework overhead
+- Maintainability: Straightforward code, easy for anyone to modify
+- Future Migration: Can easily migrate to React/Vue if needed
 
 #### Potential Enhancements (Future)
 
-- **Tailwind CSS:** Utility-first CSS framework
-- **Alpine.js:** Lightweight reactive framework (15KB)
-- **HTMX:** Hypermedia-driven interactions without JavaScript
+- Tailwind CSS: Utility-first CSS framework
+- Alpine.js: Lightweight reactive framework (15KB)
+- HTMX: Hypermedia-driven interactions without JavaScript
 
 #### Frontend Example Structure
 
@@ -377,9 +377,9 @@ function renderSchedule(schedule) {
 
 ### Version Control
 
-- **Git:** Distributed version control
-- **GitHub:** Remote repository hosting
-- **Branching Strategy:**
+- Git: Distributed version control
+- GitHub: Remote repository hosting
+- Branching Strategy:
   - `main` - Production-ready code
   - `develop` - Integration branch
   - `feature/*` - Feature branches
@@ -396,9 +396,9 @@ function renderSchedule(schedule) {
 
 #### Secondary Tools
 
-- **VS Code:** For manual code review, debugging
-- **Postman/Thunder Client:** API testing
-- **SQLite Browser:** Database inspection
+- VS Code: For manual code review, debugging
+- Postman/Thunder Client: API testing
+- SQLite Browser: Database inspection
 
 ### Python Environment Management
 
@@ -492,12 +492,12 @@ services:
 
 #### System Requirements
 
-- **OS:** Red Hat Enterprise Linux 10
-- **Python:** 3.11+ (install via dnf)
-- **Docker:** Podman (RHEL's Docker alternative) or Docker CE
-- **Memory:** 2GB minimum, 4GB recommended
-- **Disk:** 10GB for OS + app + logs
-- **Network:** Access to Twilio API (outbound HTTPS)
+- OS: Red Hat Enterprise Linux 10
+- Python: 3.11+ (install via dnf)
+- Docker: Podman (RHEL's Docker alternative) or Docker CE
+- Memory: 2GB minimum, 4GB recommended
+- Disk: 10GB for OS + app + logs
+- Network: Access to Twilio API (outbound HTTPS)
 
 #### Installation on RHEL 10
 
@@ -530,24 +530,24 @@ podman run -d \
 
 ### Credential Management
 
-- **Environment Variables:** All secrets in `.env` file (never committed)
-- **Podman Secrets:** For production deployment on RHEL
-- **File Permissions:** Restrict `.env` to owner read-only (600)
+- Environment Variables: All secrets in `.env` file (never committed)
+- Podman Secrets: For production deployment on RHEL
+- File Permissions: Restrict `.env` to owner read-only (600)
 
 ### Application Security
 
-- **Input Validation:** Pydantic validates all API inputs
-- **SQL Injection:** SQLAlchemy ORM prevents injection attacks
-- **HTTPS:** Enforce TLS in production (nginx reverse proxy)
-- **CORS:** Restrict origins in FastAPI middleware
-- **Rate Limiting:** Implement to prevent abuse
+- Input Validation: Pydantic validates all API inputs
+- SQL Injection: SQLAlchemy ORM prevents injection attacks
+- HTTPS: Enforce TLS in production (nginx reverse proxy)
+- CORS: Restrict origins in FastAPI middleware
+- Rate Limiting: Implement to prevent abuse
 
 ### Data Security
 
-- **Database Encryption:** File-level encryption for SQLite
-- **Phone Number Handling:** Hash or encrypt in logs
-- **Audit Trail:** Log all schedule changes, SMS sends
-- **Backup Strategy:** Daily encrypted backups of database
+- Database Encryption: File-level encryption for SQLite
+- Phone Number Handling: Hash or encrypt in logs
+- Audit Trail: Log all schedule changes, SMS sends
+- Backup Strategy: Daily encrypted backups of database
 
 ---
 
@@ -584,11 +584,11 @@ logging.basicConfig(
 
 #### Log Categories
 
-- **Application Logs:** General app events, errors
-- **SMS Logs:** All SMS attempts, success/failure, Twilio SIDs
-- **Scheduler Logs:** Job execution, missed jobs, errors
-- **API Logs:** HTTP requests, response times, errors
-- **Audit Logs:** Schedule changes, team member updates
+- Application Logs: General app events, errors
+- SMS Logs: All SMS attempts, success/failure, Twilio SIDs
+- Scheduler Logs: Job execution, missed jobs, errors
+- API Logs: HTTP requests, response times, errors
+- Audit Logs: Schedule changes, team member updates
 
 ### Health Checks
 
@@ -609,9 +609,9 @@ async def health_check():
 
 ### Future Monitoring Tools
 
-- **Prometheus:** Metrics collection
-- **Grafana:** Visualization dashboards
-- **Sentry:** Error tracking and alerting
+- Prometheus: Metrics collection
+- Grafana: Visualization dashboards
+- Sentry: Error tracking and alerting
 
 ---
 
@@ -676,8 +676,8 @@ def test_get_current_schedule():
 
 ### Test Coverage Goal
 
-- **Target:** 80%+ code coverage
-- **Critical Paths:** 100% coverage (scheduler, SMS sending, rotation algorithm)
+- Target: 80%+ code coverage
+- Critical Paths: 100% coverage (scheduler, SMS sending, rotation algorithm)
 
 ---
 
@@ -685,17 +685,17 @@ def test_get_current_schedule():
 
 ### Response Time Goals
 
-- **API Endpoints:** <500ms (95th percentile)
-- **Database Queries:** <100ms (95th percentile)
-- **SMS Delivery Trigger:** <60 seconds from scheduled time
-- **Page Load:** <2 seconds (full page)
+- API Endpoints: <500ms (95th percentile)
+- Database Queries: <100ms (95th percentile)
+- SMS Delivery Trigger: <60 seconds from scheduled time
+- Page Load: <2 seconds (full page)
 
 ### Scalability Targets
 
-- **Team Members:** Support up to 20 (Phase 1), 100+ (Phase 2+)
-- **Concurrent Users:** 5-10 (Phase 1), 50+ (Phase 2+)
-- **Database Size:** <100MB (Phase 1), <10GB (Phase 2+)
-- **SMS Volume:** 10/day (Phase 1), 1000/day (Phase 2+)
+- Team Members: Support up to 20 (Phase 1), 100+ (Phase 2+)
+- Concurrent Users: 5-10 (Phase 1), 50+ (Phase 2+)
+- Database Size: <100MB (Phase 1), <10GB (Phase 2+)
+- SMS Volume: 10/day (Phase 1), 1000/day (Phase 2+)
 
 ---
 
@@ -724,9 +724,9 @@ def test_get_current_schedule():
 
 ### Python Version Requirements
 
-- **Minimum:** Python 3.11
-- **Recommended:** Python 3.11.7+
-- **Maximum:** Python 3.12.x (test for compatibility)
+- Minimum: Python 3.11
+- Recommended: Python 3.11.7+
+- Maximum: Python 3.12.x (test for compatibility)
 
 ### Critical Dependencies
 
@@ -759,9 +759,9 @@ httpx==0.25.2
 
 ### Version Update Policy
 
-- **Security patches:** Apply immediately
-- **Minor versions:** Update quarterly
-- **Major versions:** Evaluate carefully, test thoroughly
+- Security patches: Apply immediately
+- Minor versions: Update quarterly
+- Major versions: Evaluate carefully, test thoroughly
 
 ---
 
@@ -807,20 +807,20 @@ Run full test suite to verify migration
 
 ### Twilio Pricing (Approximate)
 
-- **SMS Outbound (US):** $0.0079 per message
-- **Phone Number:** $1.50/month
-- **Monthly Estimate:** ~$3-5 for 7-person team (7 SMS/day × 30 days × $0.0079)
+- SMS Outbound (US): $0.0079 per message
+- Phone Number: $1.50/month
+- Monthly Estimate: ~$3-5 for 7-person team (7 SMS/day × 30 days × $0.0079)
 
 ### Infrastructure Costs
 
-- **RHEL 10 VM:** Internal hosting (no additional cost)
-- **Development:** Free (local Mac + Proxmox)
-- **Docker/Podman:** Free and open source
+- RHEL 10 VM: Internal hosting (no additional cost)
+- Development: Free (local Mac + Proxmox)
+- Docker/Podman: Free and open source
 
 ### Total Monthly Operating Cost
 
-- **Phase 1:** <$10/month (Twilio only)
-- **Phase 2:** <$20/month (if adding PostgreSQL on separate VM)
+- Phase 1: <$10/month (Twilio only)
+- Phase 2: <$20/month (if adding PostgreSQL on separate VM)
 
 ---
 
