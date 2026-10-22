@@ -29,16 +29,6 @@
         }
 
         /* Override-specific styles */
-        .override-badge {
-            position: relative;
-            padding-left: 24px;
-        }
-        .override-badge::before {
-            content: "🔄";
-            position: absolute;
-            left: 4px;
-            font-size: 14px;
-        }
 
         .status-badge {
             padding: 0.25rem 0.5rem;
@@ -457,7 +447,7 @@
                 });
             } catch (error) {
                 console.error('Failed to load team members:', error);
-                showMessage('Failed to load team members', 'danger');
+                showMessage('Could not load team members. Reload the page.', 'danger');
             }
         }
 
@@ -502,7 +492,7 @@
                 });
             } catch (error) {
                 console.error('Failed to load schedules:', error);
-                showMessage('Failed to load schedules', 'danger');
+                showMessage('Could not load schedules. Reload the page.', 'danger');
             }
         }
 
@@ -569,7 +559,7 @@
                     <tr>
                         <td colspan="8" class="text-center text-muted py-4">
                             <i class="ti ti-inbox me-2"></i>
-                            No overrides found. Create one to get started!
+                            No overrides found. Create one to start.
                         </td>
                     </tr>
                 `;
@@ -588,7 +578,7 @@
                         </td>
                         <td>${escapeHtml(override.original_member_name)}</td>
                         <td>
-                            <span class="override-badge">${escapeHtml(override.override_member_name)}</span>
+                            <span class="override-badge"><i class="ti ti-arrows-exchange me-1"></i>${escapeHtml(override.override_member_name)}</span>
                         </td>
                         <td>
                             <span class="text-muted">${escapeHtml(override.reason || '-')}</span>
@@ -685,7 +675,7 @@
             const reason = document.getElementById('reasonInput').value.trim();
 
             if (!scheduleId || !overrideMemberId) {
-                showMessage('Please fill in all required fields', 'warning');
+                showMessage('Fill in all required fields.', 'warning');
                 return;
             }
 
@@ -726,7 +716,7 @@
                     document.getElementById('createOverrideForm').reset();
 
                     // Show success message AFTER modal is fully closed
-                    showMessage('Override created successfully!', 'success');
+                    showMessage('Override created.', 'success');
 
                     // Reload data
                     await loadOverrides(currentPage);
@@ -743,7 +733,7 @@
 
         // Cancel override
         async function cancelOverride(overrideId) {
-            if (!confirm('Are you sure you want to cancel this override?')) {
+            if (!confirm('Cancel this override? The original member is on call again.')) {
                 return;
             }
 
@@ -758,7 +748,7 @@
                     throw new Error(error.detail || 'Failed to cancel override');
                 }
 
-                showMessage('Override cancelled successfully', 'success');
+                showMessage('Override cancelled.', 'success');
 
                 // Reload data
                 await loadOverrides(currentPage);

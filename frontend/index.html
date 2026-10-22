@@ -525,7 +525,7 @@
             // If no one is currently on call, show N/A for all
             if (!primarySchedule) {
                 document.getElementById('primaryOnCall').innerHTML = '<span class="text-muted">Who\'s on first? Nobody yet - schedule hasn\'t started</span>';
-                document.getElementById('backupOnCall').innerHTML = '<span class="text-muted">What\'s on second? Not yet!</span>';
+                document.getElementById('backupOnCall').innerHTML = '<span class="text-muted">What\'s on second? Not assigned yet.</span>';
                 loadEscalationContacts(); // Still load escalation even if no one on call
                 return;
             }

@@ -176,7 +176,7 @@
                                                     <option value="2">2 Weeks</option>
                                                     <option value="4">4 Weeks (1 Month)</option>
                                                     <option value="8">8 Weeks (2 Months)</option>
-                                                    <option value="12" selected>12 Weeks (Quarter) ⭐</option>
+                                                    <option value="12" selected>12 Weeks (Quarter, recommended)</option>
                                                     <option value="24">24 Weeks (6 Months)</option>
                                                     <option value="52">52 Weeks (1 Year)</option>
                                                 </select>
@@ -414,9 +414,9 @@
             if (weeksRemaining < 2) {
                 statusClass = 'danger';
                 statusIcon = 'alert-triangle';
-                statusText = 'Schedule ending soon!';
+                statusText = 'Schedule ends soon';
                 showWarning = true;
-                warningText = `⚠️ Only ${daysRemaining} days remaining! Generate more weeks to avoid gaps.`;
+                warningText = `${daysRemaining} days remain. Generate more weeks to avoid gaps.`;
             } else if (weeksRemaining < 4) {
                 statusClass = 'warning';
                 statusIcon = 'alert-circle';
@@ -564,9 +564,9 @@
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             if (startDate === todayStr && now.getHours() >= 8) {
                 const proceed = confirm(
-                    "Today's 8:00 AM notification has already gone out — " +
-                    "today's on-call will not receive an SMS unless you " +
-                    "trigger notifications manually.\n\nGenerate anyway?"
+                    "Today's 8:00 AM notification has already gone out. " +
+                    "Today's on-call will not receive an SMS unless you " +
+                    "send notifications manually.\n\nGenerate the schedule?"
                 );
                 if (!proceed) return;
             }
@@ -612,9 +612,9 @@
                         console.error('Failed to save auto-renewal setting:', settingsError);
                     }
 
-                    let message = `✅ Successfully created ${result.schedules.length} schedule assignments!`;
+                    let message = `Created ${result.schedules.length} schedule assignments.`;
                     if (result.warnings && result.warnings.length > 0) {
-                        message += '\n\n⚠️ ' + result.warnings.join('\n⚠️ ');
+                        message += '\n\nWarnings:\n' + result.warnings.join('\n');
                     }
                     alert(message);
                     setTimeout(() => {
@@ -622,10 +622,10 @@
                     }, 500);
                 } else {
                     const error = await response.json();
-                    alert('❌ Error: ' + (error.detail || 'Failed to create schedule'));
+                    alert('Could not create the schedule: ' + (error.detail || 'unknown error.'));
                 }
             } catch (error) {
-                alert('❌ Error: ' + error.message);
+                alert('Error: ' + error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-calendar-plus me-2"></i>Generate Notification Schedule';
@@ -686,7 +686,7 @@
             document.body.removeChild(link);
 
             // Show success message
-            alert(`✅ Exported ${rows.length} schedules to ${filename}`);
+            alert(`Exported ${rows.length} schedules to ${filename}.`);
         });
 
         // Main initialization function

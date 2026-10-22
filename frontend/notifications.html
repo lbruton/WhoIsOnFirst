@@ -972,7 +972,7 @@
 
 Hi {name}, you are now on-call starting at {start_time} CST until {end_time} CST.
 
-Your shift lasts {duration}. Thank you for being available!`;
+Your shift lasts {duration}. Thank you for being available.`;
 
         async function loadTemplate() {
             try {
@@ -1143,7 +1143,7 @@ Your shift lasts {duration}. Thank you for being available!`;
 
                     // Validate template has at least one variable
                     if (!newTemplate.includes('{')) {
-                        if (!confirm('Warning: Template has no variables. Continue anyway?')) {
+                        if (!confirm('The template has no variables. Save it anyway?')) {
                             return;
                         }
                     }
@@ -1159,10 +1159,10 @@ Your shift lasts {duration}. Thank you for being available!`;
                         document.getElementById('templateEditView').style.display = 'none';
                         document.getElementById('editTemplateBtn').style.display = 'inline-block';
 
-                        alert('✅ Template saved successfully!');
+                        alert('Template saved.');
 
                     } catch (error) {
-                        alert('❌ Failed to save template: ' + error.message);
+                        alert('Could not save the template: ' + error.message);
                     } finally {
                         // Re-enable button
                         this.disabled = false;
@@ -1179,7 +1179,7 @@ Your shift lasts {duration}. Thank you for being available!`;
 
                 // Reset Template Button
                 document.getElementById('resetTemplateBtn').addEventListener('click', function() {
-                    if (confirm('Reset to default template? This cannot be undone.')) {
+                    if (confirm('Reset the template to the default? You cannot undo this.')) {
                         document.getElementById('templateEditor').value = DEFAULT_TEMPLATE;
                         updateCharacterCount();
                     }
@@ -1287,7 +1287,7 @@ Your shift lasts {duration}. Thank you for being available!`;
 
 Hi {name}, this is a test notification from the WhoIsOnFirst system.
 
-Thank you!`;
+Thank you.`;
 
             document.getElementById('manualMessageText').value = defaultMessage;
 
@@ -1359,7 +1359,7 @@ Thank you!`;
 
             // Validation
             if (!selectedMemberId) {
-                document.getElementById('manualNotificationErrorText').textContent = 'Please select a recipient';
+                document.getElementById('manualNotificationErrorText').textContent = 'Select a recipient.';
                 document.getElementById('manualNotificationError').style.display = 'block';
                 return;
             }
@@ -1397,7 +1397,7 @@ Thank you!`;
                 if (result.success) {
                     // Show success message
                     document.getElementById('manualNotificationSuccessText').textContent =
-                        `✅ ${result.message} (SID: ${result.twilio_sid})`;
+                        `${result.message} (SID: ${result.twilio_sid})`;
                     document.getElementById('manualNotificationSuccess').style.display = 'block';
 
                     // Reload notification history

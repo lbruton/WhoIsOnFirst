@@ -91,6 +91,6 @@ async def import_backup(
 
     return {
         "status": "success",
-        "message": "Database restored successfully",
+        "message": "Database restored.",
         "imported": counts,
     }

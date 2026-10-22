@@ -374,7 +374,7 @@ def trigger_notifications_manually(force: bool = False) -> dict:
         result = send_daily_notifications(force=force)
         return {
             'status': 'success',
-            'message': 'Notifications processed successfully',
+            'message': 'Notifications processed.',
             'timestamp': datetime.now(CHICAGO_TZ).isoformat(),
             'successful': result['successful'],
             'failed': result['failed'],
@@ -703,7 +703,7 @@ def trigger_weekly_summary_manually() -> dict:
         result = send_weekly_escalation_summary()
         return {
             'status': 'success',
-            'message': 'Weekly escalation summary processed successfully',
+            'message': 'Weekly escalation summary processed.',
             'timestamp': result.get('timestamp', datetime.now(CHICAGO_TZ).isoformat()),
             'successful': result.get('successful', 0),
             'failed': result.get('failed', 0),
@@ -784,7 +784,7 @@ def trigger_override_completion_manually() -> dict:
         result = complete_past_overrides()
         return {
             'status': 'success',
-            'message': 'Override completion processed successfully',
+            'message': 'Override completion processed.',
             'timestamp': result.get('timestamp', datetime.now(CHICAGO_TZ).isoformat()),
             'completed_count': result.get('completed_count', 0)
         }

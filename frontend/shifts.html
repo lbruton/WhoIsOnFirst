@@ -665,7 +665,7 @@
                                               (indices[0] === 0 && indices[1] === 6); // Sunday-Monday wrap
 
                         if (!areConsecutive) {
-                            alert('⚠️ For 48-hour shifts, please select 2 consecutive days (e.g., Tuesday-Wednesday)');
+                            alert('Select two consecutive days for a 48-hour shift, for example Tuesday and Wednesday.');
                             this.checked = false;
                         }
                     }
@@ -699,7 +699,7 @@
             // Get selected days
             const dayOfWeek = getSelectedDaysString();
             if (!dayOfWeek) {
-                alert('⚠️ Please select at least one day of the week');
+                alert('Select at least one day of the week.');
                 return;
             }
 
@@ -708,12 +708,12 @@
             const selectedCount = document.querySelectorAll('.day-checkbox:checked').length;
 
             if (duration === 24 && selectedCount !== 1) {
-                alert('⚠️ Please select exactly 1 day for 24-hour shifts');
+                alert('Select one day for a 24-hour shift.');
                 return;
             }
 
             if (duration === 48 && selectedCount !== 2) {
-                alert('⚠️ Please select exactly 2 consecutive days for 48-hour shifts');
+                alert('Select two consecutive days for a 48-hour shift.');
                 return;
             }
 
@@ -734,16 +734,16 @@
                 });
 
                 if (response.ok) {
-                    alert('✅ Shift added successfully!');
+                    alert('Shift added.');
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
                 } else {
                     const error = await response.json();
-                    alert('❌ Error: ' + (error.detail || 'Failed to add shift'));
+                    alert('Could not add the shift: ' + (error.detail || 'unknown error.'));
                 }
             } catch (error) {
-                alert('❌ Error: ' + error.message);
+                alert('Error: ' + error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-plus me-2"></i>Add Shift';
@@ -768,7 +768,7 @@
                     new bootstrap.Modal(document.getElementById('editShiftModal')).show();
                 }
             } catch (error) {
-                alert('❌ Error loading shift: ' + error.message);
+                alert('Could not load the shift: ' + error.message);
             }
         }
 
@@ -796,16 +796,16 @@
                 });
 
                 if (response.ok) {
-                    alert('✅ Shift updated successfully!');
+                    alert('Shift updated.');
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
                 } else {
                     const error = await response.json();
-                    alert('❌ Error: ' + (error.detail || 'Failed to update shift'));
+                    alert('Could not update the shift: ' + (error.detail || 'unknown error.'));
                 }
             } catch (error) {
-                alert('❌ Error: ' + error.message);
+                alert('Error: ' + error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-check me-2"></i>Save Changes';
@@ -814,7 +814,7 @@
 
         // Delete shift
         async function deleteShift(id, shiftNumber) {
-            if (!confirm(`Delete Shift ${shiftNumber}? This will also delete all schedule assignments for this shift.`)) {
+            if (!confirm(`Delete Shift ${shiftNumber}? This also deletes all schedule assignments for this shift. You cannot undo this.`)) {
                 return;
             }
 
@@ -825,16 +825,16 @@
                 });
 
                 if (response.ok) {
-                    alert('✅ Shift deleted successfully!');
+                    alert('Shift deleted.');
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
                 } else {
                     const error = await response.json();
-                    alert('❌ Error: ' + (error.detail || 'Failed to delete shift'));
+                    alert('Could not delete the shift: ' + (error.detail || 'unknown error.'));
                 }
             } catch (error) {
-                alert('❌ Error: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 

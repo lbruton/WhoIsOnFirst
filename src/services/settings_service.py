@@ -37,7 +37,7 @@ DEFAULT_SMS_TEMPLATE = """WhoIsOnFirst Alert
 
 Hi {name}, you are now on-call starting at {start_time} CST until {end_time} CST.
 
-Your shift lasts {duration}. Thank you for being available!"""
+Your shift lasts {duration}. Thank you for being available."""
 
 
 class SettingsService:

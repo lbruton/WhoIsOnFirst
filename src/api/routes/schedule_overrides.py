@@ -267,7 +267,7 @@ def complete_past_overrides(
         Response:
         {
             "status": "success",
-            "message": "Override completion processed successfully",
+            "message": "Override completion processed.",
             "timestamp": "2024-12-02T14:30:00-06:00",
             "completed_count": 4
         }
