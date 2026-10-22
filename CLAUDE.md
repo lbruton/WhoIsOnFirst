@@ -7,6 +7,7 @@ Automated on-call rotation + SMS notification system for a 7-person technical te
 ## Docs
 
 - **In-repo (`.context/`):** `architecture.md`, `technical-stack.md`, `code-patterns.md`, `authentication.md`, `rpi-process.md`. Foundation source of truth — tracked, travels with the code. Start at `.context/README.md`.
+- **Voice:** [`.context/voice.md`](.context/voice.md) sets the audience, register and prose dials for comments, docstrings, UI copy and SMS text. Read it with `.claude/rules/prose-core.md` before writing any of those.
 - **DocVault (in-repo, `DocVault/`):** `Overview.md`, PRD, Roadmap, research notes, sprint archives, runbooks. Human/product-facing + long-term research; edits ride the feature PR (DEVS-78). Security reviews and deploy/infra detail live in the **private companion** `Devops/DocVault/Projects/WhoIsOnFirst/` (`vault-path private`) — this repo is public and mirrored. Run `/vault-update` after behavior-affecting changes.
 
 ## Branch & Push Policy (overrides global)

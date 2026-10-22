@@ -48,7 +48,7 @@ class ChangePasswordRequest(BaseModel):
 
 class ChangePasswordResponse(BaseModel):
     """Change password response schema."""
-    message: str = "Password changed successfully"
+    message: str = "Password changed."
 
 
 class ResetViewerPasswordRequest(BaseModel):
@@ -63,4 +63,4 @@ class ResetViewerPasswordRequest(BaseModel):
 
 class ResetViewerPasswordResponse(BaseModel):
     """Reset viewer password response schema."""
-    message: str = "Viewer password reset successfully"
+    message: str = "Viewer password reset."

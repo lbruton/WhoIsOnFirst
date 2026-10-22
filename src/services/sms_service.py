@@ -84,40 +84,18 @@ class SMSService:
         mock_mode: bool = False
     ):
         """
-        Initialize SMS service.
+        Initialize the SMS service from DB settings, then env vars, then none.
 
-        Resolves Twilio configuration in precedence order:
-            1. Database settings (DB) — populated via the admin UI (WHO-43).
-            2. Environment variables — preserved for existing deployments.
-            3. None — enters the explicit ``unconfigured`` state (mock_mode
-               stays False, config_source == "none"). The app boots so an
-               admin can land on /admin.html to configure Twilio, but any
-               send attempt raises SMSDeliveryError loudly. Mock mode is
-               NOT activated; that would silently log fake successful sends.
-
-        ``SMS_MOCK_MODE`` (env var) and ``mock_mode=True`` (constructor arg)
-        force mock mode regardless of any other configuration. Mock mode is
-        an explicit opt-in only — it is never entered automatically when
-        credentials are absent.
+        Mock mode is opt-in only, through ``mock_mode=True`` or ``SMS_MOCK_MODE``.
+        Missing or rejected credentials set ``unconfigured``: the app boots and
+        every send raises SMSDeliveryError instead of logging a fake delivery.
 
         Args:
             db: SQLAlchemy database session
             max_retries: Maximum retry attempts (default: 3)
             base_delay: Base delay in seconds for exponential backoff (default: 60)
-            mock_mode: If True, skip Twilio client initialization for testing.
-                Can also be enabled at runtime by setting the SMS_MOCK_MODE
-                environment variable to "1", "true", or "yes" (case-insensitive).
-                The env var is OR'd with this parameter, so either one being
-                truthy forces mock mode. This is the supported way to disable
-                real SMS in dev containers — see `.env.dev.example`.
-
-        Raises:
-            Nothing on init. Missing credentials → unconfigured state
-            (config_source == "none", mock_mode stays False, sends raise
-            SMSDeliveryError). Present-but-rejected credentials (Twilio SDK
-            init failure) → also enter unconfigured state with a WARNING log
-            rather than raising, so the app stays up. TwilioConfigurationError
-            is no longer raised from __init__.
+            mock_mode: Skip Twilio and log sends only. The ``SMS_MOCK_MODE`` env
+                var ("1", "true" or "yes") also forces it; see `.env.dev.example`.
         """
         self.db = db
         self.max_retries = max_retries
@@ -130,9 +108,6 @@ class SMSService:
         # sends through real Twilio — see _check_recipient_allowed.
         self.app_env = get_app_environment()
         self.allowed_numbers = _parse_allowed_numbers(os.getenv('SMS_ALLOWED_NUMBERS', ''))
-        # When True, SMS service has no usable credentials AND no intentional
-        # mock-mode opt-in — sends MUST fail rather than silently log
-        # successful-delivered. See CodeRabbit C2 / WHO-49 follow-up.
         self.unconfigured = False
 
         # Initialize repositories and services
@@ -155,11 +130,8 @@ class SMSService:
                     f"SMS service: Twilio config loaded (source={source})"
                 )
             except Exception as exc:
-                # Credentials were present but the Twilio SDK rejected them
-                # (expired/rotated/malformed token). Enter unconfigured state
-                # rather than crashing — the app stays up so an admin can
-                # correct the credentials via /admin.html. Subsequent sends
-                # fail loudly via SMSDeliveryError (T9).
+                # The Twilio SDK rejected the credentials (expired, rotated or
+                # malformed token). The admin fixes them in /admin.html.
                 logger.warning(
                     f"SMS service: Twilio SDK rejected credentials from "
                     f"{source} ({exc}) — entering unconfigured state"
@@ -169,11 +141,6 @@ class SMSService:
                 self.from_phone = "+15551234567"  # Placeholder; never used.
                 self.config_source = "none"
         elif source == "none":
-            # No DB config and no env config — DO NOT enter mock mode (which
-            # would silently log fake successful sends). Mark service as
-            # unconfigured so any send attempt raises SMSDeliveryError.
-            # The app still boots so an admin can land on /admin.html and
-            # configure Twilio via the new UI.
             self.unconfigured = True
             self.twilio_client = None
             self.from_phone = "+15551234567"  # Placeholder; never used.
@@ -359,11 +326,11 @@ class SMSService:
 
             # Determine which phone(s) succeeded
             if primary_result['success'] and secondary_result and secondary_result['success']:
-                message = "SMS sent successfully to both phones"
+                message = "SMS sent to both phones."
             elif primary_result['success']:
-                message = "SMS sent successfully to primary phone"
+                message = "SMS sent to the primary phone."
             else:
-                message = "SMS sent successfully to secondary phone"
+                message = "SMS sent to the secondary phone."
 
             return {
                 "success": True,
@@ -984,7 +951,7 @@ class SMSService:
                 "notification_id": log_entry.id,
                 "twilio_sid": twilio_result['sid'],
                 "status": "sent",
-                "message": f"SMS sent successfully to {team_member.name}",
+                "message": f"SMS sent to {team_member.name}.",
                 "error": None
             }
 

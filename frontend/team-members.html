@@ -431,7 +431,7 @@
                     <input type="hidden" id="deleteMemberName">
                     <div class="modal-body">
                         <div class="alert alert-danger" style="background-color: #fee2e2; border: 1px solid #dc2626; color: #991b1b;">
-                            <strong>⚠️ Warning:</strong> This action cannot be undone!
+                            <strong>Warning:</strong> You cannot undo this action.
                         </div>
                         <p class="mb-3">
                             You are about to <strong>permanently delete</strong> this team member:
@@ -640,7 +640,7 @@
             } catch (error) {
                 console.error('Error loading members:', error);
                 showLoading(false);
-                showError('Failed to load team members. Please check if the backend server is running.');
+                showError('Could not load team members. Check that the backend server is running.');
             }
         }
 
@@ -774,12 +774,12 @@
 
                 orderChanged = false;
                 btn.style.display = 'none';
-                showSuccess('✅ Rotation order saved successfully!');
+                showSuccess('Rotation order saved.');
                 await loadMembers(); // Reload to show updated order values
 
             } catch (error) {
                 console.error('Error saving order:', error);
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-device-floppy me-2"></i>Save Rotation Order';
@@ -821,13 +821,13 @@
                 }
 
                 // Success - reload page to ensure clean state
-                showSuccess('✅ Team member added successfully!');
+                showSuccess('Team member added.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-plus me-2"></i>Add Member';
@@ -889,13 +889,13 @@
                 }
 
                 // Success - reload page to ensure clean state
-                showSuccess('✅ Team member updated successfully!');
+                showSuccess('Team member updated.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-check me-2"></i>Save Changes';
@@ -918,7 +918,7 @@
             }
 
             const action = currentStatus ? 'deactivate' : 'activate';
-            if (!confirm(`Are you sure you want to ${action} this team member?`)) return;
+            if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} this team member?`)) return;
 
             try {
                 const endpoint = currentStatus ? 'DELETE' : 'POST';
@@ -936,11 +936,11 @@
                     throw new Error(error.detail || 'Failed to update status');
                 }
 
-                showSuccess(`✅ Team member ${action}d successfully!`);
+                showSuccess(`Team member ${action}d.`);
                 await loadMembers();
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             }
         }
 
@@ -1004,11 +1004,11 @@
                 // Close modal
                 bootstrap.Modal.getInstance(document.getElementById('deleteMemberModal')).hide();
 
-                showSuccess(`✅ ${memberName} permanently deleted`);
+                showSuccess(`${memberName} deleted.`);
                 await loadMembers();
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-trash me-2"></i>Delete Permanently';
@@ -1085,7 +1085,7 @@
 
             } catch (error) {
                 console.error('Error loading escalation config:', error);
-                showError('❌ Failed to load escalation configuration');
+                showError('Could not load the escalation contacts. Reload the page.');
             }
         });
 
@@ -1165,7 +1165,7 @@
                     }, 50);
 
                     // Show success alert AFTER modal is completely gone
-                    showSuccess('✅ Escalation contacts saved successfully!');
+                    showSuccess('Escalation contacts saved.');
 
                     // Remove this event listener (one-time use)
                     modalElement.removeEventListener('hidden.bs.modal', onHidden);
@@ -1194,7 +1194,7 @@
                     }, 50);
 
                     // Show error alert AFTER modal is completely gone
-                    showError('❌ ' + error.message);
+                    showError(error.message);
 
                     // Remove this event listener (one-time use)
                     modalElement.removeEventListener('hidden.bs.modal', onHidden);
@@ -1247,16 +1247,16 @@
                     // Handle nested result structure
                     const counts = result.result || result;
                     if (counts.successful !== undefined) {
-                        showSuccess(`✅ Weekly summary sent!\n\nSuccessful: ${counts.successful}\nFailed: ${counts.failed}\nTotal: ${counts.total}`);
+                        showSuccess(`Weekly summary sent.\n\nSuccessful: ${counts.successful}\nFailed: ${counts.failed}\nTotal: ${counts.total}`);
                     } else {
-                        showSuccess(`✅ ${result.message || 'Weekly summary sent successfully!'}`);
+                        showSuccess(result.message || 'Weekly summary sent.');
                     }
                 } else {
-                    showError(`⚠️ ${result.message}`);
+                    showError(result.message);
                 }
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
