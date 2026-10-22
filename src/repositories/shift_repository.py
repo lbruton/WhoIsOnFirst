@@ -27,27 +27,11 @@ class ShiftRepository(BaseRepository[Shift]):
     """
 
     def __init__(self, db: Session):
-        """
-        Initialize ShiftRepository.
-
-        Args:
-            db: SQLAlchemy database session
-        """
+        """Initialize ShiftRepository."""
         super().__init__(db, Shift)
 
     def get_by_shift_number(self, shift_number: int) -> Optional[Shift]:
-        """
-        Get shift by its shift number.
-
-        Args:
-            shift_number: The shift number (1-6 for standard Mon-Sun pattern)
-
-        Returns:
-            Shift instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get shift by its shift number."""
         try:
             return (
                 self.db.query(self.model)
@@ -59,15 +43,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error getting shift by number: {str(e)}")
 
     def get_all_ordered(self) -> List[Shift]:
-        """
-        Get all shifts ordered by shift number.
-
-        Returns:
-            List of all shifts in sequential order
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all shifts ordered by shift number."""
         try:
             return (
                 self.db.query(self.model)
@@ -79,15 +55,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error getting ordered shifts: {str(e)}")
 
     def get_weekend_shifts(self) -> List[Shift]:
-        """
-        Get all weekend shifts (Saturday and Sunday).
-
-        Returns:
-            List of weekend Shift instances
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all weekend shifts (Saturday and Sunday)."""
         try:
             return (
                 self.db.query(self.model)
@@ -103,18 +71,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error getting weekend shifts: {str(e)}")
 
     def get_by_duration(self, duration_hours: int) -> List[Shift]:
-        """
-        Get all shifts with a specific duration.
-
-        Args:
-            duration_hours: Duration to filter by (24 or 48)
-
-        Returns:
-            List of shifts with the specified duration
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all shifts with a specific duration."""
         try:
             return (
                 self.db.query(self.model)
@@ -127,21 +84,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error getting shifts by duration: {str(e)}")
 
     def shift_number_exists(self, shift_number: int, exclude_id: Optional[int] = None) -> bool:
-        """
-        Check if shift number already exists in database.
-
-        Useful for validation before creating/updating shifts.
-
-        Args:
-            shift_number: Shift number to check
-            exclude_id: Optional ID to exclude from check (for updates)
-
-        Returns:
-            True if shift number exists (and isn't the excluded ID), False otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Check if shift number already exists in database."""
         try:
             query = self.db.query(self.model).filter(
                 self.model.shift_number == shift_number
@@ -156,18 +99,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error checking shift number existence: {str(e)}")
 
     def get_by_day_of_week(self, day_of_week: str) -> List[Shift]:
-        """
-        Get shifts by day of week (case-insensitive partial match).
-
-        Args:
-            day_of_week: Day name to search for (e.g., "Monday", "Tuesday-Wednesday")
-
-        Returns:
-            List of matching Shift instances
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get shifts by day of week (case-insensitive partial match)."""
         try:
             search_term = f"%{day_of_week}%"
             return (
@@ -181,17 +113,7 @@ class ShiftRepository(BaseRepository[Shift]):
             raise Exception(f"Database error getting shifts by day: {str(e)}")
 
     def get_max_shift_number(self) -> int:
-        """
-        Get the highest shift number currently in use.
-
-        Useful for determining the next shift number when adding new shifts.
-
-        Returns:
-            Maximum shift number, or 0 if no shifts exist
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get the highest shift number currently in use."""
         try:
             result = self.db.query(self.model.shift_number).order_by(
                 self.model.shift_number.desc()

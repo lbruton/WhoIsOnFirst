@@ -10,10 +10,10 @@ The RPI (Research-Plan-Implement) process is a lightweight 3-phase workflow desi
 
 Use RPI for:
 
-- **Bug Fixes**: Broken functionality that needs correction
-- **Enhancements**: Improvements to existing features
-- **Technical Debt**: Code quality improvements
-- **Small Features**: Well-defined additions to the system
+- Bug Fixes: Broken functionality that needs correction
+- Enhancements: Improvements to existing features
+- Technical Debt: Code quality improvements
+- Small Features: Well-defined additions to the system
 
 For major new features (Phase 2+), consider the full SRPI process (Specification → Research → Plan → Implement).
 
@@ -21,15 +21,15 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
 
 ## Phase 1: RESEARCH (The WHAT)
 
-**Duration**: 30-90 minutes
-**Linear Issue**: `RESEARCH: <feature name>`
-**Goal**: Understand what exists and what needs to change
+Duration: 30-90 minutes
+Linear Issue: `RESEARCH: <feature name>`
+Goal: Understand what exists and what needs to change
 
 ### MCP Tool Usage (CRITICAL - Token Efficiency)
 
-**Use these tools FIRST before manual file operations**:
+Use these tools FIRST before manual file operations:
 
-1. **`mcp__claude-context__search_code`** - Semantic codebase search
+1. `mcp__claude-context__search_code` - Semantic codebase search
 
    ```javascript
    mcp__claude-context__search_code({
@@ -39,10 +39,10 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
    })
    ```
 
-   - **Returns**: Exact file:line locations
-   - **Token savings**: 80-90% vs manual Grep/Read
+   - Returns: Exact file:line locations
+   - Token savings: 80-90% vs manual Grep/Read
 
-2. **`mcp__memento__semantic_search`** - Historical knowledge
+2. `mcp__memento__semantic_search` - Historical knowledge
 
    ```javascript
    mcp__memento__semantic_search({
@@ -52,56 +52,56 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
    })
    ```
 
-   - **Returns**: Past decisions and patterns
-   - **Token savings**: 90%+ vs reading session logs
+   - Returns: Past decisions and patterns
+   - Token savings: 90%+ vs reading session logs
 
-3. **`mcp__sequential-thinking__sequentialthinking`** - Complex problems
+3. `mcp__sequential-thinking__sequentialthinking` - Complex problems
    - Use for breaking down multi-step architectural questions
 
 ### Research Process
 
-1. **Search codebase semantically** (claude-context) for affected files
-2. **Query Memento** (semantic_search) for related patterns
-3. **Read specific files** identified by searches (not exploratory!)
-4. **Document current state**: entry points, key modules, data models
-5. **Analyze impact**: UI/UX, database, scheduler, Docker deployment
-6. **Identify risks** and safeguards
-7. **Estimate scope**: Can this be done in 1-2 Docker rebuild cycles?
+1. Search codebase semantically (claude-context) for affected files
+2. Query Memento (semantic_search) for related patterns
+3. Read specific files identified by searches (not exploratory!)
+4. Document current state: entry points, key modules, data models
+5. Analyze impact: UI/UX, database, scheduler, Docker deployment
+6. Identify risks and safeguards
+7. Estimate scope: Can this be done in 1-2 Docker rebuild cycles?
 
 ### Research Outputs
 
-- **Current State Summary**: File locations with line numbers (from claude-context)
-- **Impacted Files List**: What will change
-- **Impact Analysis**: UI, DB, scheduler, Docker, dependencies
-- **Risks & Safeguards**: What could break, how to prevent
-- **Feasibility Assessment**: Complexity estimate (low/medium/high)
+- Current State Summary: File locations with line numbers (from claude-context)
+- Impacted Files List: What will change
+- Impact Analysis: UI, DB, scheduler, Docker, dependencies
+- Risks & Safeguards: What could break, how to prevent
+- Feasibility Assessment: Complexity estimate (low/medium/high)
 
 ### Readiness Gate
 
-- [ ] Current state documented with **file:line references**
+- [ ] Current state documented with file:line references
 - [ ] Risks & rollback strategy outlined
 - [ ] Affected modules enumerated
 - [ ] Docker rebuild requirements identified
 - [ ] Open questions answered or deferred
 
-**When ready**: Create child `PLAN:` issue and proceed to Phase 2
+When ready: Create child `PLAN:` issue and proceed to Phase 2
 
 ---
 
 ## Phase 2: PLAN (The HOW)
 
-**Duration**: 30-60 minutes
-**Linear Issue**: `PLAN: <feature name>` (child of RESEARCH)
-**Goal**: Break down implementation into concrete tasks
+Duration: 30-60 minutes
+Linear Issue: `PLAN: <feature name>` (child of RESEARCH)
+Goal: Break down implementation into concrete tasks
 
 ### Plan Process
 
-1. **Create task table** with: ID, Step, Est (min), Files, Validation, Risk
-2. **Estimate task sizes** (target 15-60 minutes per task)
-3. **Write before/after code** for each task
-4. **Define validation plan** (tests, manual checks)
-5. **Document Docker rebuild points** (after which tasks?)
-6. **Mark NEXT task** (only one at a time)
+1. Create task table with: ID, Step, Est (min), Files, Validation, Risk
+2. Estimate task sizes (target 15-60 minutes per task)
+3. Write before/after code for each task
+4. Define validation plan (tests, manual checks)
+5. Document Docker rebuild points (after which tasks?)
+6. Mark NEXT task (only one at a time)
 
 ### Task Table Format
 
@@ -113,7 +113,7 @@ For major new features (Phase 2+), consider the full SRPI process (Specification
 
 ### Before/After Example
 
-**Task 1.1 - Add auto-renewal check function**:
+Task 1.1 - Add auto-renewal check function:
 
 ```python
 # Before: No auto-renewal logic exists
@@ -136,11 +136,11 @@ def check_auto_renewal() -> None:
 
 ### Plan Outputs
 
-- **Task table** with 3-10 actionable tasks
-- **Before/after code** for each task
-- **Validation plan** (pytest, manual checks, log verification)
-- **Docker rebuild points** (when to rebuild container)
-- **Backout strategy** (git revert commands)
+- Task table with 3-10 actionable tasks
+- Before/after code for each task
+- Validation plan (pytest, manual checks, log verification)
+- Docker rebuild points (when to rebuild container)
+- Backout strategy (git revert commands)
 
 ### Preflight Checklist
 
@@ -150,19 +150,19 @@ def check_auto_renewal() -> None:
 - [ ] Test/validation approach clear
 - [ ] Database migration needs identified (if any)
 
-**When ready**: Create child `IMPLEMENT:` issue and proceed to Phase 3
+When ready: Create child `IMPLEMENT:` issue and proceed to Phase 3
 
 ---
 
 ## Phase 3: IMPLEMENT (The BUILD)
 
-**Duration**: 1-3 hours (may span multiple sessions)
-**Linear Issue**: `IMPLEMENT: <feature name>` (child of PLAN)
-**Goal**: Execute tasks with Docker rebuild checkpoints
+Duration: 1-3 hours (may span multiple sessions)
+Linear Issue: `IMPLEMENT: <feature name>` (child of PLAN)
+Goal: Execute tasks with Docker rebuild checkpoints
 
 ### Docker-First Implementation Pattern
 
-**Critical**: WhoIsOnFirst uses Docker for development. Code changes require container rebuild.
+Critical: WhoIsOnFirst uses Docker for development. Code changes require container rebuild.
 
 ```bash
 # Before starting implementation
@@ -191,18 +191,18 @@ docker-compose -f docker-compose.dev.yml logs -f
 
 ### Implement Process
 
-1. **Verify clean worktree**: `git status` must be clean
-2. **Create safety commit** (optional): `git commit -m "🔐 pre-work snapshot (WHO-XX)"`
-3. **Read PLAN** and locate task marked **NEXT**
-4. **Execute Task 1.1**:
+1. Verify clean worktree: `git status` must be clean
+2. Create safety commit (optional): `git commit -m "🔐 pre-work snapshot (WHO-XX)"`
+3. Read PLAN and locate task marked NEXT
+4. Execute Task 1.1:
    - Apply code changes (Edit/Write)
    - Run validation (if possible without Docker)
    - Commit: `git commit -m "feat(scheduler): Add auto-renewal check (WHO-XX Task 1.1)"`
-   - **Rebuild Docker if needed**
+   - Rebuild Docker if needed
    - Verify in logs
-5. **Execute Task 1.2** (repeat pattern)
-6. **Run full validation** after all tasks complete
-7. **Prepare PR** (if using branches) or update Linear issue
+5. Execute Task 1.2 (repeat pattern)
+6. Run full validation after all tasks complete
+7. Prepare PR (if using branches) or update Linear issue
 
 ### Git Commit Pattern
 
@@ -223,11 +223,11 @@ docker-compose -f docker-compose.dev.yml up -d
 
 ### Implement Outputs
 
-- **Completed code changes** (all PLAN tasks executed)
-- **Git commits** (every 1-3 tasks)
-- **Docker container rebuilt** and verified
-- **Validation results** (tests passed, logs clean)
-- **Linear issue updated** with completion notes
+- Completed code changes (all PLAN tasks executed)
+- Git commits (every 1-3 tasks)
+- Docker container rebuilt and verified
+- Validation results (tests passed, logs clean)
+- Linear issue updated with completion notes
 
 ### Live Checklist
 
@@ -250,7 +250,7 @@ docker-compose -f docker-compose.dev.yml up -d
 - [ ] No console errors in browser (if frontend changes)
 - [ ] Database migrations applied (if schema changes)
 
-**When complete**: Mark Linear issues as Done, update Memento with insights
+When complete: Mark Linear issues as Done, update Memento with insights
 
 ---
 
@@ -258,11 +258,11 @@ docker-compose -f docker-compose.dev.yml up -d
 
 ### When to Rebuild
 
-- **Always rebuild** when changing Python code (backend logic)
-- **Always rebuild** when adding new dependencies
-- **Always rebuild** when modifying scheduler jobs
-- **Optional rebuild** for frontend-only changes (can refresh browser)
-- **Always rebuild** for testing integration changes
+- Always rebuild when changing Python code (backend logic)
+- Always rebuild when adding new dependencies
+- Always rebuild when modifying scheduler jobs
+- Optional rebuild for frontend-only changes (can refresh browser)
+- Always rebuild for testing integration changes
 
 ### Debugging in Docker
 
@@ -286,14 +286,14 @@ docker ps | grep whoisonfirst-dev
 
 ### Token Efficiency Hierarchy
 
-1. **First**: Memento semantic search (find historical decisions)
-2. **Second**: Claude-context semantic search (find current code)
-3. **Third**: Sequential thinking (decompose complex problems)
-4. **Last**: Manual file operations (Read specific files only)
+1. First: Memento semantic search (find historical decisions)
+2. Second: Claude-context semantic search (find current code)
+3. Third: Sequential thinking (decompose complex problems)
+4. Last: Manual file operations (Read specific files only)
 
 ### Anti-Patterns (Avoid These)
 
-❌ **Reading multiple files speculatively**
+❌ Reading multiple files speculatively
 
 ```javascript
 // Don't do this:
@@ -303,7 +303,7 @@ Read('src/models/schedule.py')             // 150 lines
 // Total: 650 lines, most irrelevant
 ```
 
-✅ **Semantic search first, targeted reads second**
+✅ Semantic search first, targeted reads second
 
 ```javascript
 // Do this instead:
@@ -323,9 +323,9 @@ Read('src/scheduler/schedule_manager.py', { offset: 70, limit: 30 })
 
 ### Phase 1: RESEARCH (45 min)
 
-**Created**: WHO-2
+Created: WHO-2
 
-**Claude-Context Search**:
+Claude-Context Search:
 
 ```javascript
 mcp__claude-context__search_code({
@@ -335,33 +335,33 @@ mcp__claude-context__search_code({
 // Found: src/services/schedule_service.py:120-145
 ```
 
-**Current State**:
+Current State:
 
 - Schedule generation: `schedule_service.py:generate_schedule()`
 - Settings model: Needs creation
 - Scheduler jobs: `schedule_manager.py:45`
 - Frontend toggle: Needs addition to `schedule.html`
 
-**Impact Analysis**:
+Impact Analysis:
 
-- **Database**: Add `settings` table (new migration)
-- **Backend**: New SettingsService, API endpoints
-- **Scheduler**: New `check_auto_renewal()` job at 2:00 AM
-- **Frontend**: Toggle UI in schedule.html
-- **Docker**: Rebuild required after backend changes
+- Database: Add `settings` table (new migration)
+- Backend: New SettingsService, API endpoints
+- Scheduler: New `check_auto_renewal()` job at 2:00 AM
+- Frontend: Toggle UI in schedule.html
+- Docker: Rebuild required after backend changes
 
-**Risks**:
+Risks:
 
 - Migration could fail if table exists → Use `alembic stamp head` if needed
 - Scheduler job conflicts → Use unique job ID `auto_renewal_check`
 
-**Readiness**: ✅ All checkboxes complete
+Readiness: ✅ All checkboxes complete
 
 ### Phase 2: PLAN (30 min)
 
-**Created**: WHO-2 (continue in same issue for small features)
+Created: WHO-2 (continue in same issue for small features)
 
-**Task Table**:
+Task Table:
 
 | ID | Step | Est | Files | Validation | Docker Rebuild? |
 |----|------|-----|-------|------------|-----------------|
@@ -373,11 +373,11 @@ mcp__claude-context__search_code({
 | 1.6 | Add frontend toggle | 30 | `frontend/schedule.html:250` | Manual UI test | Yes |
 | 1.7 | Create migration | 15 | `alembic/versions/` | Run migration | Yes |
 
-**Preflight**: ✅ All checkboxes complete
+Preflight: ✅ All checkboxes complete
 
 ### Phase 3: IMPLEMENT (2 hours)
 
-**Created**: WHO-2 (continue tracking in same issue)
+Created: WHO-2 (continue tracking in same issue)
 
 ```bash
 # Tasks 1.1-1.3: Create models/repositories/services
@@ -405,7 +405,7 @@ docker exec whoisonfirst-dev alembic upgrade head
 git commit -m "feat(db): Add settings table migration (WHO-2 Task 1.7)"
 ```
 
-**Verification**: ✅ All tests passed, Docker logs clean, UI functional
+Verification: ✅ All tests passed, Docker logs clean, UI functional
 
 ---
 
@@ -413,16 +413,16 @@ git commit -m "feat(db): Add settings table migration (WHO-2 Task 1.7)"
 
 | Aspect | WhoIsOnFirst RPI | HexTrackr SRPI |
 |--------|------------------|----------------|
-| **Phases** | 3 (Research, Plan, Implement) | 4 (+ Specification) |
-| **Linear Issues** | 1-3 issues (can combine for small features) | 4 parent-child issues |
-| **Docker-Aware** | ✅ Yes (rebuild checkpoints) | N/A |
-| **Duration** | 2-4 hours total | 5-12 hours total |
-| **Use Case** | Bug fixes, enhancements, small features | Major new features |
-| **MCP Tools** | claude-context, memento, sequential-thinking | Same + context7 |
+| Phases | 3 (Research, Plan, Implement) | 4 (+ Specification) |
+| Linear Issues | 1-3 issues (can combine for small features) | 4 parent-child issues |
+| Docker-Aware | ✅ Yes (rebuild checkpoints) | N/A |
+| Duration | 2-4 hours total | 5-12 hours total |
+| Use Case | Bug fixes, enhancements, small features | Major new features |
+| MCP Tools | claude-context, memento, sequential-thinking | Same + context7 |
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-11-09
-**Authority**: This document defines the official RPI process for WhoIsOnFirst development
-**Adapted From**: HexTrackr SRPI_PROCESS.md
+Version: 1.0.0
+Last Updated: 2025-11-09
+Authority: This document defines the official RPI process for WhoIsOnFirst development
+Adapted From: HexTrackr SRPI_PROCESS.md

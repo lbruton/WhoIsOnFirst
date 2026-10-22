@@ -431,7 +431,7 @@ def send_daily_notifications():
 
 > Note: the live `SMSService` implements retries with a manual
 > `for attempt in range(max_retries)` exponential-backoff loop — `tenacity` is
-> **not** a project dependency. The decorator form below is an illustrative
+> not a project dependency. The decorator form below is an illustrative
 > pattern; match the manual loop in `src/services/sms_service.py` for parity.
 
 ```python
@@ -898,10 +898,10 @@ class TeamMemberResponse(BaseModel):
 
 ## Additional Resources
 
-- **Architecture Documentation:** `.context/architecture.md`
-- **Technology Stack:** `.context/technical-stack.md`
-- **Development Workflow:** `.context/rpi-process.md`
-- **Testing Guide:** `/tests/README.md` (if it exists)
+- Architecture Documentation: `.context/architecture.md`
+- Technology Stack: `.context/technical-stack.md`
+- Development Workflow: `.context/rpi-process.md`
+- Testing Guide: `/tests/README.md` (if it exists)
 
-**Last Updated:** 2025-11-10
-**Version:** 1.0.0
+Last Updated: 2025-11-10
+Version: 1.0.0

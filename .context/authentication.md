@@ -1,8 +1,8 @@
 # Authentication System Specification
 
-**Version:** 2.0
-**Date:** 2025-11-09
-**Status:** Production-Ready Design
+Version: 2.0
+Date: 2025-11-09
+Status: Production-Ready Design
 
 ---
 
@@ -10,15 +10,15 @@
 
 ### Password Encryption
 
-- **Algorithm:** Argon2id (via `argon2-cffi`)
-- **Parameters:** OWASP 2025 recommended configuration
+- Algorithm: Argon2id (via `argon2-cffi`)
+- Parameters: OWASP 2025 recommended configuration
   - Time cost: 2 iterations
   - Memory cost: 19456 KiB (19 MiB)
   - Parallelism: 1 thread
   - Hash length: 32 bytes
   - Salt length: 16 bytes (auto-generated per password)
-- **Storage:** Hashed passwords stored in `users.password_hash` column (VARCHAR 255)
-- **Why Argon2id:**
+- Storage: Hashed passwords stored in `users.password_hash` column (VARCHAR 255)
+- Why Argon2id:
   - OWASP/NIST 2025 #1 recommended algorithm
   - Winner of Password Hashing Competition (2015)
   - Memory-hard (resistant to GPU/ASIC attacks)
@@ -52,14 +52,14 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 ### Session Management
 
-- **Method:** HTTP-only cookies (not localStorage)
-- **Cookie Name:** `session`
-- **Cookie Attributes:**
+- Method: HTTP-only cookies (not localStorage)
+- Cookie Name: `session`
+- Cookie Attributes:
   - `HttpOnly=True` - Prevents JavaScript access (XSS protection)
   - `SameSite=Lax` - CSRF protection
   - `Secure=True` (production only, HTTPS required)
-  - **NO max_age** - Session expires on browser close
-  - **NO "Remember Me"** - Security requirement, session-only
+  - NO max_age - Session expires on browser close
+  - NO "Remember Me" - Security requirement, session-only
 
 ```python
 # Session cookie structure (JSON)
@@ -71,10 +71,10 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 ### Backend Stack
 
-- **Framework:** FastAPI 0.115.0+
-- **Database:** SQLite (Phase 1) → PostgreSQL (Phase 2+)
-- **ORM:** SQLAlchemy 2.0.31+
-- **Dependencies:**
+- Framework: FastAPI 0.115.0+
+- Database: SQLite (Phase 1) → PostgreSQL (Phase 2+)
+- ORM: SQLAlchemy 2.0.31+
+- Dependencies:
   - `argon2-cffi` - Password hashing (Argon2id)
   - `python-multipart` - Form data parsing
 
@@ -197,8 +197,8 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 ### 3.1 Navigation Sidebar (All Pages)
 
-**Current:** No user display
-**New Design:**
+Current: No user display
+New Design:
 
 ```
 ┌─────────────────────────────┐
@@ -238,13 +238,13 @@ VIEWER ROLE:
 
 ### 3.2 Login Page Redesign
 
-**Remove:**
+Remove:
 
 - Purple gradient background
 - "Remember me" checkbox
 - Default credentials display
 
-**New Design (Tabler.io Standard):**
+New Design (Tabler.io Standard):
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -280,9 +280,9 @@ NO default credentials shown in UI
 
 ### 4.1 Unauthenticated Access Prevention
 
-**Rule:** Unauthenticated users can ONLY access `/login.html`
+Rule: Unauthenticated users can ONLY access `/login.html`
 
-**Implementation:**
+Implementation:
 Every HTML page (index.html, team-members.html, etc.) must include:
 
 ```javascript
@@ -311,7 +311,7 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 ### 4.2 API Endpoint Protection
 
-**All** API endpoints except `/api/v1/auth/login` require authentication.
+All API endpoints except `/api/v1/auth/login` require authentication.
 
 ```python
 # Read endpoints - Both roles can access
@@ -325,12 +325,12 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 ### 4.3 Role-Based UI Restrictions
 
-**Admin Role:**
+Admin Role:
 
 - Sees ALL buttons (Add, Edit, Delete, Generate, etc.)
 - Can change password via Settings modal
 
-**Viewer Role:**
+Viewer Role:
 
 - NO create/edit/delete buttons visible
 - Settings modal shows "Read-only user - password cannot be changed"
@@ -397,24 +397,24 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 ### ✅ Success Criteria
 
-1. **Zero UI Access Without Login:**
+1. Zero UI Access Without Login:
    - Visiting any page (/, /team-members.html, etc.) without auth → redirects to /login.html
    - No data loads, no placeholders show
 
-2. **Zero API Access Without Login:**
+2. Zero API Access Without Login:
    - All API calls return 401 Unauthorized
    - No data leakage
 
-3. **Session Expires on Browser Close:**
+3. Session Expires on Browser Close:
    - No "Remember Me" feature
    - Closing browser clears session
    - Reopening requires login again
 
-4. **Role-Based UI:**
+4. Role-Based UI:
    - Admin: Sees all buttons, can change password
    - Viewer: Read-only, cannot change password
 
-5. **Professional UI:**
+5. Professional UI:
    - Clean Tabler.io design
    - No default credentials shown
    - User menu in sidebar
@@ -425,23 +425,23 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 ### Why Cookies Over localStorage?
 
-- **XSS Protection:** HttpOnly cookies cannot be accessed by JavaScript
-- **Industry Standard:** OAuth2 best practices recommend cookies for web apps
-- **CSRF Protection:** SameSite=Lax prevents cross-site request forgery
+- XSS Protection: HttpOnly cookies cannot be accessed by JavaScript
+- Industry Standard: OAuth2 best practices recommend cookies for web apps
+- CSRF Protection: SameSite=Lax prevents cross-site request forgery
 
 ### Why Argon2id Over bcrypt?
 
-- **OWASP 2025:** #1 recommended algorithm (bcrypt is "legacy systems only")
-- **Memory-Hard:** Resistant to GPU/FPGA/ASIC attacks (bcrypt is only CPU-hard)
-- **No Password Limit:** bcrypt truncates at 72 bytes, Argon2id has no limit
-- **Future-Proof:** Winner of Password Hashing Competition, actively maintained
-- **Python 3.13 Compatible:** No compatibility issues (bcrypt 5.0+ breaks with passlib)
+- OWASP 2025: #1 recommended algorithm (bcrypt is "legacy systems only")
+- Memory-Hard: Resistant to GPU/FPGA/ASIC attacks (bcrypt is only CPU-hard)
+- No Password Limit: bcrypt truncates at 72 bytes, Argon2id has no limit
+- Future-Proof: Winner of Password Hashing Competition, actively maintained
+- Python 3.13 Compatible: No compatibility issues (bcrypt 5.0+ breaks with passlib)
 
 ### Why Session-Only Cookies?
 
-- **Security:** Reduces attack window
-- **User Expectation:** Corp environments expect session expiry
-- **Compliance:** Meets most security audit requirements
+- Security: Reduces attack window
+- User Expectation: Corp environments expect session expiry
+- Compliance: Meets most security audit requirements
 
 ---
 
@@ -469,10 +469,10 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 ## Next Steps
 
-1. **Review this specification** - Confirm approach
-2. **Fix one page at a time** - Test each step
-3. **Add user menu** - After pages work
-4. **Redesign login** - After auth works
-5. **Integration test** - Before Docker
+1. Review this specification - Confirm approach
+2. Fix one page at a time - Test each step
+3. Add user menu - After pages work
+4. Redesign login - After auth works
+5. Integration test - Before Docker
 
-**Estimated Time:** 2-3 hours (methodical, tested approach)
+Estimated Time: 2-3 hours (methodical, tested approach)
