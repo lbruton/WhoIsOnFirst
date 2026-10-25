@@ -29,18 +29,14 @@ Goal: Understand what exists and what needs to change
 
 Use these tools FIRST before manual file operations:
 
-1. `mcp__claude-context__search_code` - Semantic codebase search
+1. Grep - Codebase search
 
-   ```javascript
-   mcp__claude-context__search_code({
-     path: "/Volumes/DATA/GitHub/WhoIsOnFirst",
-     query: "schedule generation rotation algorithm",
-     limit: 10
-   })
+   ```bash
+   grep -rn "generate_schedule\|rotation" src/ frontend/
    ```
 
    - Returns: Exact file:line locations
-   - Token savings: 80-90% vs manual Grep/Read
+   - Search synonyms too; the code may use a different name than the issue
 
 2. `mcp__memento__semantic_search` - Historical knowledge
 
@@ -60,7 +56,7 @@ Use these tools FIRST before manual file operations:
 
 ### Research Process
 
-1. Search codebase semantically (claude-context) for affected files
+1. Grep the codebase for affected files
 2. Query Memento (semantic_search) for related patterns
 3. Read specific files identified by searches (not exploratory!)
 4. Document current state: entry points, key modules, data models
@@ -70,7 +66,7 @@ Use these tools FIRST before manual file operations:
 
 ### Research Outputs
 
-- Current State Summary: File locations with line numbers (from claude-context)
+- Current State Summary: File locations with line numbers (from Grep)
 - Impacted Files List: What will change
 - Impact Analysis: UI, DB, scheduler, Docker, dependencies
 - Risks & Safeguards: What could break, how to prevent
@@ -287,7 +283,7 @@ docker ps | grep whoisonfirst-dev
 ### Token Efficiency Hierarchy
 
 1. First: Memento semantic search (find historical decisions)
-2. Second: Claude-context semantic search (find current code)
+2. Second: Grep for identifiers and synonyms (find current code)
 3. Third: Sequential thinking (decompose complex problems)
 4. Last: Manual file operations (Read specific files only)
 
@@ -303,15 +299,12 @@ Read('src/models/schedule.py')             // 150 lines
 // Total: 650 lines, most irrelevant
 ```
 
-✅ Semantic search first, targeted reads second
+✅ Search first, targeted reads second
 
 ```javascript
 // Do this instead:
-mcp__claude-context__search_code({
-  query: "auto-renewal schedule generation function",
-  limit: 5
-})
-// Returns: schedule_manager.py:75-95 (exact location)
+Grep({ pattern: "auto_renew|renewal", path: "src/" })
+// Returns: schedule_manager.py:75 (exact location)
 
 Read('src/scheduler/schedule_manager.py', { offset: 70, limit: 30 })
 // Only reads 30 lines around target
@@ -325,14 +318,11 @@ Read('src/scheduler/schedule_manager.py', { offset: 70, limit: 30 })
 
 Created: WHO-2
 
-Claude-Context Search:
+Code Search:
 
-```javascript
-mcp__claude-context__search_code({
-  query: "schedule generation service database query",
-  limit: 10
-})
-// Found: src/services/schedule_service.py:120-145
+```bash
+grep -rn "def generate_schedule" src/
+# Found: src/services/schedule_service.py:65
 ```
 
 Current State:
@@ -418,7 +408,7 @@ Verification: ✅ All tests passed, Docker logs clean, UI functional
 | Docker-Aware | ✅ Yes (rebuild checkpoints) | N/A |
 | Duration | 2-4 hours total | 5-12 hours total |
 | Use Case | Bug fixes, enhancements, small features | Major new features |
-| MCP Tools | claude-context, memento, sequential-thinking | Same + context7 |
+| Tools | Grep, memento, sequential-thinking | Same + context7 |
 
 ---
 
