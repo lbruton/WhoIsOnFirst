@@ -25,7 +25,7 @@ pre-commit==3.6.0  # Git hooks for code quality
 
 # Documentation
 mkdocs==1.5.3
-mkdocs-material==9.5.2
+mkdocs-material==9.7.7
 
 # Database Tools
 sqlalchemy-utils==0.41.1
