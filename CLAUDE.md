@@ -60,7 +60,11 @@ Tests (local): `source venv/bin/activate && pytest --cov=src --cov-report=html`.
 
 ## Production Debugging
 
-Prod runs on Portainer VM `192.168.1.81`, LAN-only behind NPM (the Cloudflare tunnel is being retired, WOF-39). The container is `whoseonfirst` (stack #12) until the WOF-39 cutover, then `whoisonfirst` — substitute below. Use `docker --context portainer <cmd>` for remote ops — no SSH needed. Claude never creates, stops, starts or redeploys stacks or containers (Devops `Portainer.md` HARD BLOCK); read-only only.
+Prod runs on Portainer VM `192.168.1.81`, LAN-only behind NPM (the Cloudflare tunnel is being retired, WOF-39). The container is `whoseonfirst` (stack #12) until the WOF-39 cutover, then `whoisonfirst` — substitute below. Use `docker --context portainer <cmd>` for remote ops — no SSH needed.
+
+- **Stack and container changes:** Claude runs them through the Portainer API and the `portainer` context, never Lonnie through the UI. Each run needs one approval from Lonnie that names its scope (stacks, containers, volumes). This is the approved exception to the Devops `Portainer.md` HARD BLOCK. Outside an approved run, stay read-only.
+- **Secrets in a run:** copy existing values from Infisical or the stack env straight into the request, never print them, and compare by hash. Lonnie acts only when a new key or secret must be generated.
+- **Restores and the cutover:** follow the restore rehearsal runbook in the private companion (`vault-path private`, `Runbooks/`). Stop a prod stack only after two verified backups exist.
 
 - **Healthcheck noise** (~99% of output): `docker --context portainer logs whoseonfirst --since 24h 2>&1 | grep -v "GET /health"`.
 - **Requests missing from filtered logs** (e.g. a save fails with "NetworkError") = the request never reached FastAPI. Over the old Cloudflare tunnel this is an edge problem, not a code change (WOF-43); use the LAN hostname.
