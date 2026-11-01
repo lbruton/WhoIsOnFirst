@@ -61,7 +61,7 @@ def create_override(
         {
             "schedule_id": 123,
             "override_member_id": 5,
-            "reason": "Vacation - covering for Gary"
+            "reason": "Vacation - covering for Eve"
         }
     """
     service = ScheduleOverrideService(db)

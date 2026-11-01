@@ -446,7 +446,7 @@ System shall provide consistent avatar color assignment for team members across 
 - [ ] Assign colors to existing members (sorted by ID for consistency)
 - [ ] Update Pydantic schemas to include `color` field
 - [ ] Replace `getTeamColor()` functions on all 4 pages with `member.color`
-- [ ] Gary K shows same color on Dashboard, Team Members, Schedule, and Notifications
+- [ ] Eve Echo shows same color on Dashboard, Team Members, Schedule, and Notifications
 - [ ] New members automatically get next available color from palette
 - [ ] Color persists across sessions and page refreshes
 
@@ -464,7 +464,7 @@ System shall provide consistent avatar color assignment for team members across 
 - None - independent feature
 
 **Testing:**
-- Verify Gary K shows same color on all 4 pages
+- Verify Eve Echo shows same color on all 4 pages
 - Test new member creation (gets next available color)
 - Test color persistence across sessions
 - Test manual color override (future enhancement)
@@ -490,10 +490,10 @@ System shall send automated weekly SMS summary to escalation contacts every Mond
 ```
 WhoIsOnFirst Weekly Schedule (Nov 18-24)
 
-Mon 11/18: Lance B +19187019714
-Tue 11/19: Gary K +19187019714 (48h)
-Wed 11/20: Gary K (continues)
-Thu 11/21: Troy M +19187019714
+Mon 11/18: Grace Golf +15555550001
+Tue 11/19: Eve Echo +15555550001 (48h)
+Wed 11/20: Eve Echo (continues)
+Thu 11/21: Juliet Jazz +15555550001
 ...
 
 Questions? Reply to this message.
@@ -777,7 +777,7 @@ System shall provide advanced analytics with fairness metrics, historical trends
 ## Use Case: Typical Weekly Rotation
 
 ### Example Team Configuration
-**Team Members:** Bob, Dave, Steve, John, Paul, Matt, Sam, Lance (8 members)
+**Team Members:** Bob, Dave, Carol, Eve, Frank, Grace, Henry, Alice (8 members)
 
 **Shift Pattern:**
 - Shift 1: Monday (24 hours, 8am-8am)
@@ -792,22 +792,22 @@ System shall provide advanced analytics with fairness metrics, historical trends
 |-------|--------|----------|-------------|
 | 1 | Monday | 24h | Bob |
 | 2 | Tue-Wed | 48h | Dave |
-| 3 | Thursday | 24h | Steve |
-| 4 | Friday | 24h | John |
-| 5 | Saturday | 24h | Paul |
-| 6 | Sunday | 24h | Matt |
+| 3 | Thursday | 24h | Carol |
+| 4 | Friday | 24h | Eve |
+| 5 | Saturday | 24h | Frank |
+| 6 | Sunday | 24h | Grace |
 
-*Note: Sam and Lance rotate in during Week 2*
+*Note: Henry and Alice rotate in during Week 2*
 
 ### Week 2 Assignments (Continuous Rotation)
 | Shift | Day(s) | Duration | Assigned To |
 |-------|--------|----------|-------------|
-| 1 | Monday | 24h | Sam |
-| 2 | Tue-Wed | 48h | Lance |
+| 1 | Monday | 24h | Henry |
+| 2 | Tue-Wed | 48h | Alice |
 | 3 | Thursday | 24h | Bob |
 | 4 | Friday | 24h | Dave |
-| 5 | Saturday | 24h | Steve |
-| 6 | Sunday | 24h | John |
+| 5 | Saturday | 24h | Carol |
+| 6 | Sunday | 24h | Eve |
 
 ### Fairness Algorithm (Circular Rotation)
 - Formula: `shifts_elapsed = (week * shift_count) + shift_index`
@@ -975,7 +975,7 @@ Use this template when adding new requirements:
 
 | Role | Name | Signature | Date |
 |------|------|-----------|------|
-| Product Owner | Lonnie B. | ✅ | 2025-11-09 |
+| Product Owner | Alice Alpha. | ✅ | 2025-11-09 |
 | Tech Lead | Claude Code | ✅ | 2025-11-09 |
 | Stakeholder | Development Team | ✅ | 2025-11-09 |
 

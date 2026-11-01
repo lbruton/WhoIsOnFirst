@@ -155,14 +155,14 @@ class EscalationConfigRequest(BaseModel):
         None,
         description="Primary escalation contact phone (E.164 format: +1XXXXXXXXXX)",
         pattern=r"^\+1\d{10}$",
-        examples=["+19187019714"]
+        examples=["+15555550001"]
     )
     secondary_name: Optional[str] = Field(None, description="Secondary escalation contact name", max_length=100)
     secondary_phone: Optional[str] = Field(
         None,
         description="Secondary escalation contact phone (E.164 format: +1XXXXXXXXXX)",
         pattern=r"^\+1\d{10}$",
-        examples=["+19187019714"]
+        examples=["+15555550001"]
     )
     primary_weekly_digest: Optional[bool] = Field(
         None,

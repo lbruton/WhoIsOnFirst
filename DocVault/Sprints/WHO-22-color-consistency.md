@@ -32,7 +32,7 @@ Team member avatar colors are inconsistent across pages:
 - **Schedule**: Uses loop index directly ❌
 - **Team Members**: Uses forEach index ❌
 
-**Result**: Gary K appears in different colors depending on page.
+**Result**: Eve Echo appears in different colors depending on page.
 
 ---
 
@@ -50,7 +50,7 @@ function getTeamColor(memberId, allMembers) {
 ```
 
 **Why This Works**:
-- Handles ID gaps gracefully (Lance B is ID 9, but Ken U at ID 5 is inactive)
+- Handles ID gaps gracefully (Grace Golf is ID 9, but Henry Hotel at ID 5 is inactive)
 - Consistent across all pages (same ID = same position in sorted array)
 - No database changes needed
 - Works with deactivation workflow (primary pattern)
@@ -69,15 +69,15 @@ function getTeamColor(memberId, allMembers) {
 
 **Current Team Member IDs** (from database):
 ```
-ID  Name      Active  Expected Color Index
-1   Lonnie B  True    0 → team-color-1
-2   Ben B     True    1 → team-color-2
-3   Ben D     True    2 → team-color-3
-4   Matt C    True    3 → team-color-4
-5   Ken U     False   (inactive - not counted)
-6   Gary K    True    4 → team-color-5
-7   Clark M   True    5 → team-color-6
-9   Lance B   True    6 → team-color-7
+ID  Name           Active  Expected Color Index
+1   Alice Alpha    True    0 → team-color-1
+2   Bob Bravo      True    1 → team-color-2
+3   Carol Charlie  True    2 → team-color-3
+4   Dave Delta     True    3 → team-color-4
+5   Henry Hotel    False   (inactive - not counted)
+6   Eve Echo       True    4 → team-color-5
+7   Frank Foxtrot  True    5 → team-color-6
+9   Grace Golf     True    6 → team-color-7
 ```
 
 **Note**: ID 8 is missing, but algorithm handles this perfectly via `sorted.findIndex()`.
@@ -119,7 +119,7 @@ ID  Name      Active  Expected Color Index
 #### Task 5: Docker Rebuild & Test (10 min)
 - **Docker**: Rebuild container to pick up new JavaScript file
 - **Manual Testing**:
-  1. Navigate to Dashboard → note Gary K's color
+  1. Navigate to Dashboard → note Eve Echo's color
   2. Navigate to Team Members → verify same color
   3. Navigate to Schedule → verify same color
   4. Navigate to Notifications → verify same color
@@ -169,8 +169,8 @@ const TEAM_COLORS = [
  * @returns {string} Color class (e.g., 'team-color-5')
  *
  * @example
- * const members = [{id: 1, name: 'Lonnie'}, {id: 6, name: 'Gary'}];
- * getTeamColor(6, members); // Returns 'team-color-2' (Gary is 2nd in sorted array)
+ * const members = [{id: 1, name: 'Alice'}, {id: 6, name: 'Eve'}];
+ * getTeamColor(6, members); // Returns 'team-color-2' (Eve is 2nd in sorted array)
  */
 function getTeamColor(memberId, allMembers) {
     // Sort by ID to ensure consistent ordering
@@ -388,29 +388,29 @@ Open browser to `http://localhost:8900`
 
 **Test 1: Dashboard**
 - [ ] Navigate to Dashboard
-- [ ] Note Gary K's color in "On-Call Now" section
-- [ ] Note Gary K's color in calendar (if visible)
-- [ ] Screenshot or write down: Gary K = team-color-X
+- [ ] Note Eve Echo's color in "On-Call Now" section
+- [ ] Note Eve Echo's color in calendar (if visible)
+- [ ] Screenshot or write down: Eve Echo = team-color-X
 
 **Test 2: Team Members**
 - [ ] Navigate to Team Members page
-- [ ] Find Gary K in the list
+- [ ] Find Eve Echo in the list
 - [ ] Verify color matches Dashboard
 - [ ] Check all 7 active members have colors
 
 **Test 3: Schedule**
 - [ ] Navigate to Schedule page
 - [ ] Generate schedule if needed
-- [ ] Find Gary K in generated schedule
+- [ ] Find Eve Echo in generated schedule
 - [ ] Verify color matches Dashboard and Team Members
 
 **Test 4: Notifications**
 - [ ] Navigate to Notifications page
-- [ ] Find notification with Gary K as recipient
+- [ ] Find notification with Eve Echo as recipient
 - [ ] Verify color matches other pages
 
 **Test 5: All Members Consistency**
-- [ ] For each active member (Lonnie B, Ben B, Ben D, Matt C, Gary K, Clark M, Lance B):
+- [ ] For each active member (Alice Alpha, Bob Bravo, Carol Charlie, Dave Delta, Eve Echo, Frank Foxtrot, Grace Golf):
   - [ ] Verify same color on all 4 pages
 
 **Test 6: Page Refresh**
@@ -443,15 +443,15 @@ Based on current active team members (sorted by ID):
 
 | Position | ID | Name     | Expected Color   |
 |----------|----|----------|------------------|
-| 0        | 1  | Lonnie B | team-color-1     |
-| 1        | 2  | Ben B    | team-color-2     |
-| 2        | 3  | Ben D    | team-color-3     |
-| 3        | 4  | Matt C   | team-color-4     |
-| 4        | 6  | Gary K   | team-color-5     |
-| 5        | 7  | Clark M  | team-color-6     |
-| 6        | 9  | Lance B  | team-color-7     |
+| 0        | 1  | Alice Alpha | team-color-1     |
+| 1        | 2  | Bob Bravo    | team-color-2     |
+| 2        | 3  | Carol Charlie    | team-color-3     |
+| 3        | 4  | Dave Delta   | team-color-4     |
+| 4        | 6  | Eve Echo   | team-color-5     |
+| 5        | 7  | Frank Foxtrot  | team-color-6     |
+| 6        | 9  | Grace Golf  | team-color-7     |
 
-**Key Test**: Gary K (ID 6) should be **team-color-5** on ALL pages.
+**Key Test**: Eve Echo (ID 6) should be **team-color-5** on ALL pages.
 
 ---
 
@@ -476,7 +476,7 @@ docker-compose -f docker-compose.dev.yml up -d
 - [x] Shared `team-colors.js` file created
 - [x] All 4 pages include shared script
 - [x] All 4 pages use `getTeamColor(memberId, allMembers)` consistently
-- [x] Gary K shows **same color** on all 4 pages
+- [x] Eve Echo shows **same color** on all 4 pages
 - [x] All 7 active members have consistent colors
 - [x] Docker rebuild successful with no errors
 - [x] No JavaScript console errors
@@ -549,17 +549,17 @@ Closes WHO-22
 - ✅ Shared `team-colors.js` file created
 - ✅ All 4 pages include shared script
 - ✅ All 4 pages use `getTeamColor(memberId, allMembers)` consistently
-- ✅ Gary K shows **same color** on all 4 pages (team-color-5 / Purple)
-- ✅ Clark M shows **same color** on all 4 pages (team-color-6 / Cyan)
+- ✅ Eve Echo shows **same color** on all 4 pages (team-color-5 / Purple)
+- ✅ Frank Foxtrot shows **same color** on all 4 pages (team-color-6 / Cyan)
 - ✅ All 7 active members have consistent colors
-- ✅ Ken U (inactive) displays in gray on historical records
+- ✅ Henry Hotel (inactive) displays in gray on historical records
 - ✅ Docker rebuild successful with no errors
 - ✅ No JavaScript console errors
 - ✅ Colors persist after page refresh
 
 ### Bonus Achievement ⭐
 
-**Discovered Issue:** Inactive members (Ken U) were missing from historical calendar views after being deactivated on Nov 16th.
+**Discovered Issue:** Inactive members (Henry Hotel) were missing from historical calendar views after being deactivated on Nov 16th.
 
 **Solution:** Implemented dynamic coloring logic:
 - Dashboard & Notifications fetch ALL members (including inactive)
@@ -574,14 +574,14 @@ All pages tested via Chrome DevTools:
 
 | Member | Color | Status | Verification |
 |--------|-------|--------|--------------|
-| Lonnie B | team-color-1 (Blue) | Active | ✅ All 4 pages |
-| Ben B | team-color-2 (Green) | Active | ✅ All 4 pages |
-| Ben D | team-color-3 (Yellow) | Active | ✅ All 4 pages |
-| Matt C | team-color-4 (Pink) | Active | ✅ All 4 pages |
-| Gary K | team-color-5 (Purple) | Active | ✅ All 4 pages |
-| Clark M | team-color-6 (Cyan) | Active | ✅ All 4 pages |
-| Lance B | team-color-7 (Orange) | Active | ✅ All 4 pages |
-| Ken U | bg-secondary (Gray) | Inactive | ✅ Dashboard & Notifications |
+| Alice Alpha | team-color-1 (Blue) | Active | ✅ All 4 pages |
+| Bob Bravo | team-color-2 (Green) | Active | ✅ All 4 pages |
+| Carol Charlie | team-color-3 (Yellow) | Active | ✅ All 4 pages |
+| Dave Delta | team-color-4 (Pink) | Active | ✅ All 4 pages |
+| Eve Echo | team-color-5 (Purple) | Active | ✅ All 4 pages |
+| Frank Foxtrot | team-color-6 (Cyan) | Active | ✅ All 4 pages |
+| Grace Golf | team-color-7 (Orange) | Active | ✅ All 4 pages |
+| Henry Hotel | bg-secondary (Gray) | Inactive | ✅ Dashboard & Notifications |
 
 ### Linear Issue
 
