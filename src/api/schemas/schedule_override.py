@@ -52,7 +52,7 @@ class ScheduleOverrideRequest(BaseModel):
             "example": {
                 "schedule_id": 123,
                 "override_member_id": 5,
-                "reason": "Vacation - covering for Carol"
+                "reason": "Vacation - covering for Eve"
             }
         }
 
@@ -81,7 +81,7 @@ class ScheduleOverrideResponse(BaseModel):
     original_member_name: str = Field(
         ...,
         description="Original assignee name (snapshot at override time)",
-        examples=["Carol Charlie"]
+        examples=["Eve Echo"]
     )
     override_member_name: str = Field(
         ...,
@@ -132,10 +132,10 @@ class ScheduleOverrideResponse(BaseModel):
                 "id": 1,
                 "schedule_id": 123,
                 "override_member_id": 5,
-                "original_member_name": "Carol Charlie",
+                "original_member_name": "Eve Echo",
                 "override_member_name": "Alice Alpha",
                 "override_date": "2025-11-27T08:00:00",
-                "reason": "Vacation - Carol out until Friday",
+                "reason": "Vacation - Eve out until Friday",
                 "status": "active",
                 "created_by": "admin",
                 "created_at": "2025-11-25T13:00:00",
@@ -169,7 +169,7 @@ class ScheduleOverrideListResponse(BaseModel):
                         "id": 1,
                         "schedule_id": 123,
                         "override_member_id": 5,
-                        "original_member_name": "Carol Charlie",
+                        "original_member_name": "Eve Echo",
                         "override_member_name": "Alice Alpha",
                         "override_date": "2025-11-27T08:00:00",
                         "reason": "Vacation",

@@ -650,10 +650,10 @@ class SMSService:
         Example:
             WhoIsOnFirst Weekly Schedule (Nov 25 - Dec 1)
 
-            Mon 11/25: Frank Foxtrot +15555550001
-            Tue 11/26: Carol Charlie +15555550001 (48h)
-            Wed 11/27: Carol Charlie (continues)
-            Thu 11/28: Jack Juliet +15555550001
+            Mon 11/25: Grace Golf +15555550001
+            Tue 11/26: Eve Echo +15555550001 (48h)
+            Wed 11/27: Eve Echo (continues)
+            Thu 11/28: Juliet Jazz +15555550001
             ...
 
             Questions? Reply to this message.

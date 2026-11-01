@@ -28,7 +28,7 @@ migrated_from: "repo:docs/sprints/WHO-23-weekly-escalation-summary.md"
 
 ## Problem Summary
 
-Escalation contacts (Eve Echo, Grace Golf) need to know who is on-call each day when they receive escalation calls at odd hours, but don't need daily SMS notifications like primary on-call members.
+Escalation contacts (Henry Hotel, India Indigo) need to know who is on-call each day when they receive escalation calls at odd hours, but don't need daily SMS notifications like primary on-call members.
 
 **User Need:** *"When I get an escalation call at 2am, I need to quickly know who was supposed to be on-call that day without logging into the dashboard."*
 
@@ -137,19 +137,19 @@ Send automated weekly SMS summary to both escalation contacts (primary + seconda
 ```
 WhoseOnFirst Weekly Schedule (Nov 25 - Dec 1)
 
-Mon 11/25: Frank Foxtrot +15555550001
-Tue 11/26: Carol Charlie +15555550001 (48h)
-Wed 11/27: Carol Charlie (continues)
-Thu 11/28: Jack Juliet +15555550001
-Fri 11/29: Leo Lima +15555550001
-Sat 11/30: Kate Kilo +15555550001
-Sun 12/01: Mia Mike +15555550001
+Mon 11/25: Grace Golf +15555550001
+Tue 11/26: Eve Echo +15555550001 (48h)
+Wed 11/27: Eve Echo (continues)
+Thu 11/28: Juliet Jazz +15555550001
+Fri 11/29: Lima Lynx +15555550001
+Sat 11/30: Kilo Kite +15555550001
+Sun 12/01: Mike Mango +15555550001
 
 Questions? Reply to this message.
 ```
 
 **Character Count:** ~320 chars (2 SMS segments @ $0.008/segment = $0.016)
-**Recipients:** 2 (Eve Echo + Grace Golf, both with primary + secondary phones = 4 total)
+**Recipients:** 2 (Henry Hotel + India Indigo, both with primary + secondary phones = 4 total)
 **Weekly Cost:** ~$0.064/week (~$3.33/year)
 
 ---
@@ -554,10 +554,10 @@ query = query.options(
   ```
   WhoseOnFirst Weekly Schedule (Nov 25 - Dec 1)
 
-  Mon 11/25: Frank Foxtrot +15555550001
-  Tue 11/26: Carol Charlie +15555550001 (48h)
-  Wed 11/27: Carol Charlie (continues)
-  Thu 11/28: Jack Juliet +15555550001
+  Mon 11/25: Grace Golf +15555550001
+  Tue 11/26: Eve Echo +15555550001 (48h)
+  Wed 11/27: Eve Echo (continues)
+  Thu 11/28: Juliet Jazz +15555550001
   ...
   ```
 - Handle 48h shifts: First day shows "(48h)", second day shows "(continues)" without phone
@@ -702,7 +702,7 @@ query = query.options(
 **Task 6.3: Notification Log Verification** [TESTING]
 - Query notification_log table: `SELECT * FROM notification_log WHERE schedule_id IS NULL ORDER BY sent_at DESC LIMIT 10`
 - Verify entries have:
-  - Correct recipient names (Eve Echo, Grace Golf)
+  - Correct recipient names (Henry Hotel, India Indigo)
   - Correct recipient phones
   - Status 'sent' (or 'failed' if expected)
   - Twilio SID populated (if sent successfully)
@@ -855,7 +855,7 @@ query = query.options(
    - **File:** frontend/team-members.html:1011-1034
    - **Pattern:** CRITICAL - Never show blocking dialogs during Bootstrap animations
 
-4. **❌ 48h Shift Continuation** - "Wed 12/03: No assignment" for Ivy India's 48h shift
+4. **❌ 48h Shift Continuation** - "Wed 12/03: No assignment" for Carol Charlie's 48h shift
    - **Cause:** Continuation day has no schedule entry
    - **Fix:** Check is_continuation flag when no entry found (commit 08b0192)
    - **File:** src/services/sms_service.py:540-549
@@ -868,7 +868,7 @@ query = query.options(
 **Round 2: UI Polish**
 
 6. **❌ Poor Contrast** - Gray text on colored backgrounds (WCAG AA violation)
-   - **Issue:** Eve Echo's gray avatar + green/red status badges used gray text
+   - **Issue:** Henry Hotel's gray avatar + green/red status badges used gray text
    - **Fix:** Added `style="color: white;"` to avatars and badges (commit 3236228)
    - **File:** frontend/notifications.html:604, 628
 
@@ -907,8 +907,8 @@ query = query.options(
 - [x] UI contrast meets WCAG AA standards
 
 **SMS Delivery Verification:**
-- ✅ Primary Escalation (Eve Echo): Both SMS delivered successfully
-- ✅ Secondary Escalation (Grace Golf): Both SMS delivered successfully
+- ✅ Primary Escalation (Henry Hotel): Both SMS delivered successfully
+- ✅ Secondary Escalation (India Indigo): Both SMS delivered successfully
 - ✅ Total: 4/4 messages sent (100% success rate)
 
 **Docker Health Check:**
@@ -1004,7 +1004,7 @@ query = query.options(
 - Characters: ~280 (2 SMS segments)
 - Cost per segment: $0.008
 - Cost per message: $0.016
-- Recipients per week: 4 (Eve Echo + Grace Golf, both phones)
+- Recipients per week: 4 (Henry Hotel + India Indigo, both phones)
 - **Weekly cost:** $0.064
 - **Annual cost:** ~$3.33
 

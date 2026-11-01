@@ -10,7 +10,6 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 SCANNED_DIRS = ["src", "frontend", "DocVault", ".context", "scripts", "e2e"]
-SCANNED_ROOT_FILES = ["CHANGELOG.md", "README.md", "CLAUDE.md", "AGENTS.md"]
 TEXT_SUFFIXES = {".py", ".html", ".js", ".css", ".md", ".json", ".yml", ".yaml", ".txt", ".sh"}
 SKIPPED_PARTS = {"node_modules", "__pycache__", "htmlcov", "venv", ".venv"}
 
@@ -19,7 +18,7 @@ LOCAL_NUMBER = re.compile(r"(?:\+1|\b1)?\(?918\)?[\s.-]?\d{3}[\s.-]?\d{4}\b")
 
 
 def _scanned_files():
-    files = [REPO / name for name in SCANNED_ROOT_FILES if (REPO / name).is_file()]
+    files = [p for p in REPO.glob("*.md") if p.is_file()]
     for top in SCANNED_DIRS:
         for path in (REPO / top).rglob("*"):
             if (
@@ -38,6 +37,7 @@ def test_scan_covers_the_frontend_and_api():
     names = {p.relative_to(REPO).as_posix() for p in SCANNED_FILES}
     assert "frontend/styleguide.html" in names
     assert "src/api/routes/settings.py" in names
+    assert "CONTRIBUTING.md" in names
 
 
 @pytest.mark.parametrize("path", SCANNED_FILES, ids=lambda p: p.relative_to(REPO).as_posix())

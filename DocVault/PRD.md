@@ -446,7 +446,7 @@ System shall provide consistent avatar color assignment for team members across 
 - [ ] Assign colors to existing members (sorted by ID for consistency)
 - [ ] Update Pydantic schemas to include `color` field
 - [ ] Replace `getTeamColor()` functions on all 4 pages with `member.color`
-- [ ] Carol Charlie shows same color on Dashboard, Team Members, Schedule, and Notifications
+- [ ] Eve Echo shows same color on Dashboard, Team Members, Schedule, and Notifications
 - [ ] New members automatically get next available color from palette
 - [ ] Color persists across sessions and page refreshes
 
@@ -464,7 +464,7 @@ System shall provide consistent avatar color assignment for team members across 
 - None - independent feature
 
 **Testing:**
-- Verify Carol Charlie shows same color on all 4 pages
+- Verify Eve Echo shows same color on all 4 pages
 - Test new member creation (gets next available color)
 - Test color persistence across sessions
 - Test manual color override (future enhancement)
@@ -490,10 +490,10 @@ System shall send automated weekly SMS summary to escalation contacts every Mond
 ```
 WhoIsOnFirst Weekly Schedule (Nov 18-24)
 
-Mon 11/18: Frank Foxtrot +15555550001
-Tue 11/19: Carol Charlie +15555550001 (48h)
-Wed 11/20: Carol Charlie (continues)
-Thu 11/21: Jack Juliet +15555550001
+Mon 11/18: Grace Golf +15555550001
+Tue 11/19: Eve Echo +15555550001 (48h)
+Wed 11/20: Eve Echo (continues)
+Thu 11/21: Juliet Jazz +15555550001
 ...
 
 Questions? Reply to this message.

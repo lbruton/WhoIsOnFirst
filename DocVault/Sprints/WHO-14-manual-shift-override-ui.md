@@ -26,7 +26,7 @@ migrated_from: "repo:docs/sprints/WHO-14-manual-shift-override-ui.md"
 Provide admin UI for manual shift overrides to handle one-time exceptions (vacation, sick days, shift swaps, emergency coverage) without affecting the rotation algorithm.
 
 **User Story:**
-> "As an admin, when Carol Charlie is on vacation next Tuesday, I need to assign Dave Delta to cover their shift without regenerating the entire schedule or breaking the rotation pattern."
+> "As an admin, when Eve Echo is on vacation next Tuesday, I need to assign Dave Delta to cover their shift without regenerating the entire schedule or breaking the rotation pattern."
 
 ---
 
@@ -59,7 +59,7 @@ Provide admin UI for manual shift overrides to handle one-time exceptions (vacat
 2. **Dashboard Display Pattern:**
    - Original scheduled person: Grayed out, truncated to `[Name ...]`, hover shows full info
    - Override person: Normal colored card with icon (🔄) indicating override
-   - Example: Nov 21st shows Carol Charlie (colored) covering for Alice Alpha (grayed)
+   - Example: Nov 21st shows Eve Echo (colored) covering for Alice Alpha (grayed)
 
 3. **Override Form Fields:**
    - Date selector
@@ -83,7 +83,7 @@ Provide admin UI for manual shift overrides to handle one-time exceptions (vacat
 **Dashboard Calendar Card (with override):**
 ```
 ┌─────────────────────┐
-│ 🔄 Carol Charlie           │  ← Override (colored card, icon indicator)
+│ 🔄 Eve Echo           │  ← Override (colored card, icon indicator)
 │ +15555550001        │
 │ Covering for:       │
 │ Alice Alpha ...        │  ← Original (grayed, truncated, hover for full details)
@@ -1622,21 +1622,21 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 - [ ] Select date: Nov 21st, 2025
 - [ ] Select shift: Shift 1 (24h)
 - [ ] Original member auto-populates: Alice Alpha
-- [ ] Select replacement: Carol Charlie
+- [ ] Select replacement: Eve Echo
 - [ ] Enter reason: "Vacation"
 - [ ] Submit form
 - [ ] Verify success message
 - [ ] Verify override appears in table as "Active"
 - [ ] Navigate to Dashboard
 - [ ] Verify Nov 21st shows:
-  - 🔄 Carol Charlie (colored card)
+  - 🔄 Eve Echo (colored card)
   - Alice Alpha ... (grayed card below)
 - [ ] Hover on Alice Alpha, verify tooltip shows "Originally scheduled: Alice Alpha, Phone: +15555550004, Reason: Vacation"
 
 **Test Case 2: SMS Notification to Override Member**
-- [ ] Create override for tomorrow's shift (Original: Ivy India, Override: Dave Delta)
+- [ ] Create override for tomorrow's shift (Original: Carol Charlie, Override: Dave Delta)
 - [ ] Wait for or manually trigger daily SMS at 8:00 AM CST
-- [ ] Verify SMS sent to Dave Delta (not Ivy India)
+- [ ] Verify SMS sent to Dave Delta (not Carol Charlie)
 - [ ] Check notification log: recipient should be Dave Delta
 - [ ] Verify notification log error_message contains override note
 
@@ -1652,14 +1652,14 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 
 **Test Case 4: Override for 48-Hour Shift**
 - [ ] Create override for Shift 2 (48h Tue-Wed)
-- [ ] Original: Ivy India, Override: Henry Hotel
+- [ ] Original: Carol Charlie, Override: Frank Foxtrot
 - [ ] Navigate to Dashboard
 - [ ] Verify Tuesday shows:
-  - 🔄 Henry Hotel (48h)
-  - Ivy India ... (grayed)
+  - 🔄 Frank Foxtrot (48h)
+  - Carol Charlie ... (grayed)
 - [ ] Verify Wednesday shows:
-  - 🔄 Henry Hotel (continues)
-  - Ivy India ... (grayed)
+  - 🔄 Frank Foxtrot (continues)
+  - Carol Charlie ... (grayed)
 
 **Test Case 5: Validation - Duplicate Override**
 - [ ] Create override for Nov 25th, Shift 1
@@ -1668,9 +1668,9 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 - [ ] Verify first override still active, second not created
 
 **Test Case 6: Validation - Inactive Member**
-- [ ] Deactivate a team member (e.g., Eve Echo)
-- [ ] Try to create override with Eve Echo as replacement
-- [ ] Verify error: "Team member is inactive: Eve Echo"
+- [ ] Deactivate a team member (e.g., Henry Hotel)
+- [ ] Try to create override with Henry Hotel as replacement
+- [ ] Verify error: "Team member is inactive: Henry Hotel"
 - [ ] Verify override not created
 
 **Test Case 7: Authorization - Viewer Role**
@@ -1720,7 +1720,7 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
    - Import overrides from CSV
 
 2. **Override Templates**
-   - Save common override patterns (e.g., "Carol Charlie covers all Mondays in December")
+   - Save common override patterns (e.g., "Eve Echo covers all Mondays in December")
    - Recurring overrides
 
 3. **Self-Service Portal**
@@ -1772,9 +1772,9 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
     - **Dashboard**: Modified calendar rendering to check for overrides and display dual cards
     - **Notifications**: Updated SMS service to check for overrides before sending
   - **Use Cases**:
-    - Vacation coverage: "Carol Charlie on vacation Dec 15-20, Dave Delta covering"
-    - Sick day: "Ivy India called in sick, Henry Hotel covering tonight"
-    - Emergency swap: "Alice Alpha has training Friday, Frank Foxtrot swapping shifts"
+    - Vacation coverage: "Eve Echo on vacation Dec 15-20, Dave Delta covering"
+    - Sick day: "Carol Charlie called in sick, Frank Foxtrot covering tonight"
+    - Emergency swap: "Alice Alpha has training Friday, Grace Golf swapping shifts"
   - **Audit Trail**: All overrides logged with reason, created_by, timestamps, and status changes
   - **Authorization**: Admin-only feature (viewers cannot create/cancel overrides)
 

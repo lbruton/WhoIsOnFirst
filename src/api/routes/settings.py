@@ -332,9 +332,9 @@ def update_escalation_config(
         PUT /api/v1/settings/escalation
         {
             "enabled": true,
-            "primary_name": "Eve Echo",
+            "primary_name": "Henry Hotel",
             "primary_phone": "+15555550001",
-            "secondary_name": "Grace Golf",
+            "secondary_name": "India Indigo",
             "secondary_phone": "+15555550008"
         }
     """
