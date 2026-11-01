@@ -26,7 +26,7 @@ migrated_from: "repo:docs/sprints/WHO-14-manual-shift-override-ui.md"
 Provide admin UI for manual shift overrides to handle one-time exceptions (vacation, sick days, shift swaps, emergency coverage) without affecting the rotation algorithm.
 
 **User Story:**
-> "As an admin, when Gary K is on vacation next Tuesday, I need to assign Matt C to cover his shift without regenerating the entire schedule or breaking the rotation pattern."
+> "As an admin, when Carol Charlie is on vacation next Tuesday, I need to assign Dave Delta to cover their shift without regenerating the entire schedule or breaking the rotation pattern."
 
 ---
 
@@ -59,7 +59,7 @@ Provide admin UI for manual shift overrides to handle one-time exceptions (vacat
 2. **Dashboard Display Pattern:**
    - Original scheduled person: Grayed out, truncated to `[Name ...]`, hover shows full info
    - Override person: Normal colored card with icon (🔄) indicating override
-   - Example: Nov 21st shows Gary K (colored) covering for Lonnie B (grayed)
+   - Example: Nov 21st shows Carol Charlie (colored) covering for Alice Alpha (grayed)
 
 3. **Override Form Fields:**
    - Date selector
@@ -83,17 +83,17 @@ Provide admin UI for manual shift overrides to handle one-time exceptions (vacat
 **Dashboard Calendar Card (with override):**
 ```
 ┌─────────────────────┐
-│ 🔄 Gary K           │  ← Override (colored card, icon indicator)
-│ +19187019714        │
+│ 🔄 Carol Charlie           │  ← Override (colored card, icon indicator)
+│ +15555550001        │
 │ Covering for:       │
-│ Lonnie B ...        │  ← Original (grayed, truncated, hover for full details)
+│ Alice Alpha ...        │  ← Original (grayed, truncated, hover for full details)
 └─────────────────────┘
 ```
 
-**Hover Tooltip on "Lonnie B ...":**
+**Hover Tooltip on "Alice Alpha ...":**
 ```
-Originally scheduled: Lonnie B
-Phone: +19186053854
+Originally scheduled: Alice Alpha
+Phone: +15555550004
 Reason: Vacation
 Override by: admin on Nov 18, 2025
 ```
@@ -1621,23 +1621,23 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 - [ ] Click "Create Override"
 - [ ] Select date: Nov 21st, 2025
 - [ ] Select shift: Shift 1 (24h)
-- [ ] Original member auto-populates: Lonnie B
-- [ ] Select replacement: Gary K
+- [ ] Original member auto-populates: Alice Alpha
+- [ ] Select replacement: Carol Charlie
 - [ ] Enter reason: "Vacation"
 - [ ] Submit form
 - [ ] Verify success message
 - [ ] Verify override appears in table as "Active"
 - [ ] Navigate to Dashboard
 - [ ] Verify Nov 21st shows:
-  - 🔄 Gary K (colored card)
-  - Lonnie B ... (grayed card below)
-- [ ] Hover on Lonnie B, verify tooltip shows "Originally scheduled: Lonnie B, Phone: +19186053854, Reason: Vacation"
+  - 🔄 Carol Charlie (colored card)
+  - Alice Alpha ... (grayed card below)
+- [ ] Hover on Alice Alpha, verify tooltip shows "Originally scheduled: Alice Alpha, Phone: +15555550004, Reason: Vacation"
 
 **Test Case 2: SMS Notification to Override Member**
-- [ ] Create override for tomorrow's shift (Original: Ben D, Override: Matt C)
+- [ ] Create override for tomorrow's shift (Original: Ivy India, Override: Dave Delta)
 - [ ] Wait for or manually trigger daily SMS at 8:00 AM CST
-- [ ] Verify SMS sent to Matt C (not Ben D)
-- [ ] Check notification log: recipient should be Matt C
+- [ ] Verify SMS sent to Dave Delta (not Ivy India)
+- [ ] Check notification log: recipient should be Dave Delta
 - [ ] Verify notification log error_message contains override note
 
 **Test Case 3: Cancel Override**
@@ -1652,14 +1652,14 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 
 **Test Case 4: Override for 48-Hour Shift**
 - [ ] Create override for Shift 2 (48h Tue-Wed)
-- [ ] Original: Ben D, Override: Clark M
+- [ ] Original: Ivy India, Override: Henry Hotel
 - [ ] Navigate to Dashboard
 - [ ] Verify Tuesday shows:
-  - 🔄 Clark M (48h)
-  - Ben D ... (grayed)
+  - 🔄 Henry Hotel (48h)
+  - Ivy India ... (grayed)
 - [ ] Verify Wednesday shows:
-  - 🔄 Clark M (continues)
-  - Ben D ... (grayed)
+  - 🔄 Henry Hotel (continues)
+  - Ivy India ... (grayed)
 
 **Test Case 5: Validation - Duplicate Override**
 - [ ] Create override for Nov 25th, Shift 1
@@ -1668,9 +1668,9 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
 - [ ] Verify first override still active, second not created
 
 **Test Case 6: Validation - Inactive Member**
-- [ ] Deactivate a team member (e.g., Ken U)
-- [ ] Try to create override with Ken U as replacement
-- [ ] Verify error: "Team member is inactive: Ken U"
+- [ ] Deactivate a team member (e.g., Eve Echo)
+- [ ] Try to create override with Eve Echo as replacement
+- [ ] Verify error: "Team member is inactive: Eve Echo"
 - [ ] Verify override not created
 
 **Test Case 7: Authorization - Viewer Role**
@@ -1720,7 +1720,7 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
    - Import overrides from CSV
 
 2. **Override Templates**
-   - Save common override patterns (e.g., "Gary K covers all Mondays in December")
+   - Save common override patterns (e.g., "Carol Charlie covers all Mondays in December")
    - Recurring overrides
 
 3. **Self-Service Portal**
@@ -1772,9 +1772,9 @@ docker exec whoseonfirst-dev sqlite3 /app/data/whoseonfirst.db ".schema schedule
     - **Dashboard**: Modified calendar rendering to check for overrides and display dual cards
     - **Notifications**: Updated SMS service to check for overrides before sending
   - **Use Cases**:
-    - Vacation coverage: "Gary K on vacation Dec 15-20, Matt C covering"
-    - Sick day: "Ben D called in sick, Clark M covering tonight"
-    - Emergency swap: "Lonnie B has training Friday, Lance B swapping shifts"
+    - Vacation coverage: "Carol Charlie on vacation Dec 15-20, Dave Delta covering"
+    - Sick day: "Ivy India called in sick, Henry Hotel covering tonight"
+    - Emergency swap: "Alice Alpha has training Friday, Frank Foxtrot swapping shifts"
   - **Audit Trail**: All overrides logged with reason, created_by, timestamps, and status changes
   - **Authorization**: Admin-only feature (viewers cannot create/cancel overrides)
 
@@ -1909,7 +1909,7 @@ Use these metrics to inform v1.5.0 self-service enhancements.
 ---
 
 **Sprint Created:** 2025-11-25
-**Sprint Owner:** Claude Code + Lonnie B
+**Sprint Owner:** Claude Code + Alice Alpha
 **Linear Issue:** [WHO-14](https://linear.app/hextrackr/issue/WHO-14)
 **Target Version:** v1.4.0
 **Status:** Ready to implement Phase 1

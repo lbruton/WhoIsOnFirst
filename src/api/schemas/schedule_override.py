@@ -29,7 +29,7 @@ class ScheduleOverrideRequest(BaseModel):
         None,
         max_length=500,
         description="Reason for override (vacation, sick day, swap, etc.)",
-        examples=["Vacation", "Sick day", "Swap with Matt"]
+        examples=["Vacation", "Sick day", "Swap with Dave"]
     )
 
     @field_validator('reason')
@@ -52,7 +52,7 @@ class ScheduleOverrideRequest(BaseModel):
             "example": {
                 "schedule_id": 123,
                 "override_member_id": 5,
-                "reason": "Vacation - covering for Gary"
+                "reason": "Vacation - covering for Carol"
             }
         }
 
@@ -81,12 +81,12 @@ class ScheduleOverrideResponse(BaseModel):
     original_member_name: str = Field(
         ...,
         description="Original assignee name (snapshot at override time)",
-        examples=["Gary K"]
+        examples=["Carol Charlie"]
     )
     override_member_name: str = Field(
         ...,
         description="Covering member name (snapshot at override time)",
-        examples=["Lonnie B"]
+        examples=["Alice Alpha"]
     )
     override_date: datetime = Field(
         ...,
@@ -132,10 +132,10 @@ class ScheduleOverrideResponse(BaseModel):
                 "id": 1,
                 "schedule_id": 123,
                 "override_member_id": 5,
-                "original_member_name": "Gary K",
-                "override_member_name": "Lonnie B",
+                "original_member_name": "Carol Charlie",
+                "override_member_name": "Alice Alpha",
                 "override_date": "2025-11-27T08:00:00",
-                "reason": "Vacation - Gary out until Friday",
+                "reason": "Vacation - Carol out until Friday",
                 "status": "active",
                 "created_by": "admin",
                 "created_at": "2025-11-25T13:00:00",
@@ -169,8 +169,8 @@ class ScheduleOverrideListResponse(BaseModel):
                         "id": 1,
                         "schedule_id": 123,
                         "override_member_id": 5,
-                        "original_member_name": "Gary K",
-                        "override_member_name": "Lonnie B",
+                        "original_member_name": "Carol Charlie",
+                        "override_member_name": "Alice Alpha",
                         "override_date": "2025-11-27T08:00:00",
                         "reason": "Vacation",
                         "status": "active",

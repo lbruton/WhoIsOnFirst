@@ -311,7 +311,7 @@ def update_escalation_config(
 
     **Phone Format:**
     - Must be E.164 format: +1XXXXXXXXXX
-    - Example: +19187019714
+    - Example: +15555550001
 
     **Note:** Escalation contacts are not part of the rotation schedule and
     receive no shift notifications. They can individually opt in/out of the
@@ -332,10 +332,10 @@ def update_escalation_config(
         PUT /api/v1/settings/escalation
         {
             "enabled": true,
-            "primary_name": "Ken U",
-            "primary_phone": "+19187019714",
-            "secondary_name": "Steve N",
-            "secondary_phone": "+19185551234"
+            "primary_name": "Eve Echo",
+            "primary_phone": "+15555550001",
+            "secondary_name": "Grace Golf",
+            "secondary_phone": "+15555550008"
         }
     """
     service = SettingsService(db)

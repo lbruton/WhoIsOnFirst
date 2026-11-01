@@ -28,8 +28,8 @@ const TEAM_COLORS = [
  * @returns {string} Color class (e.g., 'team-color-5')
  *
  * @example
- * const members = [{id: 1, name: 'Lonnie'}, {id: 6, name: 'Gary'}];
- * getTeamColor(6, members); // Returns 'team-color-2' (Gary is 2nd in sorted array)
+ * const members = [{id: 1, name: 'Alice'}, {id: 6, name: 'Carol'}];
+ * getTeamColor(6, members); // Returns 'team-color-2' (Carol is 2nd in sorted array)
  */
 function getTeamColor(memberId, allMembers) {
     // Sort by ID to ensure consistent ordering

@@ -300,7 +300,7 @@ Reference: WHO-43.
   - **Root Cause**: Validation in `schedule_override_service.py` line 82-83 checked `is_active` flag
   - **Solution**: Removed is_active validation - override eligibility is independent of rotation eligibility
   - **Files Changed**: `src/services/schedule_override_service.py:78-81`, `src/api/routes/schedule_overrides.py:41`
-  - **Impact**: Inactive members (like Ken U) can now be assigned to cover shifts via overrides
+  - **Impact**: Inactive members (like Eve Echo) can now be assigned to cover shifts via overrides
 
 - **Notification Log Records Override Member Name** - Fixed notification history displaying original member instead of override member ([WHO-29](https://linear.app/hextrackr/issue/WHO-29))
   - **Issue**: When override was active, notification log recorded original scheduled member name instead of override member
@@ -335,7 +335,7 @@ Reference: WHO-43.
   - ✅ Weekly summary date bug identified and fixed (WHO-31)
   - ✅ Override completion status bug identified and fixed (WHO-30)
   - ✅ Manual trigger `/api/v1/schedule-overrides/complete-past` tested successfully - completed 3 past overrides
-- **Test Overrides Created**: Ken U (11/28, 11/29), Matt C (11/28, 12/02), Lonnie B (11/27)
+- **Test Overrides Created**: Eve Echo (11/28, 11/29), Dave Delta (11/28, 12/02), Alice Alpha (11/27)
 - **Next Steps**: Monitor automated completion job at 8:05 AM, verify WHO-31 fix on Monday 8:00 AM
 
 ---
@@ -419,13 +419,13 @@ Reference: WHO-43.
     ```
     WhoseOnFirst Weekly Schedule (Dec 01 - Dec 07)
 
-    Mon 12/01: Ben B +19187019714
-    Tue 12/02: Ben D +19189783350 (48h)
-    Wed 12/03: Ben D (continues)
-    Thu 12/04: Clark M +19187019714
-    Fri 12/05: Gary K +19187019714
-    Sat 12/06: Matt C +19187019714
-    Sun 12/07: Lonnie B +19187019714
+    Mon 12/01: Bob Bravo +15555550001
+    Tue 12/02: Ivy India +15555550002 (48h)
+    Wed 12/03: Ivy India (continues)
+    Thu 12/04: Henry Hotel +15555550001
+    Fri 12/05: Carol Charlie +15555550001
+    Sat 12/06: Dave Delta +15555550001
+    Sun 12/07: Alice Alpha +15555550001
     ```
   - **SMS Cost**: ~320 characters = 2 segments × 2 contacts = 4 segments/week = ~$0.032/week ($1.66/year)
   - **Notification Logging**: Stored with `schedule_id=NULL` to differentiate from shift-based notifications
@@ -434,7 +434,7 @@ Reference: WHO-43.
 ### Fixed
 
 - **48-Hour Shift Continuation Display** - Second day of 48-hour shifts now correctly shows "Name (continues)" instead of "No assignment"
-  - **Issue**: Weekly summary showed "Wed 12/03: No assignment" when Ben D had a 48-hour shift Tue-Wed
+  - **Issue**: Weekly summary showed "Wed 12/03: No assignment" when Ivy India had a 48-hour shift Tue-Wed
   - **Root Cause**: 48-hour shifts have ONE schedule entry spanning both days; continuation day had no separate entry
   - **Solution**: Added continuation detection logic - if `is_continuation=true` and no schedule entry found, use previous person's name
   - **Files Changed**: `src/services/sms_service.py:540-549`
@@ -504,11 +504,11 @@ Reference: WHO-43.
     - `frontend/team-members.html` - Include shared script, replace inline color logic with activeMembers filter
     - `frontend/schedule.html` - Include shared script, remove local getTeamColor function
     - `frontend/notifications.html` - Include shared script, remove local TEAM_COLORS and getTeamColor
-  - **Result**: All team members now display with same color across all pages (e.g., Gary K = purple everywhere, Clark M = cyan everywhere)
+  - **Result**: All team members now display with same color across all pages (e.g., Carol Charlie = purple everywhere, Henry Hotel = cyan everywhere)
   - **Testing**: Verified via Chrome DevTools on all 4 pages with 7 active team members
 
 - **Inactive Members Missing from Historical Views** - Inactive team members now display in gray on historical calendar and notification records
-  - **Issue**: After deactivating Ken U on Nov 16th, his historical schedule entries disappeared from Dashboard calendar
+  - **Issue**: After deactivating Eve Echo on Nov 16th, their historical schedule entries disappeared from Dashboard calendar
   - **Root Cause**: Pages were filtering to `active_only=true`, excluding inactive members from member arrays
   - **Solution**: Implemented dynamic conditional coloring based on member status
   - **Implementation**:
@@ -519,7 +519,7 @@ Reference: WHO-43.
     - `frontend/index.html:369-372` - Remove `active_only=true`, add conditional coloring in 4 locations
     - `frontend/notifications.html:549-550` - Remove `active_only=true`, add conditional coloring
   - **Result**: Historical schedules/notifications now display correctly with inactive members shown in gray
-  - **Visual Impact**: Ken U's historical calendar entries now visible in gray, making inactive status immediately clear
+  - **Visual Impact**: Eve Echo's historical calendar entries now visible in gray, making inactive status immediately clear
   - **Benefit**: Preserves historical accuracy while maintaining color consistency for active members
 
 ### Technical Details
@@ -770,7 +770,7 @@ Reference: WHO-43.
 
 - **Twilio Phone Number Update** - Upgraded to compliant US phone number ([WHO-21](https://linear.app/hextrackr/issue/WHO-21))
   - **Old Number**: `+18557482075` (temporary toll-free)
-  - **New Number**: `+19188008737` (regulatory compliant)
+  - **New Number**: `+15555550003` (regulatory compliant)
   - **Status**: Completed 10DLC registration and Twilio compliance verification
   - **Impact**: Production-ready for US SMS delivery with proper sender authentication
   - **Configuration**: Updated `TWILIO_PHONE_NUMBER` in `.env` file

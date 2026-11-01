@@ -650,10 +650,10 @@ class SMSService:
         Example:
             WhoIsOnFirst Weekly Schedule (Nov 25 - Dec 1)
 
-            Mon 11/25: Lance B +19187019714
-            Tue 11/26: Gary K +19187019714 (48h)
-            Wed 11/27: Gary K (continues)
-            Thu 11/28: Troy M +19187019714
+            Mon 11/25: Frank Foxtrot +15555550001
+            Tue 11/26: Carol Charlie +15555550001 (48h)
+            Wed 11/27: Carol Charlie (continues)
+            Thu 11/28: Jack Juliet +15555550001
             ...
 
             Questions? Reply to this message.
