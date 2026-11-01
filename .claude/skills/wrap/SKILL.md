@@ -6,7 +6,7 @@ description: >
   facts to .context/, syncs docs, and reports Session Health. Run at end of any session, optionally after
   /pr-cleanup. Triggers: "wrap", "wrap up", "close session", "end of session",
   "done for the night", "finish up", "closing time".
-library-version: 8cb423b84b38
+library-version: 995aa5c33005
 ---
 
 # Wrap Session
@@ -190,8 +190,18 @@ write, because the summary's `supersedes` comes from it.
 mcp__sessionflow__list_memories(project: PROJECT, type: "handoff", limit: 20, format: "json")
 ```
 
+While the JSON result carries a `next_cursor`, call it again with `cursor: <next_cursor>` until the
+last page. A handoff
+on a page you skip is never superseded and stays open in `/start`.
+
 **Close** each open handoff whose work this session finished or took over: its issues are Done, or
 this session did its first action. Put its ID in the Step 3 summary's `supersedes`.
+
+**Never supersede a handoff this wrap renews.** A handoff whose `source_session_id` is `SESSION_ID`
+came from an earlier `/wrap` of this session. When its work still continues, the write below
+replaces it in place through the same topic key: leave it out of every `supersedes` list, or the
+re-wrap retires the handoff it means to keep. When its work is finished, no new handoff replaces it:
+close it like any other, in the summary's `supersedes`.
 
 **Write** one handoff per unit of continuing work when `--handoff` was passed, or when an issue this
 session worked on stays `In Progress` or `In Review` with a next action still owed. A unit is one
@@ -207,7 +217,7 @@ mcp__sessionflow__add_memory(
   project: PROJECT,
   type: "handoff",
   topic_key: "handoff:<ISSUE or PARENT>:" + SESSION_ID,   # omit when SESSION_ID is unknown
-  supersedes: [<IDs of open handoffs for the same issue or chain>],
+  supersedes: [<IDs of open handoffs for the same issue or chain, from other sessions>],
   source_session_id: SESSION_ID, source_provider: PROVIDER,
   source_project_root: "<git toplevel>",
   extra: {
@@ -221,10 +231,12 @@ mcp__sessionflow__add_memory(
 )
 ```
 
-The topic key names the session because a topic-key replace keeps a superseded record superseded:
-reusing `handoff:<ISSUE>` after an earlier handoff closed would write a record `/start` never sees. A
-re-wrap of the same session replaces its own handoff in place. Never write a secret value into a
-handoff.
+The topic key names the session, so a re-wrap replaces this session's handoff in place and leaves
+handoffs from other sessions alone. A topic-key replace takes its status from the new write, so the
+record is active even when another session superseded the earlier one. SessionFlow 0.14.1 or later
+is required for that status rule.
+
+Never write a secret value into a handoff.
 
 ### Step 4 — Operating memory (local agent memory)
 

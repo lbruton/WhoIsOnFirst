@@ -8,7 +8,7 @@ description: >
   for continuing same-day work or resuming after a short break.
   No indexing, no code search, no agent dispatch.
   Triggers: "start", "quick start", "resume", "orient me", "where were we".
-library-version: 8cb423b84b38
+library-version: 995aa5c33005
 ---
 
 # Start
@@ -91,9 +91,9 @@ git for-each-ref --sort=-committerdate --format='%(committerdate:relative)|%(ref
 echo "== open PRs =="
 case "$(git remote get-url origin 2>/dev/null)" in
   *github.com*)
-    gh pr list --state open --limit 30 \
-      --json number,title,headRefName,isDraft,updatedAt,author,reviewDecision,mergeable,statusCheckRollup \
-      --jq '.[] | "#\(.number) \(.headRefName) \(if .isDraft then "[draft] " else "" end)\(.title) — \(.author.login)\(if .author.is_bot then " [bot]" else "" end), \(.updatedAt[0:10]) | review:\(if (.reviewDecision // "") == "" then "none" else .reviewDecision end) merge:\(.mergeable) checks:\([.statusCheckRollup[]? | (.conclusion // .state // .status)] | group_by(.) | map("\(.[0])=\(length)") | join(","))"' \
+    gh pr list --state open --limit 1000 \
+      --json number,title,headRefName,isDraft,updatedAt,author,reviewDecision,mergeable,mergeStateStatus,statusCheckRollup \
+      --jq '(.[] | "#\(.number) \(.headRefName) \(if .isDraft then "[draft] " else "" end)\(.title) — \(.author.login)\(if .author.is_bot then " [bot]" else "" end), \(.updatedAt[0:10]) | review:\(if (.reviewDecision // "") == "" then "none" else .reviewDecision end) merge:\(.mergeable)/\(.mergeStateStatus) checks:\([.statusCheckRollup[]? | if (.conclusion // "") != "" then .conclusion else (.state // .status) end] | group_by(.) | map("\(.[0])=\(length)") | join(","))"), (if length >= 1000 then "⚠ 1000 PRs listed: the list is incomplete" else empty end)' \
       2>/dev/null || echo "⚠ gh unavailable" ;;
   *) echo "origin is not GitHub: no PRs to list" ;;
 esac
@@ -114,10 +114,13 @@ Classify what it finds (cross-reference with the Plane `started` list from Step 
 - **Orphan** — worktree, stash, or branch with no matching open Plane issue and no PR.
 - **Stale claim** — Plane issue `In Progress` / `In Review` with no worktree, branch, PR,
   or lock claim behind it. Report it as "likely stale"; do not change its state.
-- **Pending PR** — every open PR, bot or human. A bot PR (Dependabot, Renovate: `[bot]` in the
-  author) with all checks passing is a merge candidate; one with failing checks needs a look. A human PR
-  with `review:APPROVED` and green checks waits only on a merge. Every pending PR goes into the
-  **Before you start** list of the report, so the user clears or defers it before new work begins.
+- **Pending PR** — every open PR, bot or human. Call a PR a merge candidate only when it shows
+  `merge:MERGEABLE/CLEAN`: `CLEAN` means GitHub found every required check and review satisfied.
+  `BLOCKED`, `UNSTABLE` or `BEHIND` means a required gate is not met even when the visible checks are
+  green; name the state. `UNKNOWN` means GitHub has not computed it: report the merge state as unknown,
+  not as ready. Bot PRs (Dependabot, Renovate: `[bot]` in the author) follow the same rule. Every
+  pending PR goes into the **Before you start** list of the report, so the user clears or defers it
+  before new work begins.
 
 Match work to issues by issue ID in the branch name, PR title, last commit subject, or
 lock claim (patch branches like `patch/3.36.46` usually carry the ID only in the PR title,
@@ -135,8 +138,9 @@ mcp__plane__workitem(action: "list", project_id: "<uuid>", expand: "state",
 ```
 
 `parent` is the parent's UUID (or null). Keep the closed items of the page too: they resolve a parent
-UUID to its `sequence_id`, name and state. When a parent is not on the page, fetch it with
-`action: "retrieve"`. When `next_page_results` is true, read the next page with `cursor` before ranking.
+UUID to its `sequence_id`, name and state. While `next_page_results` is true, call `list` again with
+`cursor: <next_cursor>` and add that page before ranking. When a parent is on no page, fetch it with
+`action: "retrieve"`, `project_id` and `workitem_id: <parent UUID>`.
 
 > **Plane Community Edition limits (verified 2026-10-10):** `pql` is rejected (`"PQL and
 > structured filters are not supported on this Plane edition"`, returned as a payload,
@@ -329,8 +333,10 @@ mcp__sessionflow__search_memories(query="<topic query from Step 3>", project=PRO
                                   format="json")
 ```
 
-`list_memories` and `search_memories` return only `active` records, so a handoff that a later
-`/wrap` superseded drops out. Map each handoff to issues by `extra.issues`, then by `issue_ids`:
+Page (a) to the end: while the JSON result carries a `next_cursor`, call it again with
+`cursor: <next_cursor>`. Missing
+a page leaves open handoffs unmarked. `list_memories` and `search_memories` return only `active`
+records, so a handoff that a later `/wrap` superseded drops out. Map each handoff to issues by `extra.issues`, then by `issue_ids`:
 
 - **Issue handoff:** one issue in `extra.issues`. Mark that issue's line `🔁 handoff`.
 - **Chain handoff:** `extra.chain` names a parent or epic, or `extra.issues` holds several issues
