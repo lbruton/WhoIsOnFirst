@@ -6,7 +6,7 @@ Defines request/response models for settings endpoints.
 
 import re
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, Literal, Optional
 from datetime import datetime
 
@@ -26,8 +26,7 @@ class SettingResponse(BaseModel):
     description: Optional[str] = None
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SettingUpdateRequest(BaseModel):

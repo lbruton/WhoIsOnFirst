@@ -6,7 +6,7 @@ Request and response models for shift configuration API endpoints.
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 import re
 
 
@@ -240,10 +240,9 @@ class ShiftResponse(ShiftBase):
         examples=["2025-01-01T00:00:00"]
     )
 
-    class Config:
-        """Pydantic configuration."""
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "id": 1,
                 "shift_number": 1,
@@ -252,4 +251,5 @@ class ShiftResponse(ShiftBase):
                 "start_time": "08:00",
                 "created_at": "2025-01-01T00:00:00"
             }
-        }
+        },
+    )

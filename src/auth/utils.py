@@ -7,7 +7,7 @@ Uses Argon2id (OWASP 2025 recommended) for password hashing.
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import secrets
 
@@ -111,14 +111,15 @@ def create_session_cookie(user_id: int, remember_me: bool = False) -> dict:
         remember_me: Whether to create persistent session (30 days) or session-only
 
     Returns:
-        Dictionary with session data (user_id, expires_at)
+        Dictionary with session data (user_id, expires_at as an ISO 8601 UTC
+        timestamp with a +00:00 offset)
     """
     if remember_me:
         # Persistent session: 30 days
-        expires_at = datetime.utcnow() + timedelta(days=30)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=30)
     else:
         # Session-only: 24 hours
-        expires_at = datetime.utcnow() + timedelta(hours=24)
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
 
     return {
         "user_id": user_id,
