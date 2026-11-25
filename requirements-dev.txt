@@ -6,31 +6,31 @@
 
 # Testing
 pytest==9.2.0
-pytest-asyncio==1.4.1  # Updated for Python 3.12 event loop compatibility
+pytest-asyncio==1.5.0  # Updated for Python 3.12 event loop compatibility
 pytest-cov==7.1.0
 pytest-mock==3.17.0
-coverage==7.17.0
+coverage==7.17.5
 
 # Code Quality
 black==26.10.1  # Code formatting - Updated for Python 3.12
 flake8==7.5.0   # Linting
 isort==9.0.2   # Import sorting
 mypy==2.4.1     # Type checking - Updated for Python 3.12
-pylint==4.1.3   # Advanced linting
+pylint==4.1.4   # Advanced linting
 
 # Development Tools
-ipython==9.17.1  # Enhanced Python shell
+ipython==9.19.1  # Enhanced Python shell
 ipdb==0.13.13    # Debugger
 pre-commit==4.7.0  # Git hooks for code quality
 
 # Documentation
 mkdocs==1.6.1
-mkdocs-material==9.8.0
+mkdocs-material==9.8.2
 
 # Database Tools
 sqlalchemy-utils==0.43.0
 
 # Testing Utilities
-faker==40.44.0  # Generate test data
+faker==40.63.0  # Generate test data
 freezegun==1.5.5  # Mock datetime (1.5+ required for Python 3.13)
 responses==0.26.3  # Mock HTTP requests
