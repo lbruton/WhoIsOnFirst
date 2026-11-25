@@ -430,7 +430,7 @@ def send_daily_notifications():
 ### SMS Service with Retry Logic
 
 > Note: the live `SMSService` implements retries with a manual
-> `for attempt in range(max_retries)` exponential-backoff loop — `tenacity` is
+> `for attempt in range(max_retries)` exponential-backoff loop; `tenacity` is
 > not a project dependency. The decorator form below is an illustrative
 > pattern; match the manual loop in `src/services/sms_service.py` for parity.
 

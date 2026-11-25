@@ -5,7 +5,7 @@ user-invocable: true
 allowed-tools: >-
   Bash, Read, Write, Edit, Glob, Grep, AskUserQuestion, Skill,
   mcp__plane__workitem
-library-version: 4b65e212cbd7
+library-version: fbe91cdacf2e
 ---
 
 # /spec-requirements ISSUE

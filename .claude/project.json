@@ -5,7 +5,7 @@
   "issueTag": "whoseonfirst",
   "kind": "code",
   "harnesses": { "claude": true, "codex": true },
-  "skills": { "profiles": ["code-core"], "extra": [], "exclude": [] },
+  "skills": { "profiles": ["code-core"], "extra": ["vale:Prose"], "exclude": [] },
   "cachePrefix": "whoseonfirst",
   "plane": {
     "workspace": "lbruton",

@@ -16,7 +16,7 @@ Status: Approved
 | ASGI Server | Uvicorn | 0.30.1+ | High-performance async server |
 | Task Scheduler | APScheduler | 3.10.4+ | Cron-based job scheduling |
 | Database (Phase 1) | SQLite | 3.x | Embedded relational database |
-| Database (Phase 2+) | PostgreSQL | 15+ | Enterprise-grade RDBMS |
+| Database (Phase 2+) | PostgreSQL | 15+ | Relational database for multi-instance deploys |
 | ORM | SQLAlchemy | 2.0.31+ | Database abstraction layer |
 | SMS Gateway | Twilio Python SDK | 9.2.3+ | SMS delivery service |
 | Validation | Pydantic | 2.8.2+ | Data validation and serialization |
@@ -31,13 +31,13 @@ Status: Approved
 #### Why FastAPI?
 
 - Modern Python: Built for Python 3.7+ with native async/await support
-- Type Safety: Leverages Python type hints for automatic validation
+- Type Safety: Uses Python type hints for automatic validation
 - Auto Documentation: Generates OpenAPI (Swagger) and ReDoc automatically
 - Performance: ASGI-based, significantly faster than traditional WSGI frameworks
 - Developer Experience: Excellent IDE support, auto-completion, fewer bugs
 - Future-Proof: Growing ecosystem, designed for modern microservices
 
-#### Key Features We'll Use
+#### Features the project uses
 
 - Automatic API Documentation: Critical for Phase 3 integrations (Teams, Slack)
 - Dependency Injection: Clean architecture for database sessions, authentication
@@ -286,7 +286,7 @@ def send_sms(to_number: str, message_body: str) -> dict:
 
 #### Retry Logic with Exponential Backoff
 
-> Note: illustrative only — `tenacity` is not a project dependency. The live
+> Note: illustrative only. `tenacity` is not a project dependency. The live
 > `SMSService` uses a manual `for attempt in range(max_retries)` backoff loop.
 
 ```python
@@ -334,7 +334,7 @@ def format_shift_notification(member_name: str, duration_hours: int) -> str:
 - Simplicity: No build process, no npm dependencies
 - Performance: No framework overhead
 - Maintainability: Straightforward code, easy for anyone to modify
-- Future Migration: Can easily migrate to React/Vue if needed
+- Future Migration: Can migrate to React/Vue if needed
 
 #### Potential Enhancements (Future)
 

@@ -1,6 +1,6 @@
 # WhoIsOnFirst
 
-Renamed from WhoseOnFirst (WOF-36 epic). Old slug `whoseonfirst` survives on purpose in a few places: the `_LEGACY_SALT` bytes (never change), legacy `.stvault` imports, and prod infra until the WOF-39 cutover.
+Renamed from WhoseOnFirst (WOF-36 epic). Old slug `whoseonfirst` survives on purpose in a few places: the `_LEGACY_SALT` bytes (never change), legacy `.stvault` imports, and the prod volume name `whoisonfirst_whoseonfirst-data`.
 
 Automated on-call rotation + SMS notification system for a 7-person technical team. FastAPI + APScheduler + Twilio + SQLite. 8-page frontend (Tabler.io / Bootstrap 5). Docker-containerized; Portainer GitOps on prod.
 
@@ -60,16 +60,16 @@ Tests (local): `source venv/bin/activate && pytest --cov=src --cov-report=html`.
 
 ## Production Debugging
 
-Prod runs on Portainer VM `192.168.1.81`, LAN-only behind NPM (the Cloudflare tunnel is being retired, WOF-39). The container is `whoseonfirst` (stack #12) until the WOF-39 cutover, then `whoisonfirst` — substitute below. Use `docker --context portainer <cmd>` for remote ops — no SSH needed.
+Prod runs on Portainer VM `192.168.1.81` as stack 39, container `whoisonfirst`. It is LAN and VPN only behind NPM, with no Cloudflare tunnel. Stack 12 (`whoseonfirst`) is stopped and kept for rollback until 2026-12-09. Use `docker --context portainer <cmd>` for remote ops — no SSH needed.
 
 - **Stack and container changes:** Claude runs them through the Portainer API and the `portainer` context, never Lonnie through the UI. Each run needs one approval from Lonnie that names its scope (stacks, containers, volumes). This is the approved exception to the Devops `Portainer.md` HARD BLOCK. Outside an approved run, stay read-only.
 - **Secrets in a run:** copy existing values from Infisical or the stack env straight into the request, never print them, and compare by hash. Lonnie acts only when a new key or secret must be generated.
 - **Restores and the cutover:** follow the restore rehearsal runbook in the private companion (`vault-path private`, `Runbooks/`). Stop a prod stack only after two verified backups exist.
 
-- **Healthcheck noise** (~99% of output): `docker --context portainer logs whoseonfirst --since 24h 2>&1 | grep -v "GET /health"`.
-- **Requests missing from filtered logs** (e.g. a save fails with "NetworkError") = the request never reached FastAPI. Over the old Cloudflare tunnel this is an edge problem, not a code change (WOF-43); use the LAN hostname.
+- **Healthcheck noise** (~99% of output): `docker --context portainer logs whoisonfirst --since 24h 2>&1 | grep -v "GET /health"`.
+- **Requests missing from filtered logs** (e.g. a save fails with "NetworkError") = the request never reached FastAPI. Check NPM and the LAN hostname first.
 - **Production admin password is undocumented anywhere.** Dev container credentials live in auto-memory (`MEMORY.md`) — local dev only, never against production.
-- **Backups:** `db-backup` container on the VM snapshots prod every 6h to `/home/infrastructure/backups/whoseonfirst/` (→ `whoisonfirst/` after the cutover edits `backup.sh`; 7-day retention, on-VM only, plus Proxmox nightly VM backups). The stvault export (`GET /api/v1/admin/export`) is NOT a backup — omits `users` + `notification_log` by design. Full backup: sqlite3 `.backup` API + `docker cp` off-host.
+- **Backups:** `db-backup` container on the VM snapshots prod every 6h to `/home/infrastructure/backups/whoisonfirst/` (7-day retention, on-VM only, plus Proxmox nightly VM backups). The stvault export (`GET /api/v1/admin/export`) is NOT a backup — omits `users` + `notification_log` by design. Full backup: sqlite3 `.backup` API + `docker cp` off-host.
 
 ## Important Constraints
 

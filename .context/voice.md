@@ -42,6 +42,15 @@ for WhoIsOnFirst and names the exemptions.
 
 - The Abbott and Costello easter egg on `login.html` quotes the routine. It keeps its punctuation and emoji.
 - The dashboard placeholder "What's on second?" is the app's name joke. Keep the question; end the
-  answer with a full stop.
+  answer with a period.
 - Log lines quoted in `help.html` match the server logs word for word.
 - Design tools that keep their own context file point at this file. They do not copy it.
+
+## Vale
+
+- `.vale.ini` lints the README, `.context/`, the DocVault overview, PRD, roadmap and runbooks, the
+  Python sources and the frontend pages with the Prose style.
+- Vale skips the sprint notes, the research notes, the WHO-to-WOF map, `styleguide.html` and the tests.
+  These are dated records or design references.
+- The PRD and the roadmap may cite issue IDs, because they track planned work.
+- The changelog, `CLAUDE.md` and `AGENTS.md` are not linted.
