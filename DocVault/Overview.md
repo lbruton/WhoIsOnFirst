@@ -98,7 +98,7 @@ The foundation docs (architecture, stack, code patterns, authentication, RPI) li
 | [[Runbooks/real-sms-test]] | Send a real SMS from the dev stack |
 | [[Research/research-notes]] | Framework and library research |
 | [[Research/memento-taxonomy]] | Memento knowledge-graph taxonomy |
-| [[Sprints/WHO-14-manual-shift-override-ui]], [[Sprints/WHO-22-color-consistency]], [[Sprints/WHO-23-weekly-escalation-summary]] | Archived sprint logs |
+| `Sprints/` | Archived sprint logs, one file for each sprint |
 
 ## Related
 
