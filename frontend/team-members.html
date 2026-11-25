@@ -1068,10 +1068,19 @@
         const MAX_DIGEST_RECIPIENTS = 10;
         const digestRecipientsList = document.getElementById('digestRecipientsList');
         const addDigestRecipientBtn = document.getElementById('addDigestRecipientBtn');
+        // Save replaces the whole list, so it is sent only after a successful load.
+        let digestRecipientsLoaded = false;
 
         function updateAddDigestRecipientBtn() {
-            addDigestRecipientBtn.disabled =
+            addDigestRecipientBtn.disabled = !digestRecipientsLoaded ||
                 digestRecipientsList.children.length >= MAX_DIGEST_RECIPIENTS;
+        }
+
+        function showDigestRecipientsLoadError() {
+            const message = document.createElement('div');
+            message.className = 'text-danger small mb-2';
+            message.textContent = 'Could not load the digest-only recipients. Reload the page to edit them. Saving keeps the stored list.';
+            digestRecipientsList.replaceChildren(message);
         }
 
         // Built with DOM APIs, not innerHTML, so stored names cannot inject markup.
@@ -1150,6 +1159,9 @@
         // Escalation Contacts
         // Load escalation config when modal is opened
         document.getElementById('escalationModal').addEventListener('show.bs.modal', async function() {
+            digestRecipientsLoaded = false;
+            digestRecipientsList.replaceChildren();
+            updateAddDigestRecipientBtn();
             try {
                 const response = await fetch(`${API_BASE}/settings/escalation`, {
                     credentials: 'include'
@@ -1181,18 +1193,25 @@
                 }
 
                 // Load digest-only recipients
-                digestRecipientsList.replaceChildren();
                 const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
                     credentials: 'include'
                 });
                 if (digestResponse.ok) {
                     const digestData = await digestResponse.json();
+                    digestRecipientsList.replaceChildren();
+                    digestRecipientsLoaded = true;
                     (digestData.recipients || []).forEach(r => addDigestRecipientRow(r.name, r.phone));
+                } else {
+                    showDigestRecipientsLoadError();
                 }
                 updateAddDigestRecipientBtn();
 
             } catch (error) {
                 console.error('Error loading escalation config:', error);
+                if (!digestRecipientsLoaded) {
+                    showDigestRecipientsLoadError();
+                    updateAddDigestRecipientBtn();
+                }
                 showError('Could not load the escalation contacts. Reload the page.');
             }
         });
@@ -1255,20 +1274,22 @@
                     throw new Error(error.detail || 'Failed to save weekly summary setting');
                 }
 
-                // Save digest-only recipients
-                const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ recipients: readDigestRecipientRows() })
-                });
+                // Save digest-only recipients; skipped after a failed load so the stored list survives
+                if (digestRecipientsLoaded) {
+                    const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ recipients: readDigestRecipientRows() })
+                    });
 
-                if (!digestResponse.ok) {
-                    const error = await digestResponse.json();
-                    throw new Error(apiErrorMessage(
-                        error,
-                        'Could not save the digest-only recipients. Check each name and phone number.'
-                    ));
+                    if (!digestResponse.ok) {
+                        const error = await digestResponse.json();
+                        throw new Error(apiErrorMessage(
+                            error,
+                            'Could not save the digest-only recipients. Check each name and phone number.'
+                        ));
+                    }
                 }
 
                 // SUCCESS: Close modal and wait for Bootstrap to fully complete
