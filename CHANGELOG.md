@@ -10,14 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [2.0.0] - 2026-11-25
+
+Deploying this release needs a new stack: the container name, the DB filename and the hostname change. Redeploying the old stack keeps its data volume (see "Unchanged on purpose").
+
 ### Changed
 
 - **Renamed WhoseOnFirst → WhoIsOnFirst** (WOF-37, epic WOF-36) — UI, page titles, PWA manifest, logo text, SMS defaults, the shift-start fallback and the Monday weekly-schedule header all read "WhoIsOnFirst". Slug `whoisonfirst` for the Docker container name and user, DB file (`whoisonfirst.db`), export filenames and the `/health` service name. The saved SMS template in an existing database is not changed; edit it on the Notifications page.
 - **DB file renamed in place on boot** — `scripts/migrate-db-filename.sh` (run by the entrypoint before migrations) moves `whoseonfirst.db` and its `-wal`/`-shm` files to `whoisonfirst.db`; if both exist it leaves both and warns. Container UID/GID pinned to 997/998 so existing volume files keep their owner.
 - **`docker-compose.yml` runs twice on one host** — `CONTAINER_NAME` and `HOST_PORT` are stack-overridable (defaults `whoisonfirst` / `8900`) for the hosted dev stack (WOF-42).
+- **Plain UI and SMS copy** (WOF-47) — page text, errors and confirmations follow `.context/voice.md`; repository docstrings trimmed.
+- **Tabler CDN versions pinned** (WOF-45) — Tabler core 1.6.1 and icons 2.47.0 instead of `@latest`, so a CDN release cannot change the UI unannounced.
+- **Dependencies** — the pip group updated, including SQLAlchemy 2.1, FastAPI 0.162 and cryptography 50.
 
 ### Added
 
+- **Digest-only recipients for the Monday summary** (WOF-50) — up to 10 people outside the rotation and the escalation contacts (for example a manager) receive the weekly digest. Set them in the Escalation Contacts modal; `GET`/`PUT /api/v1/settings/digest-recipients`.
 - **SMS recipient allowlist** (WOF-42) — `SMS_ALLOWED_NUMBERS` limits every send (scheduled, manual, weekly) to listed numbers. With `APP_ENV=dev` and live Twilio, an empty allowlist blocks all sends. Blocked sends never call Twilio, log a masked number and record one failed row without retries.
 - **DEV badge** — `GET /api/v1/version` now returns `environment`; the sidebar shows a DEV badge and prefixes the tab title when it is `dev`.
 
@@ -27,6 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The compose data-volume key stays `whoseonfirst-data`. The real volume is `<stack>_<key>`, so renaming the key would make a redeploy of the existing prod stack mount a new empty volume and auto-seed. The compose service key stays `whoseonfirst` too: renaming it would orphan the running container, which keeps port 8900. Both guarded by `tests/test_compose_config.py`.
 - The DB-file rename is skipped when `DATABASE_URL` points anywhere other than `whoisonfirst.db` (for example a deployment that pins the legacy path), so such a deployment keeps using its file.
 - Logs show only the last 4 digits of phone numbers on every send path.
+
+### Fixed
+
+- **Restore from Backup opens its modal on the Admin page** (WOF-44) — `admin.html` loads Bootstrap.
+
+### Security
+
+- **No real contact data in tracked files** (WOF-48) — sample names and numbers use the dev-seed placeholders and 555 numbers; `tests/test_no_real_contact_data.py` fails on any real area-code number in source, frontend or docs.
 
 ---
 
@@ -171,6 +189,22 @@ Reference: WHO-43.
   - Validates response origin matches `window.location.origin`
   - Validates response path ends with expected `/components/sidebar.html`
   - Addresses Codacy HIGH severity XSS warning for `parseFromString`
+
+## [2.0.0] - 2026-11-25
+
+### Added
+
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+---
 
 ---
 
@@ -1239,3 +1273,4 @@ These limitations are intentional design choices for the MVP. Future enhancement
 [0.1.0]: https://github.com/Lonnie-Bruton/WhoseOnFirst/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/Lonnie-Bruton/WhoseOnFirst/releases/tag/v0.0.1
 [1.0.3]: https://github.com/Lonnie-Bruton/WhoseOnFirst/compare/v1.0.2...v1.0.3
+[2.0.0]: https://github.com/lbruton/WhoIsOnFirst/compare/v1.8.0...v2.0.0
