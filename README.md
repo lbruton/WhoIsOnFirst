@@ -3,36 +3,39 @@
 </p>
 
 <p align="center">
-  <strong>Automated on-call rotation and SMS notification system</strong>
+  <strong>On-call rotation and SMS notification system</strong>
 </p>
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.12-blue.svg" alt="Python"></a>
-  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688.svg" alt="FastAPI"></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-1.6.1-success.svg" alt="Version"></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.162-009688.svg" alt="FastAPI"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-2.0.0-success.svg" alt="Version"></a>
   <a href="https://app.codacy.com/gh/lbruton/WhoIsOnFirst/dashboard"><img src="https://app.codacy.com/project/badge/Grade/876350f66cf34d748628126b42ee9118" alt="Codacy"></a>
 </p>
 
 ---
 
-WhoIsOnFirst manages shift assignments and sends daily SMS notifications to on-call team members. The system uses a circular rotation algorithm to ensure fair, predictable shift distribution.
+WhoIsOnFirst assigns on-call shifts to a team and texts the person on call each morning. A circular rotation gives every member the same share of shifts in a fixed order.
 
 ## Features
 
-- **Role-based access control** &mdash; Admin and Viewer roles with session-based authentication
-- **Configurable shifts** &mdash; 24-hour and 48-hour shifts with flexible day assignments
-- **Automated SMS** &mdash; Daily 8:00 AM CST notifications via Twilio with customizable templates
-- **Schedule overrides** &mdash; Manual coverage swaps for vacation, sick leave, or on-demand changes
-- **Drag-and-drop ordering** &mdash; Reorder rotation priority with a simple drag interface
-- **Data portability** &mdash; Full backup/restore for migration between environments
+- **Roles:** an admin edits the roster, shifts and settings. A viewer can only read.
+- **Shifts:** 24-hour and 48-hour shifts, each mapped to one or two days of the week.
+- **SMS:** Twilio sends a daily message at 8:00 AM Central from an editable template.
+- **Escalation:** two fixed escalation contacts sit behind the rotation. A Monday digest of the week's schedule goes to the contacts and digest-only recipients that an admin selects.
+- **Overrides:** an admin can hand one shift to another member for vacation, sick leave or a swap.
+- **Order:** drag members to change the rotation order.
+- **Backup and restore:** export the data to a `.stvault` file and restore it in one atomic step.
 
 ---
 
 ## Screenshots
 
+The screenshots use sample data: placeholder names and 555 phone numbers.
+
 ### Login
 
-Secure session-based authentication with admin and viewer roles.
+Sign in with an admin or viewer account.
 
 <p align="center">
   <img src="docs/screenshots/01-login.png" alt="Login" width="700">
@@ -40,7 +43,7 @@ Secure session-based authentication with admin and viewer roles.
 
 ### Dashboard
 
-At-a-glance view of who's on call today, the escalation chain, and a color-coded monthly calendar showing the full rotation.
+The dashboard shows who is on call, the escalation chain and a monthly calendar with one color for each member.
 
 <p align="center">
   <img src="docs/screenshots/02-dashboard.png" alt="Dashboard" width="700">
@@ -48,7 +51,7 @@ At-a-glance view of who's on call today, the escalation chain, and a color-coded
 
 ### Team Members
 
-Manage the on-call roster. Each member gets a unique color for calendar visibility. Drag the grip icon to reorder rotation priority.
+Add, edit and deactivate members. Drag the grip icon to change the rotation order.
 
 <p align="center">
   <img src="docs/screenshots/03-team-members.png" alt="Team Members" width="700">
@@ -56,7 +59,7 @@ Manage the on-call roster. Each member gets a unique color for calendar visibili
 
 ### Shift Configuration
 
-Define your weekly shift template. Each shift maps to a day (or days for 48-hour doubles). The coverage chart shows gaps at a glance.
+Define the weekly shift template. The coverage chart marks days that no shift covers.
 
 <p align="center">
   <img src="docs/screenshots/04-shifts.png" alt="Shift Configuration" width="700">
@@ -64,7 +67,7 @@ Define your weekly shift template. Each shift maps to a day (or days for 48-hour
 
 ### Schedule Generation
 
-Generate rotation schedules weeks in advance. Auto-renew keeps the schedule rolling. Export to CSV for offline reference.
+Generate the schedule weeks ahead. Auto-renew extends it when fewer than four weeks remain. Export it to CSV.
 
 <p align="center">
   <img src="docs/screenshots/05-schedule.png" alt="Schedule Generation" width="700">
@@ -72,7 +75,7 @@ Generate rotation schedules weeks in advance. Auto-renew keeps the schedule roll
 
 ### Notifications
 
-SMS notification history with delivery status tracking. Customize the message template with dynamic placeholders for name, date, and time.
+Edit the SMS template and read the send history with its delivery status.
 
 <p align="center">
   <img src="docs/screenshots/06-notifications.png" alt="Notifications" width="700">
@@ -80,7 +83,7 @@ SMS notification history with delivery status tracking. Customize the message te
 
 ### Schedule Overrides
 
-Swap coverage for vacation or sick days without disrupting the rotation. Override history tracks who covered for whom and why.
+The override history lists who covered which shift, for whom and why.
 
 <p align="center">
   <img src="docs/screenshots/07-schedule-overrides.png" alt="Schedule Overrides" width="700">
@@ -88,56 +91,54 @@ Swap coverage for vacation or sick days without disrupting the rotation. Overrid
 
 ### Admin
 
-Export a full database backup or restore from a previous backup. The restore is atomic &mdash; if anything fails, no data is changed.
+Export a backup, restore one and enter the Twilio account details. A failed restore changes no data.
 
 <p align="center">
-  <img src="docs/screenshots/08-admin.png" alt="Admin - Backup & Restore" width="700">
+  <img src="docs/screenshots/08-admin.png" alt="Admin: backup, restore and Twilio settings" width="700">
 </p>
 
-### Help &amp; Setup Guide
+### Help
 
-Step-by-step Twilio configuration walkthrough, environment variable reference, and troubleshooting FAQ.
+The help page walks through the Twilio setup and lists the environment variables and common problems.
 
 <p align="center">
-  <img src="docs/screenshots/09-help.png" alt="Help & Setup Guide" width="700">
+  <img src="docs/screenshots/09-help.png" alt="Help and setup guide" width="700">
 </p>
 
 ---
 
-## Technology Stack
+## Technology
 
 | Component | Technology |
-|-----------|------------|
+| --- | --- |
 | Backend | FastAPI, Python 3.12 |
-| Database | SQLite with SQLAlchemy ORM |
+| Database | SQLite with the SQLAlchemy ORM |
 | Scheduler | APScheduler |
 | SMS | Twilio |
-| Frontend | Vanilla JS, Tabler CSS |
-| Container | Red Hat UBI9 (OpenShift compatible) |
+| Frontend | Vanilla JavaScript, Tabler |
+| Container | Red Hat UBI 9 (runs on OpenShift) |
 
-## Quick Start
+## Run it
 
 ```bash
-# Clone and start
-git clone <repo-url>
+git clone https://github.com/lbruton/WhoIsOnFirst.git
 cd WhoIsOnFirst
-docker-compose up -d
-
-# Access at http://localhost:8000
-# Default admin: admin / Admin123!
-# Default viewer: viewer / Viewer123!
+cp .env.example .env    # set SECRET_KEY and the Twilio values
+docker compose up -d
 ```
 
-*Change passwords immediately after first login.*
+Open `http://localhost:8900`. The first start creates the account `admin` with the password `Admin123!`. Change it after the first sign-in.
 
----
+Local development uses `docker-compose.dev.yml`, which mocks every SMS send. `CLAUDE.md` has the details.
+
+## Documentation
+
+- [`.context/`](.context/README.md): architecture, code patterns, authentication and the technical stack.
+- [`DocVault/`](DocVault/Overview.md): the product overview, PRD, roadmap and runbooks.
+- [`CHANGELOG.md`](CHANGELOG.md): the release history.
 
 ## Acknowledgments
 
-- [FastAPI](https://fastapi.tiangolo.com/) &mdash; Web framework
-- [Twilio](https://www.twilio.com/) &mdash; SMS delivery
-- [Tabler](https://tabler.io/) &mdash; UI components
-
----
-
-*Version 1.6.1 &middot; [Changelog](CHANGELOG.md)*
+- [FastAPI](https://fastapi.tiangolo.com/): web framework
+- [Twilio](https://www.twilio.com/): SMS delivery
+- [Tabler](https://tabler.io/): UI components

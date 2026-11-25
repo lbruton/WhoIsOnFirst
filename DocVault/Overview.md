@@ -10,108 +10,100 @@ updated: "2026-11-25"
 
 # WhoIsOnFirst
 
-> **Public copy.** Deployment and infra details (hosts, IPs, ports) are in the private companion: `Devops/DocVault/Projects/WhoIsOnFirst/Overview.md` (`vault-path private`).
+> Public copy. The private companion `Devops/DocVault/Projects/WhoIsOnFirst/Overview.md` (`vault-path private`) holds the hosts, addresses and deploy detail.
 
-Automated on-call rotation and SMS notification system. Manages team schedules, shift assignments, and real-time notifications via Twilio for coordinating who is on-call at any given time.
+WhoIsOnFirst is an on-call rotation and SMS notification system. It assigns shifts to a team, keeps the schedule weeks ahead and texts the person on call through Twilio each morning.
 
-## At a Glance
+## At a glance
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | Repo | [lbruton/WhoIsOnFirst](https://github.com/lbruton/WhoIsOnFirst) |
-| Language | Python 3.12 (FastAPI backend), vanilla JavaScript frontend (Tabler.io) |
-| Branch | `dev` (default + PR target). `main` is production — auto-deploys via Portainer GitOps; both branches require PRs (direct push blocked) |
-| Version Lock | None (planned — WOF-5) |
+| Language | Python 3.12 (FastAPI backend), vanilla JavaScript frontend (Tabler) |
+| Branches | `dev` is the default branch and the PR target. `main` is production and deploys through Portainer GitOps. Both branches require a PR. |
+| Version | 2.0.0 ([CHANGELOG](../CHANGELOG.md)). The project has no version lock. |
 | Issues | [Plane](https://plane.lbruton.cc/lbruton/), prefix `WOF` |
-| Path | `/Volumes/DATA/GitHub/WhoIsOnFirst/` |
 
-## Status
+## Features
 
-Phase 1 MVP complete: 100% backend, 100% frontend, 538 tests at 81% coverage. PWA, dark mode, and service worker shipped (WHO-37 epic, Mar 2026). Mobile/tablet UI redesign shipped (WHO-39, Mar 2026): responsive stat cards (col-6), card-view toggles with localStorage, 44px touch targets, dark mode audit across all 10 pages, login branding (green gradient + icon-bare.svg), first-boot admin seeding in lifespan hook.
+- Circular rotation over 24-hour and 48-hour shifts. Schedule generation starts the first member on the chosen start date and never creates entries before it.
+- A daily SMS at 8:00 AM Central from an editable template.
+- Two fixed escalation contacts behind the rotation.
+- A Monday digest of the week's schedule. It goes to members who opt in, to escalation contacts whose digest flag is on and to up to 10 digest-only recipients. Digest-only recipients get no shift SMS and do not appear on the dashboard. Each phone number gets one copy.
+- Shift overrides for vacation, sick leave and swaps, with a history.
+- Admin and viewer roles with session authentication.
+- Backup and restore through `.stvault` files. A restore is atomic.
+- A progressive web app with dark mode and layouts for phones and tablets.
 
-**June 2026 behavior changes (on `dev`, ships with next release):**
+## How it is deployed
 
-- **Schedule generation anchors at the chosen start date** (WOF-9, PR #48). Previously any start date snapped to Monday of that week — member 1 always landed on Monday, mid-week starts silently created past-day entries and bumped member 1 off the chosen day. Now member 1 (lowest `rotation_order`) goes on call on the exact start date, no entries are created before it, multi-day shifts straddling the start are skipped whole (never truncated), and a mid-week start adds one trailing week so coverage ≥ requested weeks. `POST /schedules/generate` returns a `{schedules, warnings}` envelope — warns when start = today after the 8 AM job (no SMS that day) and when the start day is uncovered by a skipped 48h shift.
-- **Monday weekly digest recipients are now per-person opt-in** (WOF-10, PR #50). Recipients = active team members with the new `weekly_digest_optin` flag (toggle on the member profile) ∪ escalation contacts whose per-contact digest flags are on (default ON, preserving prior behavior), deduped by phone. Escalation-contact status and digest receipt are fully independent — a supervisor outside the escalation pair can opt in; an escalation contact can opt out.
-- **Dependabot now targets `dev`** (PR #49) — security updates may still open PRs against `main`; close and re-land via dev.
-
-**November 2026 behavior changes (on `dev`, ships with next release):**
-
-- **Digest-only recipients** (WOF-50, PR #118). Admins add up to 10 people (name and E.164 phone) in the Escalation Contacts modal under the weekly summary toggle. These people receive only the Monday digest: they are not in the rotation, get no shift SMS and do not appear on the dashboard. The list is the `weekly_digest_recipients` setting (JSON) behind `GET`/`PUT /api/v1/settings/digest-recipients`. The digest sends to them whether or not escalation display is on, and dedups them by phone after escalation contacts and opted-in members.
-
-**Next phases**: pre-ship security fixes (WOF-15, WOF-17/18/19), version bump absorbing WOF-14, `dev → main` release; then Twilio Admin-UI/DB hardening backlog, PostgreSQL migration.
-
-## How It's Deployed
-
-Runs as a Docker container on the [Portainer](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Portainer.md) VM, behind [NPM](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/NPM.md) reverse proxy via [Cloudflare](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Cloudflare.md) tunnel.
+Production runs as a Docker container on the [Portainer](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Portainer.md) VM behind the [NPM](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/NPM.md) reverse proxy. It is reachable on the home LAN and over the VPN only. No Cloudflare tunnel serves it.
 
 | Component | Detail |
-|-----------|--------|
-| Stack | [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md) ID 12, repo-based from `main` branch |
-| Port | 8900 (host) -> 8000 (container) |
-| Database | SQLite on [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoseonfirst_whoseonfirst-data` (stack 12; `whoisonfirst_whoseonfirst-data` after the WOF-39 cutover — the volume key is pinned) (228K) |
-| Health check | `GET /health` (30s interval) |
-| Backups | [Backups](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md) stack pulls SQLite via `sqlite3 .backup` |
+| --- | --- |
+| Stack | `whoisonfirst` in the [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md), from the `main` branch with 5-minute GitOps polling |
+| Port | 8900 on the host, 8000 in the container |
+| Database | SQLite at `/app/data/whoisonfirst.db` on the [named volume](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) `whoisonfirst_whoseonfirst-data`. The compose volume key stays `whoseonfirst-data` on purpose. |
+| Health check | `GET /health` every 30 seconds |
+| Backups | The [db-backup](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md) container copies the database with `sqlite3 .backup` every 6 hours |
+| Dev stack | `whoisonfirst-dev` tracks `dev`. It sends real SMS only to the numbers in `SMS_ALLOWED_NUMBERS`. |
+
+### Corporate deployment (planned)
+
+| Component | Detail |
+| --- | --- |
+| Source sync | GitHub to the corporate GitLab mirror |
+| Deploy | The corporate server admin deploys from GitLab to Kubernetes |
+| Secrets | The production Twilio keys live in the Kubernetes environment, not in the repo |
+| Dev safety | Development uses dummy Twilio keys and 555 phone numbers |
+
+A development environment never holds live Twilio credentials, so it cannot send a duplicate SMS.
 
 ## Architecture
 
-**Pattern**: FastAPI with SQLAlchemy ORM, Alembic migrations
+FastAPI with the SQLAlchemy ORM and Alembic migrations.
 
 | Component | Technology |
-|-----------|------------|
-| Framework | FastAPI 0.115.0 + Uvicorn |
-| Database | SQLAlchemy 2.0.31 + Alembic (SQLite Phase 1, PostgreSQL Phase 2+) |
-| Scheduling | APScheduler 3.10.4 |
-| Admin Seeding | First-boot: seeds `admin/Admin123!` via lifespan hook when `user_count == 0` (idempotent) |
-| SMS | Twilio SDK 9.2.3 |
-| Auth | Argon2-cffi (OWASP 2025 recommended) |
-| Validation | Pydantic 2.8.2 |
-| Frontend | Tabler.io 1.0.0-beta20 (Bootstrap 5), vanilla JS, 8 HTML pages |
-| Testing | pytest (288 tests), black, flake8, mypy, pylint |
+| --- | --- |
+| Framework | FastAPI 0.162 and Uvicorn |
+| Database | SQLAlchemy 2.1 and Alembic on SQLite. PostgreSQL is a later option. |
+| Scheduling | APScheduler 3.11 |
+| Admin seed | The first start on an empty database creates `admin` with the password `Admin123!` |
+| SMS | Twilio SDK 9.12 |
+| Auth | Argon2id through argon2-cffi |
+| Validation | Pydantic 2.14 |
+| Frontend | Tabler 1.6.1 (Bootstrap 5), vanilla JavaScript, no build step |
+| Testing | pytest, Playwright for the frontend specs |
 
-### Corporate Deployment (Planned)
+### Development workflow
 
-In addition to the home Portainer deployment, WhoIsOnFirst will be deployed at the corporate office:
+The project uses RPI (Research, Plan, Implement), a three-phase process lighter than the spec workflow. The repo holds it in `.context/rpi-process.md`.
 
-| Component | Detail |
-|-----------|--------|
-| Source sync | Personal GitHub → Corporate GitLab (manual sync at office) |
-| GitOps | Ernie (server admin) deploys from GitLab → corporate Kubernetes |
-| Secrets | Production Twilio API keys configured in K8s environment (not in repo) |
-| Dev safety | Development uses dummy Twilio keys / dummy phone numbers — no live keys in dev |
+## Architecture decisions
 
-**Flow**: Develop locally with dummy keys → push to GitHub → sync to corporate GitLab at office → GitOps deploy to K8s with production secrets.
-
-This eliminates the duplicate SMS risk entirely — dev environments never have live Twilio credentials.
-
-### Development Workflow
-
-Uses RPI (Research -> Plan -> Implement) — a lightweight 3-phase process, not the full spec-workflow. Templates and process documented in the repo at `.context/rpi-process.md`.
-
-## Architecture Decisions
-
-- **FastAPI over Express** — Python ecosystem has better scheduling (APScheduler) and SMS (Twilio) libraries
-- **SQLite Phase 1, PostgreSQL Phase 2** — start simple, migrate when multi-instance needed
-- **Tabler.io frontend** — Bootstrap 5 based, 16-color WCAG AA team member system, no build step
-- **Cloudflare Tunnel access** — Zero Trust authentication instead of exposing port directly
-- **RPI over spec-workflow** — lighter-weight process for a smaller, single-developer project
+- **FastAPI over Express:** Python has the better scheduling (APScheduler) and SMS (Twilio) libraries.
+- **SQLite first:** one instance needs no database server. PostgreSQL waits for a multi-instance deploy.
+- **Tabler frontend:** Bootstrap 5, a 16-color WCAG AA palette for members and no build step.
+- **LAN-only access:** the app needs no inbound internet traffic, because Twilio SMS is outbound only.
+- **RPI over the spec workflow:** a lighter process suits a project with one developer.
 
 ## Documentation
 
-Foundation docs (architecture, tech stack, code patterns, auth, RPI workflow) are tracked **in-repo** under `.context/` so they travel with the code to any GitLab mirror — start at `.context/README.md`. Product and research material lives here in DocVault.
+The foundation docs (architecture, stack, code patterns, authentication, RPI) live in the repo under `.context/`, so they travel with the code to the GitLab mirror. Start at `.context/README.md`. Product and research material lives here in DocVault.
 
 | Doc | Notes |
-|-----|-------|
-| [[PRD]] | Product Requirements Document |
-| [[Research/research-notes]] | Framework / library selection research (Nov 2025) |
+| --- | --- |
+| [[PRD]] | Product requirements |
+| [[Roadmap]] | Planned work |
+| [[Runbooks/real-sms-test]] | Send a real SMS from the dev stack |
+| [[Research/research-notes]] | Framework and library research |
 | [[Research/memento-taxonomy]] | Memento knowledge-graph taxonomy |
-| [[Sprints/WHO-14-manual-shift-override-ui]] · [[Sprints/WHO-22-color-consistency]] · [[Sprints/WHO-23-weekly-escalation-summary]] | Archived sprint logs |
+| `Sprints/` | Archived sprint logs, one file for each sprint |
 
 ## Related
 
-- [Plane issues](https://plane.lbruton.cc/lbruton/) — active and closed `WOF` issues
-- [Portainer](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Portainer.md) — Docker host for the container
-- [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md) — Stack ID 12
-- [Named Volumes](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md) — Database volume
-- [Backups](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md) — Automated SQLite backup target
-- [Cloudflare](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Cloudflare.md) — Tunnel and Zero Trust access
+- [Plane issues](https://plane.lbruton.cc/lbruton/): open and closed `WOF` issues
+- [Portainer](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Portainer.md): the Docker host
+- [Stack Registry](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Stack%20Registry.md): the prod and dev stacks
+- [Named Volumes](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Named%20Volumes.md): the database volume
+- [Backups](/Volumes/DATA/GitHub/Devops/DocVault/KnowledgeBase/Infrastructure/Backups.md): the SQLite backup job

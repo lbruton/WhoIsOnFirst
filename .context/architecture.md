@@ -2,7 +2,7 @@
 
 Version: 1.0  
 Last Updated: November 4, 2025  
-Status: Active — Phase 1 in production
+Status: Active, Phase 1 in production
 
 ---
 
@@ -169,7 +169,7 @@ async def create_team_member(
 
 #### Purpose
 
-Encapsulates business logic and coordinates between API layer and data layer. Services are stateless and can be easily tested in isolation.
+Encapsulates business logic and coordinates between API layer and data layer. Services are stateless and can be tested in isolation.
 
 #### Key Services
 
@@ -796,7 +796,7 @@ app.include_router(notifications_router)
    └─────────────────────┘
 ```
 
-#### Legacy identifiers pinned on purpose (WOF-37)
+#### Legacy identifiers pinned on purpose
 
 The app was renamed WhoseOnFirst → WhoIsOnFirst, but these keep the old slug
 because they name existing data. Tests guard each one; never "clean them up".
@@ -942,7 +942,7 @@ turns it into a Fernet key that encrypts settings stored with
 Each environment has its own value; changing it makes those stored values
 undecryptable, so they must be re-entered.
 
-#### Hosted dev SMS rail (WOF-42)
+#### Hosted dev SMS rail
 
 - `APP_ENV` (`prod` default, `dev` on the hosted dev stack) drives the DEV
   badge (`GET /api/v1/version` returns `environment`) and the allowlist.
