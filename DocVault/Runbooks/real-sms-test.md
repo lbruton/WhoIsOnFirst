@@ -14,7 +14,7 @@ updated: "2026-04-22"
 
 ## Prerequisites
 
-- Dev container running — verify with `docker ps --filter name=whoisonfirst-dev`
+- Dev container running: verify with `docker ps --filter name=whoisonfirst-dev`
 - Production container still running on Portainer (this test does not affect it)
 - Access to [[Infisical]] WhoIsOnFirst/prod secrets (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`)
 - Your personal phone number ready in E.164 format (`+1XXXXXXXXXX`)
@@ -23,7 +23,7 @@ updated: "2026-04-22"
 
 Complete before starting:
 
-- [ ] Confirmed dev container is currently in mock mode (check logs for `[MOCK]`)
+- [ ] Confirmed dev container is in mock mode (check logs for `[MOCK]`)
 - [ ] Have Twilio creds from Infisical ready (do NOT paste them into chat)
 - [ ] Know your personal phone number in E.164 format (`+1XXXXXXXXXX`)
 - [ ] Production container on Portainer is UNTOUCHED
@@ -77,7 +77,7 @@ In the admin UI, confirm the notification logs show successful delivery.
 - [ ] Re-comment `env_file:` stanza in `docker-compose.dev.yml` (if you uncommented it)
 - [ ] Restart container: `docker-compose -f docker-compose.dev.yml restart`
 - [ ] Verify mock mode active: check logs for `SMS service initialized in mock mode`
-- [ ] Restore test member's phone number if changed in DB (or just restart — first-boot seeds fresh data)
+- [ ] Restore test member's phone number if changed in DB (or restart: the first boot seeds fresh data)
 
 > [!danger] NEVER send test SMS to real team members
 > Only use your own phone number. The production container handles real team notifications.
