@@ -398,12 +398,23 @@ class TestMessageComposition:
         """Test message composition uses current template variables correctly."""
         message = sms_service_mock_mode._compose_message(schedule)
 
-        # Default template: "WhoseOnFirst Alert\n\nHi {name}, you are now on-call..."
-        assert "WhoseOnFirst Alert" in message
+        # Default template: "WhoIsOnFirst Alert\n\nHi {name}, you are now on-call..."
+        assert "WhoIsOnFirst Alert" in message
         assert schedule.team_member.name in message
         assert schedule.start_datetime.strftime('%a %I:%M %p') in message
         assert schedule.end_datetime.strftime('%a %I:%M %p') in message
         assert f"{schedule.shift.duration_hours}h" in message
+
+    def test_compose_message_fallback_uses_new_name(self, sms_service_mock_mode, schedule):
+        """When the saved template can't be loaded, the hardcoded fallback is sent (WOF-37)."""
+        with patch.object(
+            sms_service_mock_mode.settings_service, "get_sms_template",
+            side_effect=RuntimeError("settings unavailable"),
+        ):
+            message = sms_service_mock_mode._compose_message(schedule)
+
+        assert message.startswith("WhoIsOnFirst: ")
+        assert schedule.team_member.name in message
 
     def test_compose_message_under_160_chars(self, sms_service_mock_mode, schedule):
         """Test message is under 160 characters for single SMS."""
@@ -726,7 +737,7 @@ class TestComposeWeeklySummary:
 
     def test_empty_schedules_shows_no_assignment(self, sms_service_mock_mode):
         message = sms_service_mock_mode._compose_weekly_summary([])
-        assert "WhoseOnFirst Weekly Schedule" in message
+        assert "WhoIsOnFirst Weekly Schedule" in message
         assert "No assignment" in message
 
     def test_standard_week_includes_member_name(self, sms_service_mock_mode, schedule):
@@ -739,7 +750,7 @@ class TestComposeWeeklySummary:
 
         message = sms_service_mock_mode._compose_weekly_summary([schedule])
         assert schedule.team_member.name in message
-        assert "WhoseOnFirst Weekly Schedule" in message
+        assert "WhoIsOnFirst Weekly Schedule" in message
 
     def test_48h_shift_shows_continues_on_second_day(self, sms_service_mock_mode, test_db_session, team_member):
         """48h shift should print '(48h)' on day 1 and '(continues)' on day 2."""

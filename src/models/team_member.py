@@ -1,5 +1,5 @@
 """
-TeamMember model for WhoseOnFirst.
+TeamMember model for WhoIsOnFirst.
 
 Represents a team member who can be assigned to on-call shifts.
 """

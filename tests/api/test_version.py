@@ -46,6 +46,31 @@ class TestVersionEndpoint:
             version_module.get_app_version.cache_clear()
 
 
+class TestVersionEnvironment:
+    """WOF-42: /api/v1/version reports APP_ENV so the UI can show a DEV badge."""
+
+    def test_environment_defaults_to_prod(self, client: TestClient, monkeypatch):
+        monkeypatch.delenv("APP_ENV", raising=False)
+
+        response = client.get("/api/v1/version")
+
+        assert response.json()["environment"] == "prod"
+
+    def test_environment_reports_dev(self, client: TestClient, monkeypatch):
+        monkeypatch.setenv("APP_ENV", "dev")
+
+        response = client.get("/api/v1/version")
+
+        assert response.json()["environment"] == "dev"
+
+    def test_environment_is_normalized(self, client: TestClient, monkeypatch):
+        monkeypatch.setenv("APP_ENV", "  DEV ")
+
+        response = client.get("/api/v1/version")
+
+        assert response.json()["environment"] == "dev"
+
+
 class TestVersionConsistency:
     """Every version surface must report the canonical VERSION (WOF-14 drift guard)."""
 

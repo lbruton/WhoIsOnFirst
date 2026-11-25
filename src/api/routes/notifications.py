@@ -355,7 +355,7 @@ def send_manual_notification(
         POST /api/v1/notifications/send-manual
         {
             "team_member_id": 1,
-            "message": "WhoseOnFirst Alert\\n\\nHi {name}, this is a test notification."
+            "message": "WhoIsOnFirst Alert\\n\\nHi {name}, this is a test notification."
         }
     """
     # Get team member
@@ -395,7 +395,7 @@ def send_manual_notification(
                 notification_id=result.get('notification_id'),
                 twilio_sid=result.get('twilio_sid'),
                 status=result['status'],
-                message=f"SMS sent successfully to {member.name}",
+                message=f"SMS sent to {member.name}.",
                 recipient_name=member.name,
                 recipient_phone=masked_phone,
                 sent_at=datetime.now(),

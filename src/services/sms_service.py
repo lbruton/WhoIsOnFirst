@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from ..repositories import NotificationLogRepository, ScheduleRepository, ScheduleOverrideRepository
 from ..models import Schedule
+from ..version import get_app_environment
 from .settings_service import SettingsService
 
 
@@ -33,6 +34,24 @@ class TwilioConfigurationError(SMSServiceError):
 
 class SMSDeliveryError(SMSServiceError):
     """Raised when SMS delivery fails after all retry attempts."""
+
+
+class SMSRecipientBlockedError(SMSDeliveryError):
+    """Raised when a recipient is not on the SMS allowlist (WOF-42).
+
+    Subclasses SMSDeliveryError so every caller treats it as a permanent,
+    non-retryable failure and logs exactly one failed row.
+    """
+
+
+def _mask_phone(phone: str) -> str:
+    """Show only the last 4 digits of a phone number (CLAUDE.md log rule)."""
+    return f"***{phone[-4:]}" if len(phone) >= 4 else "***"
+
+
+def _parse_allowed_numbers(raw: str) -> frozenset:
+    """Parse the comma-separated ``SMS_ALLOWED_NUMBERS`` value, dropping blanks."""
+    return frozenset(part.strip() for part in raw.split(",") if part.strip())
 
 
 class SMSService:
@@ -65,40 +84,18 @@ class SMSService:
         mock_mode: bool = False
     ):
         """
-        Initialize SMS service.
+        Initialize the SMS service from DB settings, then env vars, then none.
 
-        Resolves Twilio configuration in precedence order:
-            1. Database settings (DB) — populated via the admin UI (WHO-43).
-            2. Environment variables — preserved for existing deployments.
-            3. None — enters the explicit ``unconfigured`` state (mock_mode
-               stays False, config_source == "none"). The app boots so an
-               admin can land on /admin.html to configure Twilio, but any
-               send attempt raises SMSDeliveryError loudly. Mock mode is
-               NOT activated; that would silently log fake successful sends.
-
-        ``SMS_MOCK_MODE`` (env var) and ``mock_mode=True`` (constructor arg)
-        force mock mode regardless of any other configuration. Mock mode is
-        an explicit opt-in only — it is never entered automatically when
-        credentials are absent.
+        Mock mode is opt-in only, through ``mock_mode=True`` or ``SMS_MOCK_MODE``.
+        Missing or rejected credentials set ``unconfigured``: the app boots and
+        every send raises SMSDeliveryError instead of logging a fake delivery.
 
         Args:
             db: SQLAlchemy database session
             max_retries: Maximum retry attempts (default: 3)
             base_delay: Base delay in seconds for exponential backoff (default: 60)
-            mock_mode: If True, skip Twilio client initialization for testing.
-                Can also be enabled at runtime by setting the SMS_MOCK_MODE
-                environment variable to "1", "true", or "yes" (case-insensitive).
-                The env var is OR'd with this parameter, so either one being
-                truthy forces mock mode. This is the supported way to disable
-                real SMS in dev containers — see `.env.dev.example`.
-
-        Raises:
-            Nothing on init. Missing credentials → unconfigured state
-            (config_source == "none", mock_mode stays False, sends raise
-            SMSDeliveryError). Present-but-rejected credentials (Twilio SDK
-            init failure) → also enter unconfigured state with a WARNING log
-            rather than raising, so the app stays up. TwilioConfigurationError
-            is no longer raised from __init__.
+            mock_mode: Skip Twilio and log sends only. The ``SMS_MOCK_MODE`` env
+                var ("1", "true" or "yes") also forces it; see `.env.dev.example`.
         """
         self.db = db
         self.max_retries = max_retries
@@ -106,9 +103,11 @@ class SMSService:
         # SMS_MOCK_MODE env var provides runtime override for dev containers.
         # OR'd with the constructor arg so tests passing mock_mode=True still work.
         self.mock_mode = mock_mode or os.getenv('SMS_MOCK_MODE', '').lower() in ('1', 'true', 'yes')
-        # When True, SMS service has no usable credentials AND no intentional
-        # mock-mode opt-in — sends MUST fail rather than silently log
-        # successful-delivered. See CodeRabbit C2 / WHO-49 follow-up.
+        # Recipient allowlist for the hosted dev stack (WOF-42). Empty means
+        # "no allowlist" in prod, but "block everything" when APP_ENV=dev
+        # sends through real Twilio — see _check_recipient_allowed.
+        self.app_env = get_app_environment()
+        self.allowed_numbers = _parse_allowed_numbers(os.getenv('SMS_ALLOWED_NUMBERS', ''))
         self.unconfigured = False
 
         # Initialize repositories and services
@@ -131,11 +130,8 @@ class SMSService:
                     f"SMS service: Twilio config loaded (source={source})"
                 )
             except Exception as exc:
-                # Credentials were present but the Twilio SDK rejected them
-                # (expired/rotated/malformed token). Enter unconfigured state
-                # rather than crashing — the app stays up so an admin can
-                # correct the credentials via /admin.html. Subsequent sends
-                # fail loudly via SMSDeliveryError (T9).
+                # The Twilio SDK rejected the credentials (expired, rotated or
+                # malformed token). The admin fixes them in /admin.html.
                 logger.warning(
                     f"SMS service: Twilio SDK rejected credentials from "
                     f"{source} ({exc}) — entering unconfigured state"
@@ -145,11 +141,6 @@ class SMSService:
                 self.from_phone = "+15551234567"  # Placeholder; never used.
                 self.config_source = "none"
         elif source == "none":
-            # No DB config and no env config — DO NOT enter mock mode (which
-            # would silently log fake successful sends). Mark service as
-            # unconfigured so any send attempt raises SMSDeliveryError.
-            # The app still boots so an admin can land on /admin.html and
-            # configure Twilio via the new UI.
             self.unconfigured = True
             self.twilio_client = None
             self.from_phone = "+15551234567"  # Placeholder; never used.
@@ -335,11 +326,11 @@ class SMSService:
 
             # Determine which phone(s) succeeded
             if primary_result['success'] and secondary_result and secondary_result['success']:
-                message = "SMS sent successfully to both phones"
+                message = "SMS sent to both phones."
             elif primary_result['success']:
-                message = "SMS sent successfully to primary phone"
+                message = "SMS sent to the primary phone."
             else:
-                message = "SMS sent successfully to secondary phone"
+                message = "SMS sent to the secondary phone."
 
             return {
                 "success": True,
@@ -413,7 +404,7 @@ class SMSService:
                 )
 
                 logger.info(
-                    f"SMS sent successfully to {phone_type} phone {self._sanitize_phone(phone)} "
+                    f"SMS sent successfully to {phone_type} phone {_mask_phone(phone)} "
                     f"for schedule {schedule.id} (SID: {result['sid']})"
                 )
 
@@ -522,9 +513,11 @@ class SMSService:
                 "(configure via /admin.html or set TWILIO_* env vars)"
             )
 
+        self._check_recipient_allowed(to_phone)
+
         if self.mock_mode:
             # Mock mode for testing
-            logger.info(f"[MOCK] Sending SMS to {to_phone}: {message_body}")
+            logger.info(f"[MOCK] Sending SMS to {_mask_phone(to_phone)}: {message_body}")
             return {
                 "sid": f"SM{os.urandom(16).hex()}",
                 "status": "sent"
@@ -540,6 +533,32 @@ class SMSService:
             "sid": message.sid,
             "status": message.status
         }
+
+    def _check_recipient_allowed(self, to_phone: str) -> None:
+        """
+        Enforce the SMS recipient allowlist before any send (WOF-42).
+
+        - ``SMS_ALLOWED_NUMBERS`` set: only listed numbers, in any mode.
+        - ``APP_ENV=dev`` with real Twilio and no allowlist: fail closed, so a
+          dev stack holding prod data can never text real coworkers.
+        - Otherwise (prod): no restriction.
+
+        Raises:
+            SMSRecipientBlockedError: If the recipient is not allowed.
+        """
+        if self.allowed_numbers:
+            if to_phone in self.allowed_numbers:
+                return
+            reason = "not on SMS_ALLOWED_NUMBERS"
+        elif self.app_env == "dev" and not self.mock_mode:
+            reason = "APP_ENV=dev with live Twilio requires SMS_ALLOWED_NUMBERS"
+        else:
+            return
+
+        logger.warning(f"SMS blocked for {_mask_phone(to_phone)}: {reason}")
+        raise SMSRecipientBlockedError(
+            f"SMS to {_mask_phone(to_phone)} blocked: {reason}"
+        )
 
     def _compose_message(self, schedule: Schedule) -> str:
         """
@@ -610,7 +629,7 @@ class SMSService:
                 member_name = schedule.team_member.name
 
             end_time = schedule.end_datetime.strftime('%a %I:%M %p')
-            return f"WhoseOnFirst: {member_name}, your on-call shift has started (until {end_time})"
+            return f"WhoIsOnFirst: {member_name}, your on-call shift has started (until {end_time})"
 
     def _compose_weekly_summary(self, schedules: list) -> str:
         """
@@ -629,12 +648,12 @@ class SMSService:
             Formatted weekly summary message (~320 chars)
 
         Example:
-            WhoseOnFirst Weekly Schedule (Nov 25 - Dec 1)
+            WhoIsOnFirst Weekly Schedule (Nov 25 - Dec 1)
 
-            Mon 11/25: Lance B +19187019714
-            Tue 11/26: Gary K +19187019714 (48h)
-            Wed 11/27: Gary K (continues)
-            Thu 11/28: Troy M +19187019714
+            Mon 11/25: Grace Golf +15555550001
+            Tue 11/26: Eve Echo +15555550001 (48h)
+            Wed 11/27: Eve Echo (continues)
+            Thu 11/28: Juliet Jazz +15555550001
             ...
 
             Questions? Reply to this message.
@@ -659,7 +678,7 @@ class SMSService:
         end_date = start_date + timedelta(days=6)
 
         # Format header with date range
-        header = f"WhoseOnFirst Weekly Schedule ({start_date.strftime('%b %d')} - {end_date.strftime('%b %d')})"
+        header = f"WhoIsOnFirst Weekly Schedule ({start_date.strftime('%b %d')} - {end_date.strftime('%b %d')})"
 
         # Build schedule lines
         lines = []
@@ -904,7 +923,7 @@ class SMSService:
             True
         """
         logger.info(
-            f"Sending manual notification to {self._sanitize_phone(team_member.phone)} "
+            f"Sending manual notification to {_mask_phone(team_member.phone)} "
             f"({team_member.name})"
         )
 
@@ -923,7 +942,7 @@ class SMSService:
             )
 
             logger.info(
-                f"Manual SMS sent successfully to {self._sanitize_phone(team_member.phone)} "
+                f"Manual SMS sent successfully to {_mask_phone(team_member.phone)} "
                 f"({team_member.name}, SID: {twilio_result['sid']})"
             )
 
@@ -932,7 +951,7 @@ class SMSService:
                 "notification_id": log_entry.id,
                 "twilio_sid": twilio_result['sid'],
                 "status": "sent",
-                "message": f"SMS sent successfully to {team_member.name}",
+                "message": f"SMS sent to {team_member.name}.",
                 "error": None
             }
 
@@ -1093,7 +1112,7 @@ class SMSService:
 
             try:
                 logger.info(
-                    f"Sending weekly summary to {self._sanitize_phone(contact_phone)} "
+                    f"Sending weekly summary to {_mask_phone(contact_phone)} "
                     f"({contact_name} - {contact_label})"
                 )
 
@@ -1121,7 +1140,7 @@ class SMSService:
                 })
 
                 logger.info(
-                    f"Weekly summary sent successfully to {self._sanitize_phone(contact_phone)} "
+                    f"Weekly summary sent successfully to {_mask_phone(contact_phone)} "
                     f"(SID: {twilio_result['sid']})"
                 )
 

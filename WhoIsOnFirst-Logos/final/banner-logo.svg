@@ -34,7 +34,7 @@
   <text x="32" y="17" text-anchor="middle" font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-weight="800" font-size="4" fill="#059669">1ST</text>
 
   <!-- Wordmark text -->
-  <text x="50" y="22" font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-weight="700" font-size="16" fill="white" letter-spacing="0.5">WhoseOnFirst</text>
+  <text x="50" y="22" font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-weight="700" font-size="16" fill="white" letter-spacing="0.5">WhoIsOnFirst</text>
 
   <!-- Subtle tagline -->
   <text x="50" y="36" font-family="'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif" font-weight="400" font-size="8.5" fill="white" opacity="0.45" letter-spacing="0.3">On-Call Rotation</text>

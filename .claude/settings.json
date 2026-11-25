@@ -3,7 +3,6 @@
     "allow": [
       "Bash(*)",
       "Skill(*)",
-      "mcp__*",
       "WebFetch",
       "WebSearch",
       "Read(//Volumes/DATA/GitHub/**)",
@@ -17,20 +16,50 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Edit",
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Volumes/DATA/GitHub/WhoseOnFirst/.claude/hooks/post-edit-lint.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-lint.py\""
           }
         ]
       },
       {
-        "matcher": "Write",
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Volumes/DATA/GitHub/WhoseOnFirst/.claude/hooks/post-edit-lint.py"
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/docvault-lint.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/vale-staged.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree-safety.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|mcp__github__merge_pull_request",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-pr-merge.py"
           }
         ]
       }

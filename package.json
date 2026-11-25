@@ -1,7 +1,7 @@
 {
-  "name": "whoseonfirst-e2e",
+  "name": "whoisonfirst-e2e",
   "private": true,
-  "description": "Playwright e2e test tooling for WhoseOnFirst (backend is Python; this covers frontend regression specs only)",
+  "description": "Playwright e2e test tooling for WhoIsOnFirst (backend is Python; this covers frontend regression specs only)",
   "scripts": {
     "test:e2e": "playwright test"
   },

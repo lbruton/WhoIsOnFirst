@@ -1,9 +1,50 @@
 # Changelog
 
-All notable changes to the WhoseOnFirst project will be documented in this file.
+All notable changes to the WhoIsOnFirst project (formerly WhoseOnFirst) will be documented in this file.
+Entries before the rename keep the old name as written.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [Unreleased]
+
+---
+
+## [2.0.0] - 2026-11-25
+
+Deploying this release needs a new stack: the container name, the DB filename and the hostname change. Redeploying the old stack keeps its data volume (see "Unchanged on purpose").
+
+### Changed
+
+- **Renamed WhoseOnFirst → WhoIsOnFirst** (WOF-37, epic WOF-36) — UI, page titles, PWA manifest, logo text, SMS defaults, the shift-start fallback and the Monday weekly-schedule header all read "WhoIsOnFirst". Slug `whoisonfirst` for the Docker container name and user, DB file (`whoisonfirst.db`), export filenames and the `/health` service name. The saved SMS template in an existing database is not changed; edit it on the Notifications page.
+- **DB file renamed in place on boot** — `scripts/migrate-db-filename.sh` (run by the entrypoint before migrations) moves `whoseonfirst.db` and its `-wal`/`-shm` files to `whoisonfirst.db`; if both exist it leaves both and warns. Container UID/GID pinned to 997/998 so existing volume files keep their owner.
+- **`docker-compose.yml` runs twice on one host** — `CONTAINER_NAME` and `HOST_PORT` are stack-overridable (defaults `whoisonfirst` / `8900`) for the hosted dev stack (WOF-42).
+- **Plain UI and SMS copy** (WOF-47) — page text, errors and confirmations follow `.context/voice.md`; repository docstrings trimmed.
+- **Tabler CDN versions pinned** (WOF-45) — Tabler core 1.6.1 and icons 2.47.0 instead of `@latest`, so a CDN release cannot change the UI unannounced.
+- **Dependencies** — the pip group updated, including SQLAlchemy 2.1, FastAPI 0.162 and cryptography 50.
+
+### Added
+
+- **Digest-only recipients for the Monday summary** (WOF-50) — up to 10 people outside the rotation and the escalation contacts (for example a manager) receive the weekly digest. Set them in the Escalation Contacts modal; `GET`/`PUT /api/v1/settings/digest-recipients`.
+- **SMS recipient allowlist** (WOF-42) — `SMS_ALLOWED_NUMBERS` limits every send (scheduled, manual, weekly) to listed numbers. With `APP_ENV=dev` and live Twilio, an empty allowlist blocks all sends. Blocked sends never call Twilio, log a masked number and record one failed row without retries.
+- **DEV badge** — `GET /api/v1/version` now returns `environment`; the sidebar shows a DEV badge and prefixes the tab title when it is `dev`.
+
+### Unchanged on purpose
+
+- The PBKDF2 salt bytes (`_LEGACY_SALT`, still `whoseonfirst-…-v1`) so stored Twilio credentials keep decrypting; legacy `whoseonfirst-*.stvault` backups still import; `wof` localStorage keys keep user preferences.
+- The compose data-volume key stays `whoseonfirst-data`. The real volume is `<stack>_<key>`, so renaming the key would make a redeploy of the existing prod stack mount a new empty volume and auto-seed. The compose service key stays `whoseonfirst` too: renaming it would orphan the running container, which keeps port 8900. Both guarded by `tests/test_compose_config.py`.
+- The DB-file rename is skipped when `DATABASE_URL` points anywhere other than `whoisonfirst.db` (for example a deployment that pins the legacy path), so such a deployment keeps using its file.
+- Logs show only the last 4 digits of phone numbers on every send path.
+
+### Fixed
+
+- **Restore from Backup opens its modal on the Admin page** (WOF-44) — `admin.html` loads Bootstrap.
+
+### Security
+
+- **No real contact data in tracked files** (WOF-48) — sample names and numbers use the dev-seed placeholders and 555 numbers; `tests/test_no_real_contact_data.py` fails on any real area-code number in source, frontend or docs.
 
 ---
 
@@ -149,6 +190,22 @@ Reference: WHO-43.
   - Validates response path ends with expected `/components/sidebar.html`
   - Addresses Codacy HIGH severity XSS warning for `parseFromString`
 
+## [2.0.0] - 2026-11-25
+
+### Added
+
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+---
+
 ---
 
 ## [1.5.0] - 2026-02-04
@@ -277,7 +334,7 @@ Reference: WHO-43.
   - **Root Cause**: Validation in `schedule_override_service.py` line 82-83 checked `is_active` flag
   - **Solution**: Removed is_active validation - override eligibility is independent of rotation eligibility
   - **Files Changed**: `src/services/schedule_override_service.py:78-81`, `src/api/routes/schedule_overrides.py:41`
-  - **Impact**: Inactive members (like Ken U) can now be assigned to cover shifts via overrides
+  - **Impact**: Inactive members (like Henry Hotel) can now be assigned to cover shifts via overrides
 
 - **Notification Log Records Override Member Name** - Fixed notification history displaying original member instead of override member ([WHO-29](https://linear.app/hextrackr/issue/WHO-29))
   - **Issue**: When override was active, notification log recorded original scheduled member name instead of override member
@@ -312,7 +369,7 @@ Reference: WHO-43.
   - ✅ Weekly summary date bug identified and fixed (WHO-31)
   - ✅ Override completion status bug identified and fixed (WHO-30)
   - ✅ Manual trigger `/api/v1/schedule-overrides/complete-past` tested successfully - completed 3 past overrides
-- **Test Overrides Created**: Ken U (11/28, 11/29), Matt C (11/28, 12/02), Lonnie B (11/27)
+- **Test Overrides Created**: Henry Hotel (11/28, 11/29), Dave Delta (11/28, 12/02), Alice Alpha (11/27)
 - **Next Steps**: Monitor automated completion job at 8:05 AM, verify WHO-31 fix on Monday 8:00 AM
 
 ---
@@ -396,13 +453,13 @@ Reference: WHO-43.
     ```
     WhoseOnFirst Weekly Schedule (Dec 01 - Dec 07)
 
-    Mon 12/01: Ben B +19187019714
-    Tue 12/02: Ben D +19189783350 (48h)
-    Wed 12/03: Ben D (continues)
-    Thu 12/04: Clark M +19187019714
-    Fri 12/05: Gary K +19187019714
-    Sat 12/06: Matt C +19187019714
-    Sun 12/07: Lonnie B +19187019714
+    Mon 12/01: Bob Bravo +15555550001
+    Tue 12/02: Carol Charlie +15555550002 (48h)
+    Wed 12/03: Carol Charlie (continues)
+    Thu 12/04: Frank Foxtrot +15555550001
+    Fri 12/05: Eve Echo +15555550001
+    Sat 12/06: Dave Delta +15555550001
+    Sun 12/07: Alice Alpha +15555550001
     ```
   - **SMS Cost**: ~320 characters = 2 segments × 2 contacts = 4 segments/week = ~$0.032/week ($1.66/year)
   - **Notification Logging**: Stored with `schedule_id=NULL` to differentiate from shift-based notifications
@@ -411,7 +468,7 @@ Reference: WHO-43.
 ### Fixed
 
 - **48-Hour Shift Continuation Display** - Second day of 48-hour shifts now correctly shows "Name (continues)" instead of "No assignment"
-  - **Issue**: Weekly summary showed "Wed 12/03: No assignment" when Ben D had a 48-hour shift Tue-Wed
+  - **Issue**: Weekly summary showed "Wed 12/03: No assignment" when Carol Charlie had a 48-hour shift Tue-Wed
   - **Root Cause**: 48-hour shifts have ONE schedule entry spanning both days; continuation day had no separate entry
   - **Solution**: Added continuation detection logic - if `is_continuation=true` and no schedule entry found, use previous person's name
   - **Files Changed**: `src/services/sms_service.py:540-549`
@@ -481,11 +538,11 @@ Reference: WHO-43.
     - `frontend/team-members.html` - Include shared script, replace inline color logic with activeMembers filter
     - `frontend/schedule.html` - Include shared script, remove local getTeamColor function
     - `frontend/notifications.html` - Include shared script, remove local TEAM_COLORS and getTeamColor
-  - **Result**: All team members now display with same color across all pages (e.g., Gary K = purple everywhere, Clark M = cyan everywhere)
+  - **Result**: All team members now display with same color across all pages (e.g., Eve Echo = purple everywhere, Frank Foxtrot = cyan everywhere)
   - **Testing**: Verified via Chrome DevTools on all 4 pages with 7 active team members
 
 - **Inactive Members Missing from Historical Views** - Inactive team members now display in gray on historical calendar and notification records
-  - **Issue**: After deactivating Ken U on Nov 16th, his historical schedule entries disappeared from Dashboard calendar
+  - **Issue**: After deactivating Henry Hotel on Nov 16th, their historical schedule entries disappeared from Dashboard calendar
   - **Root Cause**: Pages were filtering to `active_only=true`, excluding inactive members from member arrays
   - **Solution**: Implemented dynamic conditional coloring based on member status
   - **Implementation**:
@@ -496,7 +553,7 @@ Reference: WHO-43.
     - `frontend/index.html:369-372` - Remove `active_only=true`, add conditional coloring in 4 locations
     - `frontend/notifications.html:549-550` - Remove `active_only=true`, add conditional coloring
   - **Result**: Historical schedules/notifications now display correctly with inactive members shown in gray
-  - **Visual Impact**: Ken U's historical calendar entries now visible in gray, making inactive status immediately clear
+  - **Visual Impact**: Henry Hotel's historical calendar entries now visible in gray, making inactive status immediately clear
   - **Benefit**: Preserves historical accuracy while maintaining color consistency for active members
 
 ### Technical Details
@@ -747,7 +804,7 @@ Reference: WHO-43.
 
 - **Twilio Phone Number Update** - Upgraded to compliant US phone number ([WHO-21](https://linear.app/hextrackr/issue/WHO-21))
   - **Old Number**: `+18557482075` (temporary toll-free)
-  - **New Number**: `+19188008737` (regulatory compliant)
+  - **New Number**: `+15555550003` (regulatory compliant)
   - **Status**: Completed 10DLC registration and Twilio compliance verification
   - **Impact**: Production-ready for US SMS delivery with proper sender authentication
   - **Configuration**: Updated `TWILIO_PHONE_NUMBER` in `.env` file
@@ -1216,3 +1273,4 @@ These limitations are intentional design choices for the MVP. Future enhancement
 [0.1.0]: https://github.com/Lonnie-Bruton/WhoseOnFirst/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/Lonnie-Bruton/WhoseOnFirst/releases/tag/v0.0.1
 [1.0.3]: https://github.com/Lonnie-Bruton/WhoseOnFirst/compare/v1.0.2...v1.0.3
+[2.0.0]: https://github.com/lbruton/WhoIsOnFirst/compare/v1.8.0...v2.0.0

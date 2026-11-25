@@ -24,6 +24,8 @@ from src.api.schemas.settings import (
     SMSTemplateRequest,
     EscalationConfigResponse,
     EscalationConfigRequest,
+    DigestRecipientsRequest,
+    DigestRecipientsResponse,
     TwilioConfigRequest,
     TwilioConfigResponse,
     SMSStatusResponse,
@@ -311,7 +313,7 @@ def update_escalation_config(
 
     **Phone Format:**
     - Must be E.164 format: +1XXXXXXXXXX
-    - Example: +19187019714
+    - Example: +15555550001
 
     **Note:** Escalation contacts are not part of the rotation schedule and
     receive no shift notifications. They can individually opt in/out of the
@@ -332,10 +334,10 @@ def update_escalation_config(
         PUT /api/v1/settings/escalation
         {
             "enabled": true,
-            "primary_name": "Ken U",
-            "primary_phone": "+19187019714",
-            "secondary_name": "Steve N",
-            "secondary_phone": "+19185551234"
+            "primary_name": "Henry Hotel",
+            "primary_phone": "+15555550001",
+            "secondary_name": "India Indigo",
+            "secondary_phone": "+15555550008"
         }
     """
     service = SettingsService(db)
@@ -429,6 +431,38 @@ def update_escalation_weekly(
     return {
         "enabled": service.is_escalation_weekly_enabled()
     }
+
+
+@router.get("/digest-recipients", response_model=DigestRecipientsResponse)
+def get_digest_recipients(
+    db: Session = Depends(get_db),
+    current_user = Depends(require_auth)
+):
+    """
+    Get the digest-only recipients.
+
+    These people receive the Monday weekly digest SMS and nothing else:
+    they are not in the rotation and are not shown on the dashboard.
+    """
+    return {"recipients": SettingsService(db).get_digest_recipients()}
+
+
+@router.put("/digest-recipients", response_model=DigestRecipientsResponse)
+def update_digest_recipients(
+    request: DigestRecipientsRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_admin)
+):
+    """
+    Replace the digest-only recipient list. Admin only.
+
+    Example:
+        PUT /api/v1/settings/digest-recipients
+        {"recipients": [{"name": "Team Manager", "phone": "+15555550001"}]}
+    """
+    service = SettingsService(db)
+    service.set_digest_recipients([r.model_dump() for r in request.recipients])
+    return {"recipients": service.get_digest_recipients()}
 
 
 @router.get("/twilio", response_model=TwilioConfigResponse)

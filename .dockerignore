@@ -1,5 +1,5 @@
 # ============================================
-# WhoseOnFirst - Docker Build Ignore
+# WhoIsOnFirst - Docker Build Ignore
 # ============================================
 # Files and directories to exclude from Docker build context
 # This reduces build time and image size

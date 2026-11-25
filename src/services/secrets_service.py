@@ -9,7 +9,7 @@ PBKDF2HMAC-SHA256 (1.2M iterations, fixed salt). It is used by
 
 Design notes (per WHO-43 design.md §Component 1):
 
-* Salt is hardcoded module-level constant ``_SALT``. Salts are not secrets;
+* Salt is hardcoded module-level constant ``_LEGACY_SALT``. Salts are not secrets;
   their job is to defeat precomputed rainbow tables. The version suffix
   (``-v1``) reserves room for rotation if the parameters ever change.
 * The derived ``Fernet`` instance is a lazy module-level singleton. PBKDF2
@@ -31,8 +31,11 @@ from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
-# LOCKED — do not change. Versioned for future rotation.
-_SALT: bytes = b"whoseonfirst-fernet-pbkdf2-salt-v1"
+# LOCKED — do not change, not even for the WhoIsOnFirst rename (WOF-37).
+# Every encrypted setting in prod (the Twilio auth token) was derived with
+# these exact bytes; changing them makes stored secrets undecryptable and
+# stops all SMS. Versioned (-v1) for a deliberate future rotation only.
+_LEGACY_SALT: bytes = b"whoseonfirst-fernet-pbkdf2-salt-v1"
 
 # LOCKED — PBKDF2 iteration count. Do NOT lower for "speed".
 _PBKDF2_ITERATIONS: int = 1_200_000
@@ -64,7 +67,7 @@ def _derive_key(secret: str) -> bytes:
     kdf = PBKDF2HMAC(
         algorithm=SHA256(),
         length=32,
-        salt=_SALT,
+        salt=_LEGACY_SALT,
         iterations=_PBKDF2_ITERATIONS,
     )
     return base64.urlsafe_b64encode(kdf.derive(secret.encode("utf-8")))

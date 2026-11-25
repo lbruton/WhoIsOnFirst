@@ -31,27 +31,11 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
     """
 
     def __init__(self, db: Session):
-        """
-        Initialize NotificationLogRepository.
-
-        Args:
-            db: SQLAlchemy database session
-        """
+        """Initialize NotificationLogRepository."""
         super().__init__(db, NotificationLog)
 
     def get_by_schedule(self, schedule_id: int) -> List[NotificationLog]:
-        """
-        Get all notification logs for a specific schedule assignment.
-
-        Args:
-            schedule_id: Schedule ID to filter by
-
-        Returns:
-            List of NotificationLog instances for the schedule, ordered by sent_at
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get all notification logs for a specific schedule assignment."""
         try:
             return (
                 self.db.query(self.model)
@@ -69,20 +53,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None
     ) -> List[NotificationLog]:
-        """
-        Get notification logs by status.
-
-        Args:
-            status: Status to filter by (sent, failed, pending, delivered, undelivered)
-            start_date: Optional start date filter
-            end_date: Optional end date filter
-
-        Returns:
-            List of NotificationLog instances with the specified status
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get notification logs by status."""
         try:
             query = self.db.query(self.model).filter(self.model.status == status)
 
@@ -102,20 +73,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         self,
         hours_ago: Optional[int] = 24
     ) -> List[NotificationLog]:
-        """
-        Get failed notifications within a time window.
-
-        Useful for identifying recent failures and retry candidates.
-
-        Args:
-            hours_ago: Number of hours to look back (default 24)
-
-        Returns:
-            List of failed NotificationLog instances
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get failed notifications within a time window."""
         try:
             cutoff_time = datetime.now() - timedelta(hours=hours_ago)
 
@@ -142,20 +100,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         end_date: datetime,
         include_schedule: bool = True
     ) -> List[NotificationLog]:
-        """
-        Get notification logs within a date range.
-
-        Args:
-            start_date: Start of date range
-            end_date: End of date range
-            include_schedule: Whether to eagerly load schedule relationship
-
-        Returns:
-            List of NotificationLog instances in the date range
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get notification logs within a date range."""
         try:
             query = self.db.query(self.model).filter(
                 and_(
@@ -174,20 +119,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
             raise Exception(f"Database error getting notification logs by date range: {str(e)}")
 
     def get_by_twilio_sid(self, twilio_sid: str) -> Optional[NotificationLog]:
-        """
-        Get notification log by Twilio message SID.
-
-        Useful for tracking status updates from Twilio webhooks.
-
-        Args:
-            twilio_sid: Twilio message SID to search for
-
-        Returns:
-            NotificationLog instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get notification log by Twilio message SID."""
         try:
             return (
                 self.db.query(self.model)
@@ -204,20 +136,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         status: str,
         error_message: Optional[str] = None
     ) -> Optional[NotificationLog]:
-        """
-        Update the status of a notification log.
-
-        Args:
-            notification_id: ID of notification log to update
-            status: New status value
-            error_message: Optional error message if status is failed
-
-        Returns:
-            Updated NotificationLog instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Update the status of a notification log."""
         try:
             log = self.get_by_id(notification_id)
             if log:
@@ -233,18 +152,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
             raise Exception(f"Database error updating notification status: {str(e)}")
 
     def get_retry_count_for_schedule(self, schedule_id: int) -> int:
-        """
-        Get the number of retry attempts for a schedule.
-
-        Args:
-            schedule_id: Schedule ID to count retries for
-
-        Returns:
-            Number of notification attempts for this schedule
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get the number of retry attempts for a schedule."""
         try:
             return (
                 self.db.query(self.model)
@@ -260,19 +168,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None
     ) -> dict:
-        """
-        Calculate notification success rate.
-
-        Args:
-            start_date: Optional start date for calculation
-            end_date: Optional end date for calculation
-
-        Returns:
-            Dictionary with success metrics (total, sent, failed, rate)
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Calculate notification success rate."""
         try:
             query = self.db.query(self.model)
 
@@ -324,22 +220,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         offset: int = 0,
         include_schedule: bool = True
     ) -> List[NotificationLog]:
-        """
-        Get most recent notification logs with pagination support.
-
-        Useful for dashboard and audit views.
-
-        Args:
-            limit: Maximum number of logs to return (default 25)
-            offset: Number of records to skip (default 0)
-            include_schedule: Whether to eagerly load schedule relationship
-
-        Returns:
-            List of recent NotificationLog instances ordered by sent_at DESC
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get most recent notification logs with pagination support."""
         try:
             query = self.db.query(self.model)
 
@@ -359,15 +240,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
             raise Exception(f"Database error getting recent logs: {str(e)}")
 
     def count_all(self) -> int:
-        """
-        Get total count of all notification logs for pagination.
-
-        Returns:
-            Total number of notification log records
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Get total count of all notification logs for pagination."""
         try:
             return self.db.query(self.model).count()
         except SQLAlchemyError as e:
@@ -383,26 +256,7 @@ class NotificationLogRepository(BaseRepository[NotificationLog]):
         recipient_name: Optional[str] = None,
         recipient_phone: Optional[str] = None
     ) -> NotificationLog:
-        """
-        Create a new notification log entry.
-
-        Convenience method for logging notification attempts.
-        Captures recipient information at send time to preserve historical accuracy.
-
-        Args:
-            schedule_id: Schedule ID this notification is for
-            status: Status of the notification attempt
-            twilio_sid: Optional Twilio message SID
-            error_message: Optional error message if failed
-            recipient_name: Team member name at time of notification (snapshot)
-            recipient_phone: Team member phone at time of notification (snapshot)
-
-        Returns:
-            Created NotificationLog instance
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Log a send attempt; recipient name and phone are copied at send time for history."""
         try:
             log_data = {
                 "schedule_id": schedule_id,

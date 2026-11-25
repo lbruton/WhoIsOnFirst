@@ -4,8 +4,9 @@ Settings service for business logic.
 Manages application settings with type-safe accessors.
 """
 
+import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
 from cryptography.fernet import InvalidToken
 
@@ -31,13 +32,15 @@ ESCALATION_WEEKLY_ENABLED = "escalation_weekly_enabled"
 # escalation contacts keep receiving the Monday digest.
 ESCALATION_PRIMARY_WEEKLY_DIGEST = "escalation_primary_weekly_digest"
 ESCALATION_SECONDARY_WEEKLY_DIGEST = "escalation_secondary_weekly_digest"
+# JSON list of {"name", "phone"} for people who get only the weekly digest.
+WEEKLY_DIGEST_RECIPIENTS = "weekly_digest_recipients"
 
 # Default SMS template
-DEFAULT_SMS_TEMPLATE = """WhoseOnFirst Alert
+DEFAULT_SMS_TEMPLATE = """WhoIsOnFirst Alert
 
 Hi {name}, you are now on-call starting at {start_time} CST until {end_time} CST.
 
-Your shift lasts {duration}. Thank you for being available!"""
+Your shift lasts {duration}. Thank you for being available."""
 
 
 class SettingsService:
@@ -473,4 +476,42 @@ class SettingsService:
             enabled,
             "bool",
             "Send weekly SMS schedule summary to escalation contacts every Monday 8:00 AM CST"
+        )
+
+    def get_digest_recipients(self) -> List[Dict[str, str]]:
+        """
+        Get the digest-only recipients: people outside the rotation and the
+        escalation pair who receive the Monday weekly digest.
+
+        A missing or malformed value reads as an empty list, and entries
+        without a name and phone are skipped, so a bad row never stops the digest.
+        """
+        raw = self.repository.get_value(WEEKLY_DIGEST_RECIPIENTS, default=None)
+        if not raw:
+            return []
+        try:
+            data = json.loads(raw)
+        except (TypeError, ValueError):
+            logger.warning("Ignoring malformed %s setting", WEEKLY_DIGEST_RECIPIENTS)
+            return []
+        if not isinstance(data, list):
+            return []
+        return [
+            {"name": entry["name"], "phone": entry["phone"]}
+            for entry in data
+            if isinstance(entry, dict) and entry.get("name") and entry.get("phone")
+        ]
+
+    def set_digest_recipients(self, recipients: List[Dict[str, str]]) -> Settings:
+        """
+        Replace the digest-only recipient list.
+
+        Callers validate names and E.164 phones (see ``DigestRecipientsRequest``).
+        """
+        payload = [{"name": r["name"], "phone": r["phone"]} for r in recipients]
+        return self.set_setting(
+            WEEKLY_DIGEST_RECIPIENTS,
+            json.dumps(payload),
+            "json",
+            "Digest-only recipients for the Monday weekly schedule summary"
         )

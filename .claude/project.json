@@ -1,7 +1,24 @@
 {
-  "name": "WhoseOnFirst",
+  "name": "WhoIsOnFirst",
   "tag": "whoseonfirst",
   "issuePrefix": "WOF",
   "issueTag": "whoseonfirst",
-  "cachePrefix": "whoseonfirst"
+  "kind": "code",
+  "harnesses": { "claude": true, "codex": true },
+  "skills": { "profiles": ["code-core"], "extra": [], "exclude": [] },
+  "cachePrefix": "whoseonfirst",
+  "plane": {
+    "workspace": "lbruton",
+    "projectId": "a5951628-b52b-4224-bee6-87b513fa6e7b"
+  },
+  "memory": {
+    "userId": "lbruton",
+    "project": "whoseonfirst"
+  },
+  "infisical": {
+    "host": "https://infisical.lbruton.cc",
+    "projectId": "a63ee7c9-adfb-48e8-8541-6a50cbc76d89",
+    "defaultEnv": "dev",
+    "secretPath": "/"
+  }
 }

@@ -124,7 +124,7 @@ class SMSTemplateRequest(BaseModel):
         description="SMS template with variables: {name}, {start_time}, {end_time}, {duration}",
         min_length=1,
         max_length=320,
-        examples=["WhoseOnFirst Alert\n\nHi {name}, you are on-call from {start_time} to {end_time}."]
+        examples=["WhoIsOnFirst Alert\n\nHi {name}, you are on-call from {start_time} to {end_time}."]
     )
 
 
@@ -155,14 +155,14 @@ class EscalationConfigRequest(BaseModel):
         None,
         description="Primary escalation contact phone (E.164 format: +1XXXXXXXXXX)",
         pattern=r"^\+1\d{10}$",
-        examples=["+19187019714"]
+        examples=["+15555550001"]
     )
     secondary_name: Optional[str] = Field(None, description="Secondary escalation contact name", max_length=100)
     secondary_phone: Optional[str] = Field(
         None,
         description="Secondary escalation contact phone (E.164 format: +1XXXXXXXXXX)",
         pattern=r"^\+1\d{10}$",
-        examples=["+19187019714"]
+        examples=["+15555550001"]
     )
     primary_weekly_digest: Optional[bool] = Field(
         None,
@@ -172,3 +172,47 @@ class EscalationConfigRequest(BaseModel):
         None,
         description="Whether the secondary escalation contact receives the Monday weekly digest (None = unchanged)"
     )
+
+
+MAX_DIGEST_RECIPIENTS = 10
+
+
+class DigestRecipient(BaseModel):
+    """A person who receives only the Monday weekly digest."""
+
+    name: str = Field(..., min_length=1, max_length=100, description="Recipient name")
+    phone: str = Field(
+        ...,
+        description="Recipient phone (E.164 format: +1XXXXXXXXXX)",
+        pattern=r"^\+1\d{10}$",
+        examples=["+15555550001"]
+    )
+
+    @field_validator('name', mode='before')
+    @classmethod
+    def strip_name(cls, value: Any) -> Any:
+        return value.strip() if isinstance(value, str) else value
+
+
+class DigestRecipientsResponse(BaseModel):
+    """Digest-only recipients: outside the rotation and the escalation pair."""
+
+    recipients: list[DigestRecipient] = Field(default_factory=list)
+
+
+class DigestRecipientsRequest(BaseModel):
+    """Full replacement of the digest-only recipient list."""
+
+    recipients: list[DigestRecipient] = Field(
+        ...,
+        max_length=MAX_DIGEST_RECIPIENTS,
+        description=f"Up to {MAX_DIGEST_RECIPIENTS} recipients, each with a unique phone"
+    )
+
+    @field_validator('recipients')
+    @classmethod
+    def unique_phones(cls, value: list[DigestRecipient]) -> list[DigestRecipient]:
+        phones = [r.phone for r in value]
+        if len(phones) != len(set(phones)):
+            raise ValueError("Each digest recipient needs a different phone number")
+        return value

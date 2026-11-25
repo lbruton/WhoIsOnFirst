@@ -61,7 +61,7 @@ def create_override(
         {
             "schedule_id": 123,
             "override_member_id": 5,
-            "reason": "Vacation - covering for Gary"
+            "reason": "Vacation - covering for Eve"
         }
     """
     service = ScheduleOverrideService(db)
@@ -267,7 +267,7 @@ def complete_past_overrides(
         Response:
         {
             "status": "success",
-            "message": "Override completion processed successfully",
+            "message": "Override completion processed.",
             "timestamp": "2024-12-02T14:30:00-06:00",
             "completed_count": 4
         }

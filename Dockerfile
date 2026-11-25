@@ -1,5 +1,5 @@
 # ============================================
-# WhoseOnFirst - Production Docker Image
+# WhoIsOnFirst - Production Docker Image
 # ============================================
 # Multi-stage build for efficient container size
 # Target: RHEL 10 / Kubernetes / Podman compatible
@@ -50,33 +50,35 @@ COPY --from=builder /install/site-packages /opt/app-root/lib/python3.12/site-pac
 
 # Create non-root user for security
 # Add to root group (GID 0) for OpenShift compatibility - OpenShift runs with arbitrary UIDs but GID 0
-RUN groupadd -r whoseonfirst && \
-    useradd -r -g whoseonfirst -G root whoseonfirst
+# UID/GID pinned to the values the pre-rename image was auto-assigned (997/998),
+# so existing volume files stay owned by the app user across the rename (WOF-37).
+RUN groupadd -r -g 998 whoisonfirst && \
+    useradd -r -u 997 -g whoisonfirst -G root whoisonfirst
 
 # Create directories with proper permissions
 # Group-writable (g+w) for OpenShift arbitrary UID support
 RUN mkdir -p /app/data /app/frontend /app/src /app/alembic && \
-    chown -R whoseonfirst:root /app && \
+    chown -R whoisonfirst:root /app && \
     chmod -R g+rwX /app
 
 # Copy application code (root group for OpenShift compatibility)
-COPY --chown=whoseonfirst:root src/ /app/src/
-COPY --chown=whoseonfirst:root frontend/ /app/frontend/
-COPY --chown=whoseonfirst:root alembic/ /app/alembic/
-COPY --chown=whoseonfirst:root alembic.ini /app/
-COPY --chown=whoseonfirst:root VERSION /app/
+COPY --chown=whoisonfirst:root src/ /app/src/
+COPY --chown=whoisonfirst:root frontend/ /app/frontend/
+COPY --chown=whoisonfirst:root alembic/ /app/alembic/
+COPY --chown=whoisonfirst:root alembic.ini /app/
+COPY --chown=whoisonfirst:root VERSION /app/
 
 # Copy and setup entrypoint script
-COPY --chown=whoseonfirst:root scripts/docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
+COPY --chown=whoisonfirst:root scripts/docker-entrypoint.sh scripts/migrate-db-filename.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh /app/migrate-db-filename.sh
 
 # Switch to non-root user
-USER whoseonfirst
+USER whoisonfirst
 
 # Environment variables (can be overridden at runtime)
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DATABASE_URL=sqlite:///./data/whoseonfirst.db \
+    DATABASE_URL=sqlite:///./data/whoisonfirst.db \
     HOST=0.0.0.0 \
     PORT=8000 \
     LOG_LEVEL=INFO

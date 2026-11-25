@@ -1,5 +1,5 @@
 {
-  "name": "WhoseOnFirst",
+  "name": "WhoIsOnFirst",
   "short_name": "WOF",
   "description": "On-call rotation dashboard",
   "start_url": "/",

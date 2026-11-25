@@ -28,26 +28,12 @@ class BaseRepository(Generic[ModelType]):
     """
 
     def __init__(self, db: Session, model: Type[ModelType]):
-        """
-        Initialize repository with database session and model.
-
-        Args:
-            db: SQLAlchemy database session
-            model: The SQLAlchemy model class
-        """
+        """Initialize repository with database session and model."""
         self.db = db
         self.model = model
 
     def get_by_id(self, item_id: int) -> Optional[ModelType]:
-        """
-        Retrieve a single record by ID.
-
-        Args:
-            item_id: Primary key value
-
-        Returns:
-            Model instance if found, None otherwise
-        """
+        """Retrieve a single record by ID."""
         try:
             return self.db.query(self.model).filter(self.model.id == item_id).first()
         except SQLAlchemyError as e:
@@ -55,16 +41,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error getting {self.model.__name__} by id: {str(e)}")
 
     def get_all(self, skip: int = 0, limit: Optional[int] = None) -> List[ModelType]:
-        """
-        Retrieve all records with optional pagination.
-
-        Args:
-            skip: Number of records to skip (for pagination)
-            limit: Maximum number of records to return (None for unlimited)
-
-        Returns:
-            List of model instances
-        """
+        """Retrieve all records with optional pagination."""
         try:
             query = self.db.query(self.model).offset(skip)
             if limit is not None:
@@ -75,18 +52,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error getting all {self.model.__name__}: {str(e)}")
 
     def create(self, data: Dict[str, Any]) -> ModelType:
-        """
-        Create a new record.
-
-        Args:
-            data: Dictionary of field values to create the record
-
-        Returns:
-            Created model instance with ID populated
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Create a new record."""
         try:
             instance = self.model(**data)
             self.db.add(instance)
@@ -98,19 +64,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error creating {self.model.__name__}: {str(e)}")
 
     def update(self, item_id: int, data: Dict[str, Any]) -> Optional[ModelType]:
-        """
-        Update an existing record.
-
-        Args:
-            item_id: Primary key of record to update
-            data: Dictionary of field values to update
-
-        Returns:
-            Updated model instance if found, None otherwise
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Update an existing record."""
         try:
             instance = self.get_by_id(item_id)
             if instance:
@@ -125,18 +79,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error updating {self.model.__name__}: {str(e)}")
 
     def delete(self, item_id: int) -> bool:
-        """
-        Delete a record by ID.
-
-        Args:
-            item_id: Primary key of record to delete
-
-        Returns:
-            True if record was deleted, False if not found
-
-        Raises:
-            Exception: If database operation fails
-        """
+        """Delete a record by ID."""
         try:
             instance = self.get_by_id(item_id)
             if instance:
@@ -149,12 +92,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error deleting {self.model.__name__}: {str(e)}")
 
     def count(self) -> int:
-        """
-        Count total number of records.
-
-        Returns:
-            Total count of records in the table
-        """
+        """Count total number of records."""
         try:
             return self.db.query(self.model).count()
         except SQLAlchemyError as e:
@@ -162,15 +100,7 @@ class BaseRepository(Generic[ModelType]):
             raise Exception(f"Database error counting {self.model.__name__}: {str(e)}")
 
     def exists(self, item_id: int) -> bool:
-        """
-        Check if a record exists by ID.
-
-        Args:
-            item_id: Primary key to check
-
-        Returns:
-            True if record exists, False otherwise
-        """
+        """Check if a record exists by ID."""
         try:
             return self.db.query(self.model).filter(self.model.id == item_id).count() > 0
         except SQLAlchemyError as e:

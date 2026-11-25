@@ -1,30 +1,43 @@
 # ============================================
-# WhoseOnFirst - Production (Portainer GitOps)
+# WhoIsOnFirst - Production (Portainer GitOps)
 # ============================================
 # Deployed via Portainer stack from GitHub repo.
 # GitOps redeploy rebuilds the image but preserves
 # the named volume — your database survives redeploys.
+#
+# The same file runs two stacks on one host (WOF-42):
+#   whoisonfirst      (refs/heads/main) — defaults below
+#   whoisonfirst-dev  (refs/heads/dev)  — stack env sets
+#     CONTAINER_NAME=whoisonfirst-dev, HOST_PORT=8901,
+#     APP_ENV=dev, SMS_ALLOWED_NUMBERS=<owner's cell>
+# Volumes are prefixed by the stack name, so each stack
+# gets its own database (e.g. whoisonfirst-dev_whoseonfirst-data).
 # ============================================
 
+# LOCKED legacy service key (WOF-37), like the volume key below. Renaming
+# it would orphan stack 12's running container, which keeps host port 8900,
+# so the renamed service could not start unless Portainer prunes. Only
+# container_name carries the new name.
 services:
   whoseonfirst:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: whoseonfirst
+    container_name: ${CONTAINER_NAME:-whoisonfirst}
     restart: unless-stopped
 
-    # Port mapping — Cloudflare tunnel expects 8900
+    # Host port — NPM proxies the LAN hostname to this port
     ports:
-      - "8900:8000"
+      - "${HOST_PORT:-8900}:8000"
 
-    # Named volume — persists across GitOps redeploys
+    # Named volume — persists across GitOps redeploys.
+    # LOCKED legacy key: keep the old slug here (see bottom).
     volumes:
       - whoseonfirst-data:/app/data
 
     # Environment variables injected via Portainer stack config
     environment:
-      - DATABASE_URL=sqlite:///./data/whoseonfirst.db
+      - DATABASE_URL=sqlite:///./data/whoisonfirst.db
       - HOST=0.0.0.0
       - PORT=8000
       - LOG_LEVEL=INFO
@@ -36,6 +49,10 @@ services:
       - NOTIFICATION_MINUTE=${NOTIFICATION_MINUTE:-0}
       - SECRET_KEY=${SECRET_KEY}
       - SECURE_COOKIES=true
+      # Unset in prod. The dev stack sets both; with APP_ENV=dev and live
+      # Twilio, an empty allowlist blocks every send (fail closed).
+      - APP_ENV=${APP_ENV:-prod}
+      - SMS_ALLOWED_NUMBERS=${SMS_ALLOWED_NUMBERS:-}
 
     # Health check
     healthcheck:
@@ -52,7 +69,13 @@ services:
         max-size: "10m"
         max-file: "3"
 
-# Named volume — survives container rebuilds and GitOps redeploys
+# Named volume — survives container rebuilds and GitOps redeploys.
+# The key keeps its pre-rename name ON PURPOSE (WOF-37), like _LEGACY_SALT.
+# The real volume is <stack>_<key>; prod's data lives in
+# whoseonfirst_whoseonfirst-data. Renaming the key would make any redeploy
+# of the existing stack mount a NEW empty volume and auto-seed. With the key
+# pinned, an existing stack keeps its data and the entrypoint renames the DB
+# file inside it. Guarded by tests/test_compose_config.py.
 volumes:
   whoseonfirst-data:
     driver: local

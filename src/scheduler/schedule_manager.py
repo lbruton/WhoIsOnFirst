@@ -374,7 +374,7 @@ def trigger_notifications_manually(force: bool = False) -> dict:
         result = send_daily_notifications(force=force)
         return {
             'status': 'success',
-            'message': 'Notifications processed successfully',
+            'message': 'Notifications processed.',
             'timestamp': datetime.now(CHICAGO_TZ).isoformat(),
             'successful': result['successful'],
             'failed': result['failed'],
@@ -515,9 +515,11 @@ def collect_weekly_digest_recipients(db) -> list:
     2. Active team members with ``weekly_digest_optin`` set — independent
        of escalation status, so e.g. a supervisor pushed out of the
        escalation pair can still opt in.
+    3. Digest-only recipients from settings: people outside the rotation
+       and the escalation pair. Independent of escalation display.
 
-    Duplicates are removed by phone number; the escalation listing wins the
-    label because it is collected first.
+    Duplicates are removed by phone number; the earliest source wins the
+    label.
 
     Args:
         db: SQLAlchemy database session
@@ -553,6 +555,15 @@ def collect_weekly_digest_recipients(db) -> list:
                 "label": "Team Member Digest"
             })
             seen_phones.add(member.phone)
+
+    for extra in settings_service.get_digest_recipients():
+        if extra["phone"] not in seen_phones:
+            recipients.append({
+                "name": extra["name"],
+                "phone": extra["phone"],
+                "label": "Digest Recipient"
+            })
+            seen_phones.add(extra["phone"])
 
     return recipients
 
@@ -703,7 +714,7 @@ def trigger_weekly_summary_manually() -> dict:
         result = send_weekly_escalation_summary()
         return {
             'status': 'success',
-            'message': 'Weekly escalation summary processed successfully',
+            'message': 'Weekly escalation summary processed.',
             'timestamp': result.get('timestamp', datetime.now(CHICAGO_TZ).isoformat()),
             'successful': result.get('successful', 0),
             'failed': result.get('failed', 0),
@@ -784,7 +795,7 @@ def trigger_override_completion_manually() -> dict:
         result = complete_past_overrides()
         return {
             'status': 'success',
-            'message': 'Override completion processed successfully',
+            'message': 'Override completion processed.',
             'timestamp': result.get('timestamp', datetime.now(CHICAGO_TZ).isoformat()),
             'completed_count': result.get('completed_count', 0)
         }

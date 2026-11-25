@@ -1,5 +1,5 @@
 """
-Database configuration and session management for WhoseOnFirst.
+Database configuration and session management for WhoIsOnFirst.
 
 This module sets up SQLAlchemy engine, session factory, and base model.
 Uses environment variables for configuration.
@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get database URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/whoseonfirst.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/whoisonfirst.db")
 
 # Create engine with appropriate settings
 if DATABASE_URL.startswith("sqlite"):

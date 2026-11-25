@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - WhoseOnFirst</title>
+    <title>Admin - WhoIsOnFirst</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/css/tabler.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
 
     <script src="/js/sidebar-loader.js" defer></script>
     <script src="/js/auth-init.js" defer></script>
@@ -241,7 +241,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js"></script>
+    <!-- WOF-44: Tabler >=1.6 no longer sets a global `bootstrap`; the restore modal needs it -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ----------------------------------------------------------------
         // Helpers
@@ -281,7 +283,7 @@
                 const blob = await resp.blob();
                 const cd = resp.headers.get('Content-Disposition') || '';
                 const match = cd.match(/filename="([^"]+)"/);
-                const filename = match ? match[1] : 'whoseonfirst.stvault';
+                const filename = match ? match[1] : 'whoisonfirst.stvault';
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -373,7 +375,7 @@
                 const counts = result.imported;
                 showAlert('success',
                     `<i class="ti ti-check me-1"></i>
-                    <strong>Restore complete!</strong> Imported:
+                    <strong>Restore complete.</strong> Imported:
                     ${counts.team_members} team members,
                     ${counts.shifts} shifts,
                     ${counts.schedule} schedule entries,

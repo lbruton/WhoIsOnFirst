@@ -122,6 +122,12 @@
             .then(function(data) {
                 var el = document.getElementById('appVersion');
                 if (el) el.textContent = 'v' + data.version;
+                // WOF-42: flag the hosted dev stack so it can't be mistaken for prod
+                var badge = document.getElementById('envBadge');
+                if (badge && data.environment === 'dev') {
+                    badge.style.display = 'inline-block';
+                    document.title = '[DEV] ' + document.title;
+                }
             })
             .catch(function() {
                 var el = document.getElementById('appVersion');

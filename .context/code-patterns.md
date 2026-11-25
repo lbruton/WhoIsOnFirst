@@ -1,6 +1,6 @@
 # Code Patterns Reference
 
-This document contains detailed code examples and implementation patterns for WhoseOnFirst. Reference this when implementing features, but keep CLAUDE.md lean.
+This document contains detailed code examples and implementation patterns for WhoIsOnFirst. Reference this when implementing features, but keep CLAUDE.md lean.
 
 ## Table of Contents
 
@@ -370,7 +370,7 @@ async def lifespan(app: FastAPI):
     global scheduler
     
     # Startup
-    database_url = os.getenv('DATABASE_URL', 'sqlite:///./data/whoseonfirst.db')
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///./data/whoisonfirst.db')
     scheduler = init_scheduler(database_url)
     start_scheduler(scheduler)
     
@@ -431,7 +431,7 @@ def send_daily_notifications():
 
 > Note: the live `SMSService` implements retries with a manual
 > `for attempt in range(max_retries)` exponential-backoff loop — `tenacity` is
-> **not** a project dependency. The decorator form below is an illustrative
+> not a project dependency. The decorator form below is an illustrative
 > pattern; match the manual loop in `src/services/sms_service.py` for parity.
 
 ```python
@@ -498,7 +498,7 @@ class SMSService:
         
         # Keep under 160 characters for single SMS
         message = (
-            f"WhoseOnFirst: Your {duration}h on-call shift has started.\n"
+            f"WhoIsOnFirst: Your {duration}h on-call shift has started.\n"
             f"Until {end_time}. Questions? Contact admin."
         )
         
@@ -567,7 +567,7 @@ from contextlib import contextmanager
 import os
 
 # Database URL from environment
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./data/whoseonfirst.db')
+DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./data/whoisonfirst.db')
 
 # Create engine
 engine = create_engine(
@@ -898,10 +898,10 @@ class TeamMemberResponse(BaseModel):
 
 ## Additional Resources
 
-- **Architecture Documentation:** `.context/architecture.md`
-- **Technology Stack:** `.context/technical-stack.md`
-- **Development Workflow:** `.context/rpi-process.md`
-- **Testing Guide:** `/tests/README.md` (if it exists)
+- Architecture Documentation: `.context/architecture.md`
+- Technology Stack: `.context/technical-stack.md`
+- Development Workflow: `.context/rpi-process.md`
+- Testing Guide: `/tests/README.md` (if it exists)
 
-**Last Updated:** 2025-11-10
-**Version:** 1.0.0
+Last Updated: 2025-11-10
+Version: 1.0.0

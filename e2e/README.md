@@ -13,7 +13,7 @@ Frontend regression specs. Not wired into CI — run locally before a release.
 npm ci                          # installs @playwright/test (pinned)
 
 # First run only: the app needs an existing data/ dir and migrated DB.
-# The SQLite path is relative (data/whoseonfirst.db) and tables are
+# The SQLite path is relative (data/whoisonfirst.db) and tables are
 # created by alembic, not by the app on boot.
 mkdir -p data
 source venv/bin/activate && alembic upgrade head

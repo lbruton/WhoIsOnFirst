@@ -1,5 +1,5 @@
 """
-Schedule model for WhoseOnFirst.
+Schedule model for WhoIsOnFirst.
 
 Represents a specific assignment of a team member to a shift.
 """

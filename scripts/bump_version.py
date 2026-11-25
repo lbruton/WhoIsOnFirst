@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Version Bump Script for WhoseOnFirst
+Version Bump Script for WhoIsOnFirst
 =====================================
 
 Automatically updates version numbers across all project files.
@@ -163,7 +163,7 @@ def update_changelog(changelog_path: Path, new_version: str, notes: str = None):
 
     # Update version links at bottom
     # Add new version link
-    version_links = f"\n[{new_version}]: https://github.com/Lonnie-Bruton/WhoseOnFirst/compare/v{get_previous_version(content, new_version)}...v{new_version}"
+    version_links = f"\n[{new_version}]: https://github.com/lbruton/WhoIsOnFirst/compare/v{get_previous_version(content, new_version)}...v{new_version}"
     content = content.rstrip() + version_links + "\n"
 
     changelog_path.write_text(content)
@@ -210,7 +210,7 @@ def main():
         print_error(str(exc))
         sys.exit(1)
 
-    print_header(f"WhoseOnFirst Version Bump: {old_version} → {new_version}")
+    print_header(f"WhoIsOnFirst Version Bump: {old_version} → {new_version}")
 
     if old_version == new_version:
         print_warning("New version is the same as current version")

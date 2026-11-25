@@ -65,12 +65,9 @@ HANDOFF.md
 # Root-level instruction files (CLAUDE.md / AGENTS.md / GEMINI.md) ARE tracked —
 # they describe the project. .claude/ is tracked too (project.json, settings.json,
 # hooks/, hookify rules) so project config travels with the repo; only the
-# per-machine settings.local.json stays local. Other tool config dirs stay local.
+# per-machine settings.local.json stays local. Other AI tool config dirs (.codex/, .gemini/, .agents/, ...) are tracked too.
 .claude/settings.local.json
-.gemini/
-.codex/
-.kimi/
-.opencode/
+.claude/**/*.local.*
 
 # Git worktrees for isolated agent work — content dirs are transient, not project history
 .worktrees/
@@ -156,6 +153,9 @@ tmp/
 temp/
 *.tmp
 
+# Scratch dirs from .claude/hooks/test_post_edit_lint.py (removed after each run)
+hooktest-scratch-*/
+
 # Documentation build
 docs/_build/
 site/
@@ -168,8 +168,8 @@ site/
 .twilio-cli/
 twilio_test_numbers.txt
 
-# Node modules (if using any frontend build tools)
-node_modules/
+# Node modules (no trailing slash so a symlinked node_modules in a worktree is ignored too)
+node_modules
 npm-debug.log
 yarn-error.log
 
@@ -184,7 +184,7 @@ yarn-error.log
 # Deployment packages (contains secrets and database)
 deployment-packages/
 offline-installer/
-whoseonfirst-*.tar.gz
+whoisonfirst-*.tar.gz
 
 # Coverage reports
 .coverage
@@ -214,3 +214,8 @@ Temporary Items
 # WHO-43: Codacy CLI scan artifacts
 .codacy/
 *.sarif
+
+# DocVault (Obsidian) per-machine state
+DocVault/.obsidian/workspace*.json
+DocVault/.obsidian/graph.json
+DocVault/.trash/

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Members - WhoseOnFirst</title>
+    <title>Team Members - WhoIsOnFirst</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/css/tabler.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
 
     <!-- Load sidebar component -->
     <script src="/js/sidebar-loader.js" defer></script>
@@ -342,12 +342,12 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Primary Phone</label>
-                            <input type="tel" class="form-control" name="phone" placeholder="+19185551234" required pattern="^\+1\d{10}$">
+                            <input type="tel" class="form-control" name="phone" placeholder="+15555550008" required pattern="^\+1\d{10}$">
                             <small class="form-hint">Office phone (required)</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Secondary Phone (Optional)</label>
-                            <input type="tel" class="form-control" name="secondary_phone" placeholder="+19185551234" pattern="^\+1\d{10}$">
+                            <input type="tel" class="form-control" name="secondary_phone" placeholder="+15555550008" pattern="^\+1\d{10}$">
                             <small class="form-hint">Personal phone for redundancy (optional)</small>
                         </div>
                         <div class="mb-3">
@@ -431,7 +431,7 @@
                     <input type="hidden" id="deleteMemberName">
                     <div class="modal-body">
                         <div class="alert alert-danger" style="background-color: #fee2e2; border: 1px solid #dc2626; color: #991b1b;">
-                            <strong>⚠️ Warning:</strong> This action cannot be undone!
+                            <strong>Warning:</strong> You cannot undo this action.
                         </div>
                         <p class="mb-3">
                             You are about to <strong>permanently delete</strong> this team member:
@@ -513,7 +513,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="primaryPhone" placeholder="+19185551234" pattern="^\+1\d{10}$">
+                                <input type="tel" class="form-control" id="primaryPhone" placeholder="+15555550008" pattern="^\+1\d{10}$">
                                 <small class="form-hint">Format: +1XXXXXXXXXX (E.164)</small>
                             </div>
                         </div>
@@ -533,7 +533,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="secondaryPhone" placeholder="+19185551234" pattern="^\+1\d{10}$">
+                                <input type="tel" class="form-control" id="secondaryPhone" placeholder="+15555550008" pattern="^\+1\d{10}$">
                                 <small class="form-hint">Format: +1XXXXXXXXXX (E.164)</small>
                             </div>
                         </div>
@@ -557,8 +557,8 @@
                                 </div>
                                 <div class="text-muted small">
                                     Send a weekly SMS schedule summary every <strong>Monday at 8:00 AM CST</strong> to all opted-in recipients:
-                                    escalation contacts with the digest toggle on (above) plus any team member with
-                                    "Receive Monday weekly digest" enabled on their profile.
+                                    escalation contacts with the digest toggle on (above), any team member with
+                                    "Receive Monday weekly digest" enabled on their profile, and the digest-only recipients below.
                                     The message shows the upcoming 7-day schedule with team member names and phone numbers.
                                 </div>
                             </div>
@@ -569,6 +569,20 @@
                                 <span class="form-check-label">Send weekly schedule summary to opted-in recipients</span>
                             </label>
                         </div>
+
+                        <!-- Digest-only recipients -->
+                        <div class="mb-3">
+                            <label class="form-label mb-1">Digest-only recipients</label>
+                            <small class="form-hint d-block mb-2">
+                                These people receive only the Monday digest. They are not in the rotation and do not appear on the dashboard. Up to 10.
+                            </small>
+                            <div id="digestRecipientsList"></div>
+                            <button type="button" class="btn btn-ghost-primary btn-sm mt-1" id="addDigestRecipientBtn">
+                                <i class="ti ti-plus me-2"></i>
+                                Add recipient
+                            </button>
+                        </div>
+
                         <div class="text-end">
                             <button type="button" class="btn btn-ghost-secondary btn-sm" id="testWeeklySummaryBtn">
                                 <i class="ti ti-send me-2"></i>
@@ -589,7 +603,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         const API_BASE_URL = '';  // Use same origin as current page
@@ -640,7 +654,7 @@
             } catch (error) {
                 console.error('Error loading members:', error);
                 showLoading(false);
-                showError('Failed to load team members. Please check if the backend server is running.');
+                showError('Could not load team members. Check that the backend server is running.');
             }
         }
 
@@ -774,12 +788,12 @@
 
                 orderChanged = false;
                 btn.style.display = 'none';
-                showSuccess('✅ Rotation order saved successfully!');
+                showSuccess('Rotation order saved.');
                 await loadMembers(); // Reload to show updated order values
 
             } catch (error) {
                 console.error('Error saving order:', error);
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-device-floppy me-2"></i>Save Rotation Order';
@@ -821,13 +835,13 @@
                 }
 
                 // Success - reload page to ensure clean state
-                showSuccess('✅ Team member added successfully!');
+                showSuccess('Team member added.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-plus me-2"></i>Add Member';
@@ -889,13 +903,13 @@
                 }
 
                 // Success - reload page to ensure clean state
-                showSuccess('✅ Team member updated successfully!');
+                showSuccess('Team member updated.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-check me-2"></i>Save Changes';
@@ -918,7 +932,7 @@
             }
 
             const action = currentStatus ? 'deactivate' : 'activate';
-            if (!confirm(`Are you sure you want to ${action} this team member?`)) return;
+            if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} this team member?`)) return;
 
             try {
                 const endpoint = currentStatus ? 'DELETE' : 'POST';
@@ -936,11 +950,11 @@
                     throw new Error(error.detail || 'Failed to update status');
                 }
 
-                showSuccess(`✅ Team member ${action}d successfully!`);
+                showSuccess(`Team member ${action}d.`);
                 await loadMembers();
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             }
         }
 
@@ -1004,11 +1018,11 @@
                 // Close modal
                 bootstrap.Modal.getInstance(document.getElementById('deleteMemberModal')).hide();
 
-                showSuccess(`✅ ${memberName} permanently deleted`);
+                showSuccess(`${memberName} deleted.`);
                 await loadMembers();
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-trash me-2"></i>Delete Permanently';
@@ -1050,9 +1064,104 @@
             });
         });
 
+        // Digest-only recipients
+        const MAX_DIGEST_RECIPIENTS = 10;
+        const digestRecipientsList = document.getElementById('digestRecipientsList');
+        const addDigestRecipientBtn = document.getElementById('addDigestRecipientBtn');
+        // Save replaces the whole list, so it is sent only after a successful load.
+        let digestRecipientsLoaded = false;
+
+        function updateAddDigestRecipientBtn() {
+            addDigestRecipientBtn.disabled = !digestRecipientsLoaded ||
+                digestRecipientsList.children.length >= MAX_DIGEST_RECIPIENTS;
+        }
+
+        function showDigestRecipientsLoadError() {
+            const message = document.createElement('div');
+            message.className = 'text-danger small mb-2';
+            message.textContent = 'Could not load the digest-only recipients. Reload the page to edit them. Saving keeps the stored list.';
+            digestRecipientsList.replaceChildren(message);
+        }
+
+        // Built with DOM APIs, not innerHTML, so stored names cannot inject markup.
+        function addDigestRecipientRow(name = '', phone = '') {
+            const row = document.createElement('div');
+            row.className = 'row g-2 mb-2 digest-recipient-row';
+
+            const nameCol = document.createElement('div');
+            nameCol.className = 'col-5';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'form-control digest-recipient-name';
+            nameInput.placeholder = 'Name';
+            nameInput.maxLength = 100;
+            nameInput.required = true;
+            nameInput.value = name;
+            nameInput.setAttribute('aria-label', 'Digest recipient name');
+            nameCol.appendChild(nameInput);
+
+            const phoneCol = document.createElement('div');
+            phoneCol.className = 'col-5';
+            const phoneInput = document.createElement('input');
+            phoneInput.type = 'tel';
+            phoneInput.className = 'form-control digest-recipient-phone';
+            phoneInput.placeholder = '+1XXXXXXXXXX';
+            phoneInput.pattern = '^\\+1\\d{10}$';
+            phoneInput.title = 'Format: +1XXXXXXXXXX (E.164)';
+            phoneInput.required = true;
+            phoneInput.value = phone;
+            phoneInput.setAttribute('aria-label', 'Digest recipient phone');
+            phoneCol.appendChild(phoneInput);
+
+            const removeCol = document.createElement('div');
+            removeCol.className = 'col-2 text-end';
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-ghost-danger btn-icon';
+            removeBtn.title = 'Remove recipient';
+            removeBtn.setAttribute('aria-label', 'Remove recipient');
+            const removeIcon = document.createElement('i');
+            removeIcon.className = 'ti ti-trash';
+            removeBtn.appendChild(removeIcon);
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                updateAddDigestRecipientBtn();
+            });
+            removeCol.appendChild(removeBtn);
+
+            row.append(nameCol, phoneCol, removeCol);
+            digestRecipientsList.appendChild(row);
+            updateAddDigestRecipientBtn();
+            return nameInput;
+        }
+
+        function readDigestRecipientRows() {
+            return Array.from(digestRecipientsList.querySelectorAll('.digest-recipient-row')).map(row => ({
+                name: row.querySelector('.digest-recipient-name').value.trim(),
+                phone: row.querySelector('.digest-recipient-phone').value.trim()
+            }));
+        }
+
+        addDigestRecipientBtn.addEventListener('click', () => {
+            if (digestRecipientsList.children.length < MAX_DIGEST_RECIPIENTS) {
+                addDigestRecipientRow().focus();
+            }
+        });
+
+        // FastAPI returns 422 detail as a list of {loc, msg}; show the messages.
+        function apiErrorMessage(error, fallback) {
+            if (Array.isArray(error.detail)) {
+                return error.detail.map(d => (d.msg || '').replace(/^Value error, /, '')).join(' ') || fallback;
+            }
+            return error.detail || fallback;
+        }
+
         // Escalation Contacts
         // Load escalation config when modal is opened
         document.getElementById('escalationModal').addEventListener('show.bs.modal', async function() {
+            digestRecipientsLoaded = false;
+            digestRecipientsList.replaceChildren();
+            updateAddDigestRecipientBtn();
             try {
                 const response = await fetch(`${API_BASE}/settings/escalation`, {
                     credentials: 'include'
@@ -1083,9 +1192,27 @@
                     document.getElementById('weeklyEnabled').checked = weeklySetting.enabled || false;
                 }
 
+                // Load digest-only recipients
+                const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
+                    credentials: 'include'
+                });
+                if (digestResponse.ok) {
+                    const digestData = await digestResponse.json();
+                    digestRecipientsList.replaceChildren();
+                    digestRecipientsLoaded = true;
+                    (digestData.recipients || []).forEach(r => addDigestRecipientRow(r.name, r.phone));
+                } else {
+                    showDigestRecipientsLoadError();
+                }
+                updateAddDigestRecipientBtn();
+
             } catch (error) {
                 console.error('Error loading escalation config:', error);
-                showError('❌ Failed to load escalation configuration');
+                if (!digestRecipientsLoaded) {
+                    showDigestRecipientsLoadError();
+                    updateAddDigestRecipientBtn();
+                }
+                showError('Could not load the escalation contacts. Reload the page.');
             }
         });
 
@@ -1147,6 +1274,24 @@
                     throw new Error(error.detail || 'Failed to save weekly summary setting');
                 }
 
+                // Save digest-only recipients; skipped after a failed load so the stored list survives
+                if (digestRecipientsLoaded) {
+                    const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ recipients: readDigestRecipientRows() })
+                    });
+
+                    if (!digestResponse.ok) {
+                        const error = await digestResponse.json();
+                        throw new Error(apiErrorMessage(
+                            error,
+                            'Could not save the digest-only recipients. Check each name and phone number.'
+                        ));
+                    }
+                }
+
                 // SUCCESS: Close modal and wait for Bootstrap to fully complete
                 const modal = bootstrap.Modal.getInstance(document.getElementById('escalationModal'));
                 const modalElement = document.getElementById('escalationModal');
@@ -1165,7 +1310,7 @@
                     }, 50);
 
                     // Show success alert AFTER modal is completely gone
-                    showSuccess('✅ Escalation contacts saved successfully!');
+                    showSuccess('Escalation contacts saved.');
 
                     // Remove this event listener (one-time use)
                     modalElement.removeEventListener('hidden.bs.modal', onHidden);
@@ -1194,7 +1339,7 @@
                     }, 50);
 
                     // Show error alert AFTER modal is completely gone
-                    showError('❌ ' + error.message);
+                    showError(error.message);
 
                     // Remove this event listener (one-time use)
                     modalElement.removeEventListener('hidden.bs.modal', onHidden);
@@ -1222,7 +1367,7 @@
             const originalHTML = btn.innerHTML;
 
             // Confirm action
-            if (!confirm('Send a weekly schedule summary to all configured escalation contacts now?')) {
+            if (!confirm('Send the weekly schedule summary to all opted-in recipients now? Save changes first.')) {
                 return;
             }
 
@@ -1247,16 +1392,16 @@
                     // Handle nested result structure
                     const counts = result.result || result;
                     if (counts.successful !== undefined) {
-                        showSuccess(`✅ Weekly summary sent!\n\nSuccessful: ${counts.successful}\nFailed: ${counts.failed}\nTotal: ${counts.total}`);
+                        showSuccess(`Weekly summary sent.\n\nSuccessful: ${counts.successful}\nFailed: ${counts.failed}\nTotal: ${counts.total}`);
                     } else {
-                        showSuccess(`✅ ${result.message || 'Weekly summary sent successfully!'}`);
+                        showSuccess(result.message || 'Weekly summary sent.');
                     }
                 } else {
-                    showError(`⚠️ ${result.message}`);
+                    showError(result.message);
                 }
 
             } catch (error) {
-                showError('❌ ' + error.message);
+                showError(error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;

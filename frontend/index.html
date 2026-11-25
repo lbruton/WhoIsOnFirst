@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhoseOnFirst - Dashboard</title>
+    <title>WhoIsOnFirst - Dashboard</title>
 
     <!-- Tabler CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/css/tabler.min.css" rel="stylesheet">
     <!-- Tabler Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
 
     <!-- Load sidebar component -->
     <script src="/js/sidebar-loader.js" defer></script>
@@ -398,7 +398,7 @@
     </div>
 
     <!-- Tabler JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js"></script>
     
     <script>
         const API_BASE_URL = '';  // Use same origin as current page
@@ -525,7 +525,7 @@
             // If no one is currently on call, show N/A for all
             if (!primarySchedule) {
                 document.getElementById('primaryOnCall').innerHTML = '<span class="text-muted">Who\'s on first? Nobody yet - schedule hasn\'t started</span>';
-                document.getElementById('backupOnCall').innerHTML = '<span class="text-muted">What\'s on second? Not yet!</span>';
+                document.getElementById('backupOnCall').innerHTML = '<span class="text-muted">What\'s on second? Not assigned yet.</span>';
                 loadEscalationContacts(); // Still load escalation even if no one on call
                 return;
             }
@@ -677,7 +677,6 @@
                 }
 
                 const config = await response.json();
-                console.log('Escalation config loaded:', config); // Debug logging
 
                 // Get column references
                 const primaryCol = document.getElementById('primaryColumn');

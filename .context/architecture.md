@@ -1,14 +1,14 @@
-# System Architecture - WhoseOnFirst
+# System Architecture - WhoIsOnFirst
 
-**Version:** 1.0  
-**Last Updated:** November 4, 2025  
-**Status:** Active — Phase 1 in production
+Version: 1.0  
+Last Updated: November 4, 2025  
+Status: Active — Phase 1 in production
 
 ---
 
 ## Architecture Overview
 
-WhoseOnFirst is designed as a monolithic application with a clear separation of concerns, allowing for future microservices decomposition if needed. The system follows a layered architecture pattern with dependency injection for testability and maintainability.
+WhoIsOnFirst is designed as a monolithic application with a clear separation of concerns, allowing for future microservices decomposition if needed. The system follows a layered architecture pattern with dependency injection for testability and maintainability.
 
 ### High-Level Architecture
 
@@ -741,7 +741,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app with lifespan
 app = FastAPI(
-    title="WhoseOnFirst",
+    title="WhoIsOnFirst",
     description="On-Call Team SMS Notifier",
     version="1.0.0",
     lifespan=lifespan
@@ -778,7 +778,7 @@ app.include_router(notifications_router)
 │              ▼                      │
 │  ┌───────────────────────────────┐ │
 │  │   SQLite Database Files       │ │
-│  │   - whoseonfirst.db           │ │
+│  │   - whoisonfirst.db           │ │
 │  │   - jobs.db (scheduler)       │ │
 │  └───────────────────────────────┘ │
 │              │                      │
@@ -788,13 +788,33 @@ app.include_router(notifications_router)
               ▼
    ┌─────────────────────┐
    │  Host Filesystem    │
-   │  /opt/whoseonfirst/ │
+   │  /opt/whoisonfirst/ │
    │  └── data/          │
-   │      ├── whoseonfirst.db
+   │      ├── whoisonfirst.db
    │      ├── jobs.db     │
    │      └── backups/    │
    └─────────────────────┘
 ```
+
+#### Legacy identifiers pinned on purpose (WOF-37)
+
+The app was renamed WhoseOnFirst → WhoIsOnFirst, but these keep the old slug
+because they name existing data. Tests guard each one; never "clean them up".
+
+- `_LEGACY_SALT = b"whoseonfirst-fernet-pbkdf2-salt-v1"` in
+  `src/services/secrets_service.py`: stored encrypted settings were derived
+  with it.
+- Compose service key `whoseonfirst` in `docker-compose.yml`: renaming it
+  orphans the running container, which keeps the host port.
+- Compose volume key `whoseonfirst-data`: the real volume is
+  `<stack>_<key>`, so a rename mounts an empty volume and auto-seeds.
+
+`container_name` (`${CONTAINER_NAME:-whoisonfirst}`) and the host port
+(`${HOST_PORT:-8900}`) are stack-overridable, so one compose file runs prod
+and the hosted dev stack side by side. On boot,
+`scripts/migrate-db-filename.sh` renames a legacy `whoseonfirst.db` (plus
+`-wal`/`-shm`) to `whoisonfirst.db`, but only when `DATABASE_URL` targets the
+new file. The container user is pinned to UID 997 / GID 998.
 
 ### Network Architecture
 
@@ -828,7 +848,7 @@ app.include_router(notifications_router)
 │  │              │                          │            │
 │  │              ▼                          │            │
 │  │  ┌─────────────────────────────────┐   │            │
-│  │  │  WhoseOnFirst Container         │   │            │
+│  │  │  WhoIsOnFirst Container         │   │            │
 │  │  │  (Port 8000)                    │   │            │
 │  │  └─────────────────────────────────┘   │            │
 │  │                                         │            │
@@ -906,14 +926,33 @@ User                    FastAPI              Database
 
 ```python
 # .env file (never committed)
-DATABASE_URL=sqlite:///./whoseonfirst.db
+DATABASE_URL=sqlite:///./whoisonfirst.db
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_PHONE_NUMBER=+15551234567
-SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # JWT signing
+SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # Fernet key (see below), not JWT
 
 # File permissions: 600 (owner read/write only)
 ```
+
+`SECRET_KEY` is the master secret for `SecretsService`
+(`src/services/secrets_service.py`). PBKDF2 with the fixed `_LEGACY_SALT`
+turns it into a Fernet key that encrypts settings stored with
+`value_type="encrypted"` (the Twilio auth token saved from the Admin page).
+Each environment has its own value; changing it makes those stored values
+undecryptable, so they must be re-entered.
+
+#### Hosted dev SMS rail (WOF-42)
+
+- `APP_ENV` (`prod` default, `dev` on the hosted dev stack) drives the DEV
+  badge (`GET /api/v1/version` returns `environment`) and the allowlist.
+- `SMS_ALLOWED_NUMBERS` (comma-separated E.164, exact string match) is
+  enforced in `SMSService._send_sms`, the single path for scheduled, manual
+  and weekly sends. A non-listed recipient raises `SMSRecipientBlockedError`
+  (a permanent `SMSDeliveryError`): no retry, no Twilio call, one failed
+  `notification_log` row, number masked to the last 4 digits.
+- With `APP_ENV=dev`, live Twilio and an empty allowlist, every send is
+  blocked (fail closed).
 
 #### 3. Transport Security
 
@@ -970,15 +1009,15 @@ Current architecture supports vertical scaling:
 
 #### Scheduler in Multi-Instance Setup
 
-**Problem:** APScheduler runs in each instance → duplicate jobs
+Problem: APScheduler runs in each instance → duplicate jobs
 
-**Solution Options:**
+Solution Options:
 
-1. **Leader Election:** Only one instance runs scheduler
-2. **Separate Scheduler Service:** Dedicated container for scheduling
-3. **Distributed Scheduler:** Use APScheduler's distributed mode
+1. Leader Election: Only one instance runs scheduler
+2. Separate Scheduler Service: Dedicated container for scheduling
+3. Distributed Scheduler: Use APScheduler's distributed mode
 
-**Recommended:** Separate scheduler service (simple, reliable)
+Recommended: Separate scheduler service (simple, reliable)
 
 ---
 
@@ -994,7 +1033,7 @@ Application
 ┌────────────────┐
 │  Log Files     │
 │  /var/log/     │
-│  whoseonfirst/ │
+│  whoisonfirst/ │
 └────────────────┘
     │
     │ (Optional: Phase 2+)
@@ -1013,18 +1052,18 @@ from prometheus_client import Counter, Histogram, Gauge
 
 # Define metrics
 sms_sent_total = Counter(
-    'whoseonfirst_sms_sent_total',
+    'whoisonfirst_sms_sent_total',
     'Total SMS messages sent',
     ['status']
 )
 
 notification_duration = Histogram(
-    'whoseonfirst_notification_duration_seconds',
+    'whoisonfirst_notification_duration_seconds',
     'Time to send notification'
 )
 
 active_team_members = Gauge(
-    'whoseonfirst_active_team_members',
+    'whoisonfirst_active_team_members',
     'Number of active team members'
 )
 
@@ -1044,23 +1083,23 @@ with notification_duration.time():
 
 ```bash
 #!/bin/bash
-# /opt/whoseonfirst/backup.sh
+# /opt/whoisonfirst/backup.sh
 
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/whoseonfirst/backups"
-DB_FILE="/opt/whoseonfirst/data/whoseonfirst.db"
+BACKUP_DIR="/opt/whoisonfirst/backups"
+DB_FILE="/opt/whoisonfirst/data/whoisonfirst.db"
 
 # Create backup
-sqlite3 $DB_FILE ".backup '$BACKUP_DIR/whoseonfirst_$DATE.db'"
+sqlite3 $DB_FILE ".backup '$BACKUP_DIR/whoisonfirst_$DATE.db'"
 
 # Compress
-gzip "$BACKUP_DIR/whoseonfirst_$DATE.db"
+gzip "$BACKUP_DIR/whoisonfirst_$DATE.db"
 
 # Delete backups older than 30 days
 find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
 
 # Copy to remote storage (optional)
-# rsync -avz $BACKUP_DIR remote-server:/backups/whoseonfirst/
+# rsync -avz $BACKUP_DIR remote-server:/backups/whoisonfirst/
 ```
 
 #### Recovery Procedures
@@ -1069,15 +1108,15 @@ find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
 
 ```bash
 # Stop application
-podman stop whoseonfirst
+podman stop whoisonfirst
 
 # Restore from latest backup
-cp /opt/whoseonfirst/backups/whoseonfirst_latest.db.gz /tmp/
-gunzip /tmp/whoseonfirst_latest.db.gz
-mv /tmp/whoseonfirst_latest.db /opt/whoseonfirst/data/whoseonfirst.db
+cp /opt/whoisonfirst/backups/whoisonfirst_latest.db.gz /tmp/
+gunzip /tmp/whoisonfirst_latest.db.gz
+mv /tmp/whoisonfirst_latest.db /opt/whoisonfirst/data/whoisonfirst.db
 
 # Restart application
-podman start whoseonfirst
+podman start whoisonfirst
 
 # Verify schedule integrity
 curl http://localhost:8000/health
@@ -1092,8 +1131,8 @@ curl http://localhost:8000/health
 5. Configure environment variables
 6. Start container
 
-**RTO (Recovery Time Objective):** 30 minutes  
-**RPO (Recovery Point Objective):** 24 hours (daily backups)
+RTO (Recovery Time Objective): 30 minutes  
+RPO (Recovery Point Objective): 24 hours (daily backups)
 
 ---
 
@@ -1101,16 +1140,16 @@ curl http://localhost:8000/health
 
 ### ADR-001: Use FastAPI over Flask
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need to choose web framework for REST API and web interface.
 
-**Decision:**  
+Decision:  
 Use FastAPI instead of Flask.
 
-**Rationale:**
+Rationale:
 
 - Native async/await support for Twilio API calls
 - Automatic OpenAPI documentation (Swagger UI)
@@ -1118,7 +1157,7 @@ Use FastAPI instead of Flask.
 - Better performance (ASGI vs WSGI)
 - Modern Python practices (3.7+)
 
-**Consequences:**
+Consequences:
 
 - Team must learn FastAPI (minimal learning curve)
 - Better documentation for future integrations
@@ -1128,23 +1167,23 @@ Use FastAPI instead of Flask.
 
 ### ADR-002: Start with SQLite, Plan PostgreSQL Migration
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need database for storing team members, schedule, notification logs.
 
-**Decision:**  
+Decision:  
 Use SQLite for Phase 1, with clear migration path to PostgreSQL.
 
-**Rationale:**
+Rationale:
 
 - SQLite perfect for 5-10 users, low concurrency
 - Zero configuration overhead
 - Easy backups (single file)
 - SQLAlchemy makes migration trivial
 
-**Consequences:**
+Consequences:
 
 - Must monitor for write contention issues
 - Plan migration when reaching ~10 team members
@@ -1154,23 +1193,23 @@ Use SQLite for Phase 1, with clear migration path to PostgreSQL.
 
 ### ADR-003: APScheduler for Job Scheduling
 
-**Status:** Accepted  
-**Date:** 2025-11-04
+Status: Accepted  
+Date: 2025-11-04
 
-**Context:**  
+Context:  
 Need to send daily SMS notifications at 8:00 AM CST.
 
-**Decision:**  
+Decision:  
 Use APScheduler embedded in FastAPI application.
 
-**Rationale:**
+Rationale:
 
 - Cross-platform (works on macOS, Proxmox, RHEL)
 - Timezone support (critical for CST)
 - Persistent job store (survives restarts)
 - Easier testing than system cron
 
-**Consequences:**
+Consequences:
 
 - Scheduler runs in application process
 - Need separate strategy for multi-instance deployment (Phase 2+)

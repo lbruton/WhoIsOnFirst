@@ -6,6 +6,7 @@ exports) reads from the canonical VERSION file at the repo root via
 ``get_app_version()`` — eliminating the hardcoded-literal drift class (WOF-14).
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -23,3 +24,13 @@ def get_app_version() -> str:
         return _VERSION_FILE.read_text().strip()
     except FileNotFoundError:
         return "unknown"
+
+
+def get_app_environment() -> str:
+    """Return the deployment environment from ``APP_ENV``, normalized; defaults to "prod".
+
+    The hosted dev stack sets ``APP_ENV=dev`` (WOF-42). It drives the DEV badge in
+    the UI and the fail-closed SMS allowlist in ``SMSService``. Not cached, so tests
+    can set it per case.
+    """
+    return os.getenv("APP_ENV", "").strip().lower() or "prod"
