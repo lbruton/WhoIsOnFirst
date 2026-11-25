@@ -10,6 +10,7 @@ pytest-asyncio==1.5.0  # Updated for Python 3.12 event loop compatibility
 pytest-cov==7.1.0
 pytest-mock==3.17.0
 coverage==7.17.5
+httpx2==2.16.2  # starlette.testclient backend; plain httpx triggers a StarletteDeprecationWarning
 
 # Code Quality
 black==26.10.1  # Code formatting - Updated for Python 3.12

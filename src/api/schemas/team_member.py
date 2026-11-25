@@ -6,7 +6,7 @@ Request and response models for team member API endpoints.
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 import re
 
 
@@ -237,10 +237,9 @@ class TeamMemberResponse(TeamMemberBase):
         examples=["2025-01-01T00:00:00"]
     )
 
-    class Config:
-        """Pydantic configuration."""
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "id": 1,
                 "name": "John Doe",
@@ -250,7 +249,8 @@ class TeamMemberResponse(TeamMemberBase):
                 "weekly_digest_optin": False,
                 "created_at": "2025-01-01T00:00:00"
             }
-        }
+        },
+    )
 
 
 class TeamMemberReorderRequest(BaseModel):

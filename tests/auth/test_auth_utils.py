@@ -6,7 +6,7 @@ Covers: verify_password, authenticate_user, generate_session_token,
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -140,9 +140,9 @@ class TestGenerateSessionToken:
 class TestCreateSessionCookie:
 
     def test_no_remember_me_expires_in_24_hours(self):
-        before = datetime.utcnow()
+        before = datetime.now(timezone.utc)
         cookie = create_session_cookie(user_id=1, remember_me=False)
-        after = datetime.utcnow()
+        after = datetime.now(timezone.utc)
 
         assert cookie["user_id"] == 1
         expires = datetime.fromisoformat(cookie["expires_at"])
@@ -150,10 +150,19 @@ class TestCreateSessionCookie:
         assert expires > before + timedelta(hours=23, minutes=59)
         assert expires < after + timedelta(hours=24, minutes=1)
 
+    @pytest.mark.parametrize("remember_me", [False, True])
+    def test_expires_at_is_aware_utc(self, remember_me):
+        cookie = create_session_cookie(user_id=1, remember_me=remember_me)
+
+        expires = datetime.fromisoformat(cookie["expires_at"])
+        assert expires.tzinfo is not None
+        assert expires.utcoffset() == timedelta(0)
+        assert cookie["expires_at"].endswith("+00:00")
+
     def test_remember_me_expires_in_30_days(self):
-        before = datetime.utcnow()
+        before = datetime.now(timezone.utc)
         cookie = create_session_cookie(user_id=42, remember_me=True)
-        after = datetime.utcnow()
+        after = datetime.now(timezone.utc)
 
         assert cookie["user_id"] == 42
         expires = datetime.fromisoformat(cookie["expires_at"])
