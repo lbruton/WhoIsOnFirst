@@ -5,7 +5,7 @@ project: whoisonfirst
 source: manual
 aliases: ["WhoIsOnFirst Overview", "WhoIsOnFirst"]
 created: "2026-03-11"
-updated: "2026-06-09"
+updated: "2026-11-25"
 ---
 
 # WhoIsOnFirst
@@ -34,6 +34,10 @@ Phase 1 MVP complete: 100% backend, 100% frontend, 538 tests at 81% coverage. PW
 - **Schedule generation anchors at the chosen start date** (WOF-9, PR #48). Previously any start date snapped to Monday of that week — member 1 always landed on Monday, mid-week starts silently created past-day entries and bumped member 1 off the chosen day. Now member 1 (lowest `rotation_order`) goes on call on the exact start date, no entries are created before it, multi-day shifts straddling the start are skipped whole (never truncated), and a mid-week start adds one trailing week so coverage ≥ requested weeks. `POST /schedules/generate` returns a `{schedules, warnings}` envelope — warns when start = today after the 8 AM job (no SMS that day) and when the start day is uncovered by a skipped 48h shift.
 - **Monday weekly digest recipients are now per-person opt-in** (WOF-10, PR #50). Recipients = active team members with the new `weekly_digest_optin` flag (toggle on the member profile) ∪ escalation contacts whose per-contact digest flags are on (default ON, preserving prior behavior), deduped by phone. Escalation-contact status and digest receipt are fully independent — a supervisor outside the escalation pair can opt in; an escalation contact can opt out.
 - **Dependabot now targets `dev`** (PR #49) — security updates may still open PRs against `main`; close and re-land via dev.
+
+**November 2026 behavior changes (on `dev`, ships with next release):**
+
+- **Digest-only recipients** (WOF-50, PR #118). Admins add up to 10 people (name and E.164 phone) in the Escalation Contacts modal under the weekly summary toggle. These people receive only the Monday digest: they are not in the rotation, get no shift SMS and do not appear on the dashboard. The list is the `weekly_digest_recipients` setting (JSON) behind `GET`/`PUT /api/v1/settings/digest-recipients`. The digest sends to them whether or not escalation display is on, and dedups them by phone after escalation contacts and opted-in members.
 
 **Next phases**: pre-ship security fixes (WOF-15, WOF-17/18/19), version bump absorbing WOF-14, `dev → main` release; then Twilio Admin-UI/DB hardening backlog, PostgreSQL migration.
 
