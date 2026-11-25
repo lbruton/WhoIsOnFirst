@@ -52,6 +52,95 @@ class TestEscalationDigestFlagsAPI:
         assert response.json()["secondary_weekly_digest"] is False
 
 
+class TestDigestRecipientsAPI:
+    """WOF-50: digest-only recipients for the Monday weekly digest."""
+
+    URL = "/api/v1/settings/digest-recipients"
+
+    def test_get_defaults_to_empty(self, client: TestClient):
+        response = client.get(self.URL)
+        assert response.status_code == 200
+        assert response.json() == {"recipients": []}
+
+    def test_put_round_trips(self, client: TestClient):
+        payload = {"recipients": [
+            {"name": "Team Manager", "phone": "+15554440010"},
+            {"name": "Ops Director", "phone": "+15554440011"},
+        ]}
+        response = client.put(self.URL, json=payload)
+        assert response.status_code == 200
+        assert response.json() == payload
+
+        # Persisted, not just echoed
+        assert client.get(self.URL).json() == payload
+
+    def test_put_empty_list_clears(self, client: TestClient):
+        client.put(self.URL, json={"recipients": [
+            {"name": "Team Manager", "phone": "+15554440010"}
+        ]})
+        response = client.put(self.URL, json={"recipients": []})
+        assert response.status_code == 200
+        assert client.get(self.URL).json() == {"recipients": []}
+
+    def test_put_strips_name_whitespace(self, client: TestClient):
+        response = client.put(self.URL, json={"recipients": [
+            {"name": "  Team Manager  ", "phone": "+15554440010"}
+        ]})
+        assert response.status_code == 200
+        assert response.json()["recipients"][0]["name"] == "Team Manager"
+
+    @pytest.mark.parametrize("phone", ["5554440010", "+25554440010", "+1555444001", "+1555444001x"])
+    def test_put_rejects_non_e164_phone(self, client: TestClient, phone):
+        response = client.put(self.URL, json={"recipients": [
+            {"name": "Team Manager", "phone": phone}
+        ]})
+        assert response.status_code == 422
+
+    @pytest.mark.parametrize("name", ["", "   ", "x" * 101])
+    def test_put_rejects_bad_name(self, client: TestClient, name):
+        response = client.put(self.URL, json={"recipients": [
+            {"name": name, "phone": "+15554440010"}
+        ]})
+        assert response.status_code == 422
+
+    def test_put_rejects_duplicate_phones(self, client: TestClient):
+        response = client.put(self.URL, json={"recipients": [
+            {"name": "Team Manager", "phone": "+15554440010"},
+            {"name": "Same Phone", "phone": "+15554440010"},
+        ]})
+        assert response.status_code == 422
+
+    def test_put_rejects_more_than_ten(self, client: TestClient):
+        recipients = [
+            {"name": f"Person {i}", "phone": f"+155544400{i:02d}"} for i in range(11)
+        ]
+        response = client.put(self.URL, json={"recipients": recipients})
+        assert response.status_code == 422
+
+    def test_put_requires_admin(self, db_session):
+        from src.main import app
+        from src.api.dependencies import get_db
+        from src.api.routes.auth import require_admin
+
+        def override_get_db():
+            yield db_session
+
+        def override_require_admin():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin access required",
+            )
+
+        app.dependency_overrides[get_db] = override_get_db
+        app.dependency_overrides[require_admin] = override_require_admin
+        try:
+            with TestClient(app) as viewer_client:
+                response = viewer_client.put(self.URL, json={"recipients": []})
+            assert response.status_code == 403
+        finally:
+            app.dependency_overrides.clear()
+
+
 class TestAutoRenewEndpoints:
     """Tests for auto-renewal configuration endpoints."""
 

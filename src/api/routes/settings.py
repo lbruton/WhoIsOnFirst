@@ -24,6 +24,8 @@ from src.api.schemas.settings import (
     SMSTemplateRequest,
     EscalationConfigResponse,
     EscalationConfigRequest,
+    DigestRecipientsRequest,
+    DigestRecipientsResponse,
     TwilioConfigRequest,
     TwilioConfigResponse,
     SMSStatusResponse,
@@ -429,6 +431,38 @@ def update_escalation_weekly(
     return {
         "enabled": service.is_escalation_weekly_enabled()
     }
+
+
+@router.get("/digest-recipients", response_model=DigestRecipientsResponse)
+def get_digest_recipients(
+    db: Session = Depends(get_db),
+    current_user = Depends(require_auth)
+):
+    """
+    Get the digest-only recipients.
+
+    These people receive the Monday weekly digest SMS and nothing else:
+    they are not in the rotation and are not shown on the dashboard.
+    """
+    return {"recipients": SettingsService(db).get_digest_recipients()}
+
+
+@router.put("/digest-recipients", response_model=DigestRecipientsResponse)
+def update_digest_recipients(
+    request: DigestRecipientsRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_admin)
+):
+    """
+    Replace the digest-only recipient list. Admin only.
+
+    Example:
+        PUT /api/v1/settings/digest-recipients
+        {"recipients": [{"name": "Team Manager", "phone": "+15555550001"}]}
+    """
+    service = SettingsService(db)
+    service.set_digest_recipients([r.model_dump() for r in request.recipients])
+    return {"recipients": service.get_digest_recipients()}
 
 
 @router.get("/twilio", response_model=TwilioConfigResponse)

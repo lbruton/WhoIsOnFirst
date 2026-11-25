@@ -557,8 +557,8 @@
                                 </div>
                                 <div class="text-muted small">
                                     Send a weekly SMS schedule summary every <strong>Monday at 8:00 AM CST</strong> to all opted-in recipients:
-                                    escalation contacts with the digest toggle on (above) plus any team member with
-                                    "Receive Monday weekly digest" enabled on their profile.
+                                    escalation contacts with the digest toggle on (above), any team member with
+                                    "Receive Monday weekly digest" enabled on their profile, and the digest-only recipients below.
                                     The message shows the upcoming 7-day schedule with team member names and phone numbers.
                                 </div>
                             </div>
@@ -569,6 +569,20 @@
                                 <span class="form-check-label">Send weekly schedule summary to opted-in recipients</span>
                             </label>
                         </div>
+
+                        <!-- Digest-only recipients -->
+                        <div class="mb-3">
+                            <label class="form-label mb-1">Digest-only recipients</label>
+                            <small class="form-hint d-block mb-2">
+                                These people receive only the Monday digest. They are not in the rotation and do not appear on the dashboard. Up to 10.
+                            </small>
+                            <div id="digestRecipientsList"></div>
+                            <button type="button" class="btn btn-ghost-primary btn-sm mt-1" id="addDigestRecipientBtn">
+                                <i class="ti ti-plus me-2"></i>
+                                Add recipient
+                            </button>
+                        </div>
+
                         <div class="text-end">
                             <button type="button" class="btn btn-ghost-secondary btn-sm" id="testWeeklySummaryBtn">
                                 <i class="ti ti-send me-2"></i>
@@ -1050,6 +1064,89 @@
             });
         });
 
+        // Digest-only recipients
+        const MAX_DIGEST_RECIPIENTS = 10;
+        const digestRecipientsList = document.getElementById('digestRecipientsList');
+        const addDigestRecipientBtn = document.getElementById('addDigestRecipientBtn');
+
+        function updateAddDigestRecipientBtn() {
+            addDigestRecipientBtn.disabled =
+                digestRecipientsList.children.length >= MAX_DIGEST_RECIPIENTS;
+        }
+
+        // Built with DOM APIs, not innerHTML, so stored names cannot inject markup.
+        function addDigestRecipientRow(name = '', phone = '') {
+            const row = document.createElement('div');
+            row.className = 'row g-2 mb-2 digest-recipient-row';
+
+            const nameCol = document.createElement('div');
+            nameCol.className = 'col-5';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'form-control digest-recipient-name';
+            nameInput.placeholder = 'Name';
+            nameInput.maxLength = 100;
+            nameInput.required = true;
+            nameInput.value = name;
+            nameInput.setAttribute('aria-label', 'Digest recipient name');
+            nameCol.appendChild(nameInput);
+
+            const phoneCol = document.createElement('div');
+            phoneCol.className = 'col-5';
+            const phoneInput = document.createElement('input');
+            phoneInput.type = 'tel';
+            phoneInput.className = 'form-control digest-recipient-phone';
+            phoneInput.placeholder = '+1XXXXXXXXXX';
+            phoneInput.pattern = '^\\+1\\d{10}$';
+            phoneInput.title = 'Format: +1XXXXXXXXXX (E.164)';
+            phoneInput.required = true;
+            phoneInput.value = phone;
+            phoneInput.setAttribute('aria-label', 'Digest recipient phone');
+            phoneCol.appendChild(phoneInput);
+
+            const removeCol = document.createElement('div');
+            removeCol.className = 'col-2 text-end';
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-ghost-danger btn-icon';
+            removeBtn.title = 'Remove recipient';
+            removeBtn.setAttribute('aria-label', 'Remove recipient');
+            const removeIcon = document.createElement('i');
+            removeIcon.className = 'ti ti-trash';
+            removeBtn.appendChild(removeIcon);
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                updateAddDigestRecipientBtn();
+            });
+            removeCol.appendChild(removeBtn);
+
+            row.append(nameCol, phoneCol, removeCol);
+            digestRecipientsList.appendChild(row);
+            updateAddDigestRecipientBtn();
+            return nameInput;
+        }
+
+        function readDigestRecipientRows() {
+            return Array.from(digestRecipientsList.querySelectorAll('.digest-recipient-row')).map(row => ({
+                name: row.querySelector('.digest-recipient-name').value.trim(),
+                phone: row.querySelector('.digest-recipient-phone').value.trim()
+            }));
+        }
+
+        addDigestRecipientBtn.addEventListener('click', () => {
+            if (digestRecipientsList.children.length < MAX_DIGEST_RECIPIENTS) {
+                addDigestRecipientRow().focus();
+            }
+        });
+
+        // FastAPI returns 422 detail as a list of {loc, msg}; show the messages.
+        function apiErrorMessage(error, fallback) {
+            if (Array.isArray(error.detail)) {
+                return error.detail.map(d => (d.msg || '').replace(/^Value error, /, '')).join(' ') || fallback;
+            }
+            return error.detail || fallback;
+        }
+
         // Escalation Contacts
         // Load escalation config when modal is opened
         document.getElementById('escalationModal').addEventListener('show.bs.modal', async function() {
@@ -1082,6 +1179,17 @@
                     const weeklySetting = await weeklyResponse.json();
                     document.getElementById('weeklyEnabled').checked = weeklySetting.enabled || false;
                 }
+
+                // Load digest-only recipients
+                digestRecipientsList.replaceChildren();
+                const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
+                    credentials: 'include'
+                });
+                if (digestResponse.ok) {
+                    const digestData = await digestResponse.json();
+                    (digestData.recipients || []).forEach(r => addDigestRecipientRow(r.name, r.phone));
+                }
+                updateAddDigestRecipientBtn();
 
             } catch (error) {
                 console.error('Error loading escalation config:', error);
@@ -1145,6 +1253,22 @@
                 if (!weeklyResponse.ok) {
                     const error = await weeklyResponse.json();
                     throw new Error(error.detail || 'Failed to save weekly summary setting');
+                }
+
+                // Save digest-only recipients
+                const digestResponse = await fetch(`${API_BASE}/settings/digest-recipients`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ recipients: readDigestRecipientRows() })
+                });
+
+                if (!digestResponse.ok) {
+                    const error = await digestResponse.json();
+                    throw new Error(apiErrorMessage(
+                        error,
+                        'Could not save the digest-only recipients. Check each name and phone number.'
+                    ));
                 }
 
                 // SUCCESS: Close modal and wait for Bootstrap to fully complete
@@ -1222,7 +1346,7 @@
             const originalHTML = btn.innerHTML;
 
             // Confirm action
-            if (!confirm('Send a weekly schedule summary to all configured escalation contacts now?')) {
+            if (!confirm('Send the weekly schedule summary to all opted-in recipients now? Save changes first.')) {
                 return;
             }
 
