@@ -262,15 +262,15 @@ class TestGetByDateRange:
         assert result == []
 
     def test_override_in_range_returned(self, service, schedule, member_b):
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
         service.create_override(
             schedule_id=schedule.id,
             override_member_id=member_b.id,
             reason="range test",
             created_by="admin"
         )
-        # Use naive datetime — created_at column stores naive values
-        now = datetime.utcnow()
+        # created_at is a naive DateTime filled by SQLite in UTC, so compare naive UTC.
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         result = service.override_repo.get_by_date_range(
             start_date=now - timedelta(hours=1),
             end_date=now + timedelta(hours=1)

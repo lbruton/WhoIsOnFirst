@@ -6,7 +6,7 @@ Request and response models for schedule override API endpoints.
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ScheduleOverrideRequest(BaseModel):
@@ -46,15 +46,15 @@ class ScheduleOverrideRequest(BaseModel):
         """
         return v.strip() if v else None
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "schedule_id": 123,
                 "override_member_id": 5,
                 "reason": "Vacation - covering for Eve"
             }
-        }
+        },
+    )
 
 
 class ScheduleOverrideResponse(BaseModel):
@@ -124,10 +124,9 @@ class ScheduleOverrideResponse(BaseModel):
         examples=[None]
     )
 
-    class Config:
-        """Pydantic configuration."""
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "id": 1,
                 "schedule_id": 123,
@@ -142,7 +141,8 @@ class ScheduleOverrideResponse(BaseModel):
                 "updated_at": "2025-11-25T13:00:00",
                 "cancelled_at": None
             }
-        }
+        },
+    )
 
 
 class ScheduleOverrideListResponse(BaseModel):
@@ -160,9 +160,8 @@ class ScheduleOverrideListResponse(BaseModel):
         description="Pagination metadata"
     )
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "overrides": [
                     {
@@ -189,7 +188,8 @@ class ScheduleOverrideListResponse(BaseModel):
                     "has_next": False
                 }
             }
-        }
+        },
+    )
 
 
 class ScheduleOverrideCancelRequest(BaseModel):
@@ -201,8 +201,8 @@ class ScheduleOverrideCancelRequest(BaseModel):
     """
     pass
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {}
-        }
+        },
+    )

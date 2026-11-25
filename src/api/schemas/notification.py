@@ -4,7 +4,7 @@ Notification API Schemas
 Pydantic models for notification log requests and responses.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
@@ -56,8 +56,7 @@ class NotificationLogResponse(BaseModel):
     recipient_name: Optional[str] = Field(None, description="Recipient name at time of notification (snapshot)")
     recipient_phone: Optional[str] = Field(None, description="Recipient phone at time of notification (snapshot)")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NotificationStatsResponse(BaseModel):
@@ -72,5 +71,4 @@ class NotificationStatsResponse(BaseModel):
     pending_count: int = Field(..., description="Number still pending")
     period_days: int = Field(..., description="Number of days in the stats period")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

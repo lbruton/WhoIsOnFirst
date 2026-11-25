@@ -6,7 +6,7 @@ Request and response models for schedule API endpoints.
 
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pytz import timezone
 
 
@@ -91,10 +91,9 @@ class ScheduleResponse(BaseModel):
             return CHICAGO_TZ.localize(v)
         return v
 
-    class Config:
-        """Pydantic configuration."""
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "id": 1,
                 "team_member_id": 1,
@@ -107,7 +106,8 @@ class ScheduleResponse(BaseModel):
                 "notified": False,
                 "created_at": "2025-01-01T00:00:00"
             }
-        }
+        },
+    )
 
 
 class ScheduleGenerateResponse(BaseModel):
@@ -181,15 +181,15 @@ class ScheduleGenerateRequest(BaseModel):
             )
         return v
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "start_date": "2025-01-06T08:00:00-06:00",
                 "weeks": 4,
                 "force": False
             }
-        }
+        },
+    )
 
 
 class ScheduleRegenerateRequest(BaseModel):
@@ -235,14 +235,14 @@ class ScheduleRegenerateRequest(BaseModel):
             )
         return v
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "from_date": "2025-01-06T08:00:00-06:00",
                 "weeks": 4
             }
-        }
+        },
+    )
 
 
 class ScheduleQueryParams(BaseModel):
@@ -285,11 +285,11 @@ class ScheduleQueryParams(BaseModel):
             )
         return v
 
-    class Config:
-        """Pydantic configuration."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "start_date": "2025-01-01T00:00:00-06:00",
                 "end_date": "2025-12-31T23:59:59-06:00"
             }
-        }
+        },
+    )
