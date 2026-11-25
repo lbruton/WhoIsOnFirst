@@ -42,7 +42,7 @@ jobs:
       # that to lines this PR adds; existing alerts never fail it. .vale.ini picks the linted files.
       - name: Vale
         if: ${{ steps.changes.outputs.prose == 'true' }}
-        uses: errata-ai/vale-action@v3.0.0
+        uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
         with:
           version: 3.24.0
           files: .
