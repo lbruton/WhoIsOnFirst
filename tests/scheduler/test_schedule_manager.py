@@ -433,6 +433,68 @@ class TestCollectWeeklyDigestRecipients:
         # Escalation listing wins the label (collected first)
         assert recipients[0]["label"] == "Primary Escalation Contact"
 
+    def _set_digest_recipients(self, db_session, recipients):
+        from src.services.settings_service import SettingsService
+        SettingsService(db_session).set_digest_recipients(recipients)
+
+    def test_digest_only_recipient_included_without_escalation(self, db_session):
+        """WOF-50: digest-only recipients do not depend on escalation display."""
+        self._set_escalation(
+            db_session,
+            enabled=False,
+            primary_name="New Engineer",
+            primary_phone="+15554440004",
+        )
+        self._set_digest_recipients(
+            db_session, [{"name": "Team Manager", "phone": "+15554440010"}]
+        )
+
+        recipients = collect_weekly_digest_recipients(db_session)
+
+        assert recipients == [{
+            "name": "Team Manager",
+            "phone": "+15554440010",
+            "label": "Digest Recipient",
+        }]
+
+    def test_digest_only_recipient_collected_after_other_sources(self, db_session):
+        self._set_escalation(
+            db_session,
+            enabled=True,
+            primary_name="New Engineer",
+            primary_phone="+15554440004",
+        )
+        self._add_member(db_session, "Super Visor", "+15554440001", optin=True)
+        self._set_digest_recipients(
+            db_session, [{"name": "Team Manager", "phone": "+15554440010"}]
+        )
+
+        recipients = collect_weekly_digest_recipients(db_session)
+
+        assert [r["phone"] for r in recipients] == [
+            "+15554440004", "+15554440001", "+15554440010"
+        ]
+
+    def test_digest_only_recipient_deduped_against_escalation_and_member(self, db_session):
+        self._set_escalation(
+            db_session,
+            enabled=True,
+            primary_name="New Engineer",
+            primary_phone="+15554440004",
+        )
+        self._add_member(db_session, "Super Visor", "+15554440001", optin=True)
+        self._set_digest_recipients(db_session, [
+            {"name": "Engineer Again", "phone": "+15554440004"},
+            {"name": "Visor Again", "phone": "+15554440001"},
+        ])
+
+        recipients = collect_weekly_digest_recipients(db_session)
+
+        assert len(recipients) == 2
+        assert {r["label"] for r in recipients} == {
+            "Primary Escalation Contact", "Team Member Digest"
+        }
+
 
 # ---------------------------------------------------------------------------
 # trigger_weekly_summary_manually

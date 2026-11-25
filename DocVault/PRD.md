@@ -5,7 +5,7 @@ project: whoisonfirst
 source: migrated
 aliases: ["WhoIsOnFirst PRD"]
 created: "2025-11-21"
-updated: "2026-06-09"
+updated: "2026-11-25"
 migrated_from: "repo:docs/planning/PRD.md"
 ---
 
@@ -485,6 +485,12 @@ System shall send automated weekly SMS summary to escalation contacts every Mond
 - Log sends with category `escalation_weekly`
 - Settings modal toggle to enable/disable weekly summary
 - Manual "Send Test Weekly Summary" button for testing
+
+**Recipients (WOF-10, WOF-50):** the digest goes to the union of three groups, deduped by phone:
+
+- Escalation contacts whose per-contact digest flag is on, while escalation display is on.
+- Active team members with `weekly_digest_optin` set on their profile.
+- Digest-only recipients: up to 10 people outside the rotation and the escalation pair, set in the Escalation Contacts modal (`weekly_digest_recipients` setting).
 
 **SMS Format Example:**
 ```

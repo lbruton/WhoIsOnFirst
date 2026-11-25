@@ -183,6 +183,44 @@ class TestEscalationDigestFlags:
         assert config["secondary_weekly_digest"] is False
 
 
+class TestDigestRecipients:
+    """WOF-50: digest-only recipients outside the rotation and escalation pair."""
+
+    def test_default_is_empty_list(self, service):
+        assert service.get_digest_recipients() == []
+
+    def test_round_trip_preserves_order(self, service):
+        recipients = [
+            {"name": "Team Manager", "phone": "+15554440010"},
+            {"name": "Ops Director", "phone": "+15554440011"},
+        ]
+        service.set_digest_recipients(recipients)
+        assert service.get_digest_recipients() == recipients
+
+    def test_set_empty_list_clears(self, service):
+        service.set_digest_recipients([{"name": "Team Manager", "phone": "+15554440010"}])
+        service.set_digest_recipients([])
+        assert service.get_digest_recipients() == []
+
+    def test_malformed_json_reads_as_empty(self, service):
+        service.repository.set_value("weekly_digest_recipients", "not-json{", "json")
+        assert service.get_digest_recipients() == []
+
+    def test_non_list_json_reads_as_empty(self, service):
+        service.repository.set_value("weekly_digest_recipients", '{"name": "x"}', "json")
+        assert service.get_digest_recipients() == []
+
+    def test_entries_missing_fields_are_skipped(self, service):
+        service.repository.set_value(
+            "weekly_digest_recipients",
+            '[{"name": "Team Manager", "phone": "+15554440010"}, {"name": "No Phone"}, "junk"]',
+            "json",
+        )
+        assert service.get_digest_recipients() == [
+            {"name": "Team Manager", "phone": "+15554440010"}
+        ]
+
+
 class TestSettingsRepr:
 
     def test_settings_repr(self, service):
